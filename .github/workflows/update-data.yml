@@ -28,7 +28,7 @@ jobs:
 
           - name: guild
             script: scripts/update_guild.py
-            files: "_data/guild.yml _data/professions.yml"
+            files: "_data/guild.yml _data/professions.yml _data/raids.yml"
             message: "chore: update guild data"
 
           - name: characters

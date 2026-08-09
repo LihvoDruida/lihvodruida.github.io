@@ -17,6 +17,7 @@ BLIZZARD_TOKEN_URL = "https://oauth.battle.net/token"
 BLIZZARD_API_BASE = "https://{region}.api.blizzard.com"
 RAIDER_IO_GUILD_API_URL = "https://raider.io/api/v1/guilds/profile"
 RAIDER_IO_CHARACTER_API_URL = "https://raider.io/api/v1/characters/profile"
+RAIDER_IO_STATIC_DATA_URL = "https://raider.io/api/v1/raiding/static-data"
 
 # Public project configuration. These values are not secrets.
 WOW_REGION = "eu"
@@ -25,6 +26,25 @@ WOW_GUILD_NAME = "Mistblossom Vanguard"
 BLIZZARD_LOCALE = "en_US"
 OUTPUT_GUILD_FILE = Path("_data/guild.yml")
 OUTPUT_PROFESSIONS_FILE = Path("_data/professions.yml")
+OUTPUT_RAIDS_FILE = Path("_data/raids.yml")
+
+# Raider.IO нумерує доповнення порядковим номером: Legion 6, BfA 7,
+# Shadowlands 8, Dragonflight 9, The War Within 10, Midnight 11.
+# Перший id у списку вважається поточним доповненням.
+RAID_EXPANSION_IDS = [
+    int(value)
+    for value in os.getenv("RAID_EXPANSION_IDS", "11,10").split(",")
+    if value.strip()
+]
+
+EXPANSION_NAMES = {
+    6: "Legion",
+    7: "Battle for Azeroth",
+    8: "Shadowlands",
+    9: "Dragonflight",
+    10: "The War Within",
+    11: "Midnight",
+}
 
 # Secrets / tunables.
 BLIZZARD_CLIENT_ID = os.getenv("BLIZZARD_CLIENT_ID", "").strip()
@@ -276,6 +296,134 @@ def fetch_raider_guild(
     }
 
 
+def fetch_raid_static_data(
+    expansion_id: int,
+    session: requests.Session,
+) -> List[Dict[str, Any]]:
+    """Довідник рейдів одного доповнення: слаг, назва, боси, дати відкриття."""
+    params: Dict[str, Any] = {"expansion_id": expansion_id}
+    if RAIDERIO_ACCESS_KEY:
+        params["access_key"] = RAIDERIO_ACCESS_KEY
+
+    response = safe_get(session, RAIDER_IO_STATIC_DATA_URL, params=params)
+    if not response:
+        return []
+
+    if response.status_code != 200:
+        print(f"⚠️ Raider.IO static-data miss for expansion {expansion_id}: {response.status_code}")
+        return []
+
+    raids = (response.json() or {}).get("raids") or []
+    if not raids:
+        print(f"⚠️ Raider.IO returned no raids for expansion_id={expansion_id} — перевір RAID_EXPANSION_IDS")
+    return raids
+
+
+def build_raid_catalog(session: requests.Session) -> Dict[str, Dict[str, Any]]:
+    """Зводить рейди всіх налаштованих доповнень у плаский каталог за слагом."""
+    catalog: Dict[str, Dict[str, Any]] = {}
+
+    for order, expansion_id in enumerate(RAID_EXPANSION_IDS):
+        expansion_name = EXPANSION_NAMES.get(expansion_id, f"Expansion {expansion_id}")
+        raids = fetch_raid_static_data(expansion_id, session)
+        print(f"📚 {expansion_name} (id={expansion_id}): {len(raids)} raids")
+
+        for raid in raids:
+            slug = raid.get("slug")
+            if not slug:
+                continue
+
+            catalog[slug] = {
+                "name": raid.get("name"),
+                "short_name": raid.get("short_name"),
+                "expansion": expansion_name,
+                "expansion_id": expansion_id,
+                "is_current_expansion": order == 0,
+                "bosses": len(raid.get("encounters") or []),
+                "starts_eu": (raid.get("starts") or {}).get("eu"),
+                "ends_eu": (raid.get("ends") or {}).get("eu"),
+            }
+
+        time.sleep(REQUEST_DELAY_SECONDS)
+
+    return catalog
+
+
+def clean_raid_progression(progression: Dict[str, Any]) -> Dict[str, Any]:
+    """Викидає записи без босів — Raider.IO іноді віддає порожні заглушки."""
+    cleaned: Dict[str, Any] = {}
+    for slug, stats in (progression or {}).items():
+        if not isinstance(stats, dict):
+            continue
+        if int(stats.get("total_bosses") or 0) <= 0:
+            print(f"   ↷ Пропущено рейд без босів: {slug}")
+            continue
+        cleaned[slug] = stats
+    return cleaned
+
+
+def merge_raids_file(
+    catalog: Dict[str, Dict[str, Any]],
+    progression: Dict[str, Any],
+    timestamp: str,
+) -> Optional[Dict[str, Any]]:
+    """
+    Оновлює _data/raids.yml, не чіпаючи ручну частину.
+
+    Автоматично: catalog, unassigned, metadata і назви для нових слагів.
+    Вручну (ніколи не перезаписується): current_season, seasons і вже
+    наявні записи в names — там лежать українські підписи.
+    """
+    existing: Dict[str, Any] = {}
+    if OUTPUT_RAIDS_FILE.exists():
+        try:
+            with OUTPUT_RAIDS_FILE.open("r", encoding="utf-8") as fh:
+                existing = yaml.safe_load(fh) or {}
+        except (OSError, yaml.YAMLError) as exc:
+            print(f"⚠️ Не вдалося прочитати {OUTPUT_RAIDS_FILE}: {exc}")
+            return None
+
+    seasons = existing.get("seasons") or []
+    names: Dict[str, Any] = dict(existing.get("names") or {})
+
+    assigned = {slug for season in seasons for slug in (season.get("raids") or [])}
+
+    # Назви для рейдів, яких ще немає в довіднику. Наявні підписи не чіпаємо.
+    for slug, meta in catalog.items():
+        if slug in names:
+            continue
+        subtitle_parts = [meta["expansion"]]
+        if meta["bosses"]:
+            subtitle_parts.append(f"{meta['bosses']} босів")
+        names[slug] = {
+            "title": meta["name"] or slug.replace("-", " ").title(),
+            "subtitle": " · ".join(subtitle_parts),
+        }
+        print(f"   ＋ Додано назву для нового рейду: {slug}")
+
+    # Слаги з прогресу, які ще не розкладені по сезонах.
+    unassigned = sorted(slug for slug in progression if slug not in assigned)
+    if unassigned:
+        print("⚠️ Ці рейди ще не прив'язані до сезону в _data/raids.yml:")
+        for slug in unassigned:
+            hint = catalog.get(slug, {}).get("expansion", "невідоме доповнення")
+            print(f"     • {slug} ({hint})")
+
+    payload: Dict[str, Any] = {
+        "metadata": {
+            "updated_at": timestamp,
+            "source": "Raider.IO Raiding Static Data API",
+            "expansion_ids": RAID_EXPANSION_IDS,
+        },
+        "current_season": existing.get("current_season"),
+        "seasons": seasons,
+        "names": names,
+        "catalog": catalog,
+        "unassigned": unassigned,
+    }
+    return payload
+
+
 def fetch_raider_character(
     region: str,
     realm_slug: str,
@@ -329,7 +477,7 @@ def fetch_raider_character(
 # ------------------------------------------------------------
 # BUILD OUTPUT
 # ------------------------------------------------------------
-def build_outputs() -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
+def build_outputs() -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
     ctx = ApiContext(session=build_session())
     realm_slug = slugify(WOW_REALM)
     guild_slug = slugify(WOW_GUILD_NAME)
@@ -340,10 +488,21 @@ def build_outputs() -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]
     print(f"👥 Fetching Blizzard guild roster for {WOW_GUILD_NAME}...")
     roster = fetch_guild_roster(ctx, realm_slug, guild_slug)
     if not roster:
-        return None, None
+        return None, None, None
 
     print(f"🔗 Fetching Raider.IO guild profile URL for {WOW_GUILD_NAME}...")
     raider_guild = fetch_raider_guild(WOW_REGION, realm_slug, WOW_GUILD_NAME, ctx.session)
+
+    print("🐉 Fetching Raider.IO raid static data...")
+    raid_catalog = build_raid_catalog(ctx.session)
+
+    raid_progression = clean_raid_progression((raider_guild or {}).get("raid_progression") or {})
+    raid_rankings = {
+        slug: ranks
+        for slug, ranks in ((raider_guild or {}).get("raid_rankings") or {}).items()
+        if slug in raid_progression
+    }
+    print(f"🐉 Raid progression entries kept: {len(raid_progression)}")
 
     guild_block = roster.get("guild", {}) or {}
     guild_realm = guild_block.get("realm", {}) or {}
@@ -453,8 +612,8 @@ def build_outputs() -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]
             "achievement_points": (guild_summary or {}).get("achievement_points"),
             "created_timestamp": (guild_summary or {}).get("created_timestamp"),
         },
-        "raid_progression": (raider_guild or {}).get("raid_progression") or {},
-        "raid_rankings": (raider_guild or {}).get("raid_rankings") or {},
+        "raid_progression": raid_progression,
+        "raid_rankings": raid_rankings,
         "members": processed_members,
     }
 
@@ -484,7 +643,9 @@ def build_outputs() -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]
         "characters": professions_characters,
     }
 
-    return guild_output, professions_output
+    raids_output = merge_raids_file(raid_catalog, raid_progression, timestamp)
+
+    return guild_output, professions_output, raids_output
 
 
 def write_yaml(path: Path, payload: Dict[str, Any]) -> None:
@@ -495,7 +656,7 @@ def write_yaml(path: Path, payload: Dict[str, Any]) -> None:
 
 
 def main() -> int:
-    guild_output, professions_output = build_outputs()
+    guild_output, professions_output, raids_output = build_outputs()
     if not guild_output or not professions_output:
         print("❌ Failed to build guild/professions payloads")
         return 1
@@ -503,11 +664,15 @@ def main() -> int:
     try:
         write_yaml(OUTPUT_GUILD_FILE, guild_output)
         write_yaml(OUTPUT_PROFESSIONS_FILE, professions_output)
+        if raids_output:
+            write_yaml(OUTPUT_RAIDS_FILE, raids_output)
+        else:
+            print("⚠️ Довідник рейдів не оновлено — залишено попередню версію")
     except OSError as exc:
         print(f"❌ Failed to write YAML: {exc}")
         return 1
 
-    print("🎉 Guild roster + professions export completed")
+    print("🎉 Guild roster + professions + raids export completed")
     return 0
 
 

@@ -2,9 +2,10 @@
 {% assign stats = include.stats %}
 {% assign rankings = include.rankings %}
 {% assign raid_name = site.data.raids.names[raid_slug] %}
+{% assign raid_static = site.data.raids.catalog[raid_slug] %}
 
-{% assign raid_title = raid_name.title | default: raid_slug | replace: '-', ' ' | capitalize %}
-{% assign raid_subtitle = raid_name.subtitle | default: include.fallback_subtitle | default: "Прогрес рейду" %}
+{% assign raid_title = raid_name.title | default: raid_static.name | default: raid_slug | replace: '-', ' ' | capitalize %}
+{% assign raid_subtitle = raid_name.subtitle | default: raid_static.expansion | default: include.fallback_subtitle | default: "Прогрес рейду" %}
 
 {% assign world_rank = '-' %}
 {% assign region_rank = '-' %}
