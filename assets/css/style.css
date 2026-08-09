@@ -23,10 +23,13 @@ a:active {
 
 /* Менше руху — якщо користувач просить */
 @media (prefers-reduced-motion: reduce) {
-    * {
-        animation: none !important;
-        transition: none !important;
-        transform: none !important;
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
     }
 }
 
@@ -52,14 +55,11 @@ select {
    2. GLOBAL VARIABLES & SETTINGS
    ========================================= */
 :root {
+    /* Кольори, радіуси, тіні й тайминги живуть у base/variables.css.
+       Тут лишаються тільки шрифти та z-index. */
     --font-sans: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --font-display: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --orange-light: #ffb26a;
-    --orange-main:  #ff9b55;
-    --orange-dark:  #ff7a2f;
-
-    --transition-fast:   all .25s ease;
-    --transition-medium: all .35s ease;
+    --font-brand: "Cinzel", "Playfair Display", Georgia, "Times New Roman", serif;
 
     --z-dropdown: 1000;
     --z-navbar:   9999;
@@ -85,7 +85,7 @@ html {
 
 body {
     font-family: var(--font-sans);
-    background: radial-gradient(circle at top, #2a2118, var(--bg));
+    background: var(--bg-page-gradient);
     color: var(--text);
     min-height: 100vh;
     touch-action: manipulation;
@@ -164,8 +164,8 @@ h1, h2, h3, #navigation-links {
     font-weight: 700;
 }
 h1, h2, h3 {
-    color: #ebf7ff; 
-    background: linear-gradient(to bottom, #f5fbff 0%, #bfe6ff 100%);
+    color: var(--c-ink-100);
+    background: linear-gradient(to bottom, var(--c-ink-100) 0%, var(--c-accent-200) 100%);
     background-clip: text;
     -webkit-background-clip: text;
     position: relative;

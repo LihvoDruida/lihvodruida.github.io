@@ -1,17 +1,18 @@
 :root {
-  --bg-dark: #0f1115;
-  --bg-card: #161920;
-  --bg-card-hover: #1c2029;
-  --gold-primary: #d4a03d;
-  --gold-glow: rgba(212, 160, 61, 0.15);
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --text-white: #ffffff;
-  --text-grey: #8a8d95;
-  
+  /* Раніше цей блок перевизначав глобальні --border-subtle і --text-grey
+     холодними значеннями, тому сторінка гільдії «випадала» з гами сайту.
+     Тепер усе тягнеться з base/variables.css. */
+  --bg-dark: var(--c-base-900);
+  --bg-card: var(--c-base-600);
+  --bg-card-hover: var(--c-base-500);
+  --gold-primary: var(--c-gold-400);
+  --gold-glow: rgba(200, 155, 60, 0.15);
+  --text-white: var(--text-strong);
+
   /* Difficulty Colors */
-  --diff-mythic: #a335ee;
-  --diff-heroic: #0070dd;
-  --diff-normal: #1eff00;
+  --diff-mythic: var(--c-diff-mythic);
+  --diff-heroic: var(--c-diff-heroic);
+  --diff-normal: var(--c-diff-normal);
 
   /* Class Colors */
   --class-dk:       #C41E3A;
@@ -178,9 +179,9 @@
 }
 
 .faction-alliance {
-  color: #8fc2ff;
-  background: rgba(0, 120, 255, 0.12);
-  border-color: rgba(0, 120, 255, 0.22);
+  color: var(--c-info);
+  background: color-mix(in srgb, var(--c-info) 14%, transparent);
+  border-color: color-mix(in srgb, var(--c-info) 26%, transparent);
 }
 
 .faction-horde {
@@ -792,7 +793,7 @@
   .progress-track {
     height: 9px;
   }}
-.tank-header { color: #6db4ff; border-color: #6db4ff; }
+.tank-header { color: var(--c-role-tank); border-color: var(--c-role-tank); }
 .heal-header { color: #4eff4e; border-color: #4eff4e; }
 .dps-header { color: #ff6e6e; border-color: #ff6e6e; }
 .other-header { color: #9e9e9e; border-color: #9e9e9e; }
@@ -1095,9 +1096,9 @@
 
 /* --- GUILD STATS SECTION --- */
 .chart-glow {
-  color: #7fd4ff;
-  border-color: rgba(127, 212, 255, 0.28);
-  background: radial-gradient(circle, rgba(127, 212, 255, 0.14) 0%, transparent 72%);
+  color: var(--c-gold-300);
+  border-color: rgba(255, 216, 137, 0.28);
+  background: radial-gradient(circle, rgba(255, 216, 137, 0.14) 0%, transparent 72%);
 }
 
 .stats-live-badge {
@@ -1883,9 +1884,9 @@
 }
 
 .roster-table-wrap {
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 16px;
-  background: rgba(20, 16, 13, 0.55);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
 }
 
 .roster-table {
@@ -1919,17 +1920,17 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--orange-light, #ffb26a);
-  background: rgba(28, 21, 16, 0.97);
+  color: var(--c-accent-300);
+  background: rgba(26, 21, 17, 0.97);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 178, 106, 0.16);
+  border-bottom: 1px solid var(--border-strong);
   white-space: nowrap;
 }
 
 .roster-table tbody td {
   padding: 10px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.045);
+  border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
 }
 
@@ -1938,7 +1939,7 @@
 }
 
 .roster-row:hover {
-  background: rgba(255, 178, 106, 0.045);
+  background: var(--surface-hover);
 }
 
 .roster-row:last-child td {
@@ -1965,9 +1966,9 @@
   color: var(--muted, #9c948a);
 }
 
-.roster-row:nth-child(1) .rr-pos-value { color: #ffd166; }
-.roster-row:nth-child(2) .rr-pos-value { color: #d8dee9; }
-.roster-row:nth-child(3) .rr-pos-value { color: #d08b52; }
+.roster-row:nth-child(1) .rr-pos-value { color: var(--c-gold-300); }
+.roster-row:nth-child(2) .rr-pos-value { color: var(--c-ink-300); }
+.roster-row:nth-child(3) .rr-pos-value { color: var(--c-accent-600); }
 
 /* --- Персонаж --- */
 .rr-char {
@@ -1985,8 +1986,8 @@
   flex: 0 0 auto;
   border-radius: 10px;
   object-fit: cover;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
 }
 
 .rr-avatar-empty {
@@ -2024,7 +2025,7 @@
 
 .rr-officer {
   display: inline-flex;
-  color: #ffc773;
+  color: var(--c-gold-300);
 }
 
 .rr-officer svg {
@@ -2037,7 +2038,7 @@
   font-weight: 500;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: #7b7268;
+  color: var(--text-faint);
 }
 
 /* --- Клас / спек --- */
@@ -2069,7 +2070,7 @@
 
 .rr-spec-name {
   font-size: 11.5px;
-  color: #8b8279;
+  color: var(--text-muted);
 }
 
 /* --- Роль --- */
@@ -2085,27 +2086,27 @@
 }
 
 .rr-role-chip.is-tank {
-  color: #7fb3ff;
-  background: rgba(90, 140, 255, 0.12);
-  border-color: rgba(90, 140, 255, 0.28);
+  color: var(--c-role-tank);
+  background: color-mix(in srgb, var(--c-role-tank) 14%, transparent);
+  border-color: color-mix(in srgb, var(--c-role-tank) 30%, transparent);
 }
 
 .rr-role-chip.is-healer {
-  color: #74d69a;
-  background: rgba(76, 175, 110, 0.12);
-  border-color: rgba(76, 175, 110, 0.28);
+  color: var(--c-role-healer);
+  background: color-mix(in srgb, var(--c-role-healer) 14%, transparent);
+  border-color: color-mix(in srgb, var(--c-role-healer) 30%, transparent);
 }
 
 .rr-role-chip.is-dps {
-  color: #ff9b8a;
-  background: rgba(255, 110, 90, 0.12);
-  border-color: rgba(255, 110, 90, 0.26);
+  color: var(--c-role-dps);
+  background: color-mix(in srgb, var(--c-role-dps) 14%, transparent);
+  border-color: color-mix(in srgb, var(--c-role-dps) 30%, transparent);
 }
 
 .rr-role-chip.is-none {
-  color: #8b8279;
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  background: var(--surface);
+  border-color: var(--border-subtle);
 }
 
 /* --- Цифри --- */
@@ -2119,7 +2120,7 @@
   width: 84px;
   font-size: 13.5px;
   font-weight: 600;
-  color: #cfc7bd;
+  color: var(--text-soft);
 }
 
 .rr-rio {
@@ -2129,10 +2130,12 @@
 .rr-rio-value {
   font-size: 15px;
   font-weight: 700;
+  /* колір приходить інлайном з Raider.IO — приглушуємо під гаму сайту */
+  filter: saturate(0.78) brightness(1.04);
 }
 
 .rr-dash {
-  color: #5d564e;
+  color: var(--c-ink-600);
 }
 
 .rr-sort-arrow {
@@ -2151,10 +2154,10 @@
 
 .roster-more-button {
   padding: 10px 24px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 178, 106, 0.28);
-  background: rgba(255, 178, 106, 0.08);
-  color: var(--orange-light, #ffb26a);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-strong);
+  background: var(--accent-soft);
+  color: var(--c-accent-300);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -2163,8 +2166,8 @@
 }
 
 .roster-more-button:hover {
-  background: rgba(255, 178, 106, 0.16);
-  border-color: rgba(255, 178, 106, 0.45);
+  background: color-mix(in srgb, var(--c-accent-400) 18%, transparent);
+  border-color: var(--accent-ring);
 }
 
 .roster-more-note {
@@ -2219,9 +2222,9 @@
     gap: 4px 12px;
     margin-bottom: 8px;
     padding: 12px 14px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 14px;
-    background: rgba(28, 22, 18, 0.5);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--surface);
   }
 
   .roster-row:hover {
@@ -2312,14 +2315,14 @@
 }
 
 .season-tab:hover {
-  color: #f0e9e1;
-  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-strong);
+  background: var(--surface-hover);
 }
 
 .season-tab.is-active {
-  color: #fff;
-  background: linear-gradient(135deg, rgba(255, 155, 85, 0.9), rgba(214, 111, 46, 0.9));
-  box-shadow: 0 8px 22px -12px rgba(255, 155, 85, 0.9);
+  color: var(--text-strong);
+  background: var(--accent-gradient);
+  box-shadow: 0 8px 22px -12px var(--accent-ring);
 }
 
 .season-tab-flag {
@@ -2361,7 +2364,7 @@
 .season-summary-title {
   font-size: 14.5px;
   font-weight: 700;
-  color: #f0e9e1;
+  color: var(--text-strong);
 }
 
 .season-badge {
@@ -2377,9 +2380,9 @@
 }
 
 .season-badge.is-current {
-  color: #ffc08a;
-  background: rgba(255, 155, 85, 0.12);
-  border-color: rgba(255, 155, 85, 0.32);
+  color: var(--c-accent-200);
+  background: var(--accent-soft);
+  border-color: var(--border-strong);
 }
 
 .season-summary-stats {
@@ -2405,9 +2408,20 @@
   font-weight: 800;
 }
 
-.season-stat.is-mythic { color: #d3a3ff; border-color: rgba(180, 120, 255, 0.24); }
-.season-stat.is-heroic { color: #7fb3ff; border-color: rgba(90, 140, 255, 0.24); }
-.season-stat.is-normal { color: #74d69a; border-color: rgba(76, 175, 110, 0.24); }
+.season-stat.is-mythic {
+  color: var(--c-diff-mythic);
+  border-color: color-mix(in srgb, var(--c-diff-mythic) 26%, transparent);
+}
+
+.season-stat.is-heroic {
+  color: var(--c-diff-heroic);
+  border-color: color-mix(in srgb, var(--c-diff-heroic) 26%, transparent);
+}
+
+.season-stat.is-normal {
+  color: var(--c-diff-normal);
+  border-color: color-mix(in srgb, var(--c-diff-normal) 26%, transparent);
+}
 
 /* --- Порожній стан --- */
 .raid-card.placeholder-card {

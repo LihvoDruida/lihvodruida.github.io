@@ -9,22 +9,23 @@
   --nav-inset: 16px;
   --nav-space: calc(var(--nav-h) + var(--nav-inset) * 2);
 
-  /* Палітра (холодний нічний синій, як на референсі) */
-  --nav-surface: rgba(12, 17, 26, 0.82);
-  --nav-surface-solid: rgba(9, 13, 21, 0.94);
-  --nav-panel: rgba(10, 14, 22, 0.97);
-  --nav-line: rgba(150, 178, 216, 0.14);
-  --nav-line-soft: rgba(180, 205, 240, 0.10);
+  /* Палітра береться з base/variables.css — навігація тепер у тій самій
+     теплій гамі, що й решта сайту. Локальні імена лишені для читабельності. */
+  --nav-surface: rgba(26, 21, 17, 0.82);
+  --nav-surface-solid: rgba(18, 15, 12, 0.95);
+  --nav-panel: rgba(20, 16, 13, 0.97);
+  --nav-line: var(--border);
+  --nav-line-soft: var(--border-subtle);
 
-  --nav-ink: #e9eff8;
-  --nav-muted: #8996ab;
-  --nav-dim: #64748b;
-  --nav-accent: #ffb26a;
+  --nav-ink: var(--text-strong);
+  --nav-muted: var(--text-muted);
+  --nav-dim: var(--text-faint);
+  --nav-accent: var(--c-accent-300);
 
-  --nav-shadow: 0 24px 50px -24px rgba(0, 0, 0, 0.95), 0 2px 12px rgba(0, 0, 0, 0.35);
-  --nav-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --nav-shadow: var(--shadow-lg), 0 2px 12px rgba(0, 0, 0, 0.35);
+  --nav-ease: var(--ease-out);
 
-  --nav-font-brand: "Cinzel", "Playfair Display", Georgia, "Times New Roman", serif;
+  --nav-font-brand: var(--font-brand);
 }
 
 /* Обгортка <aside> не бере участі в лейауті */
@@ -73,7 +74,7 @@
 /* Щільніший фон під час скролу */
 .sidebar.is-scrolled .site-nav__shell {
   background: var(--nav-surface-solid);
-  border-color: rgba(160, 190, 230, 0.18);
+  border-color: var(--border-strong);
   box-shadow: 0 18px 40px -20px rgba(0, 0, 0, 0.9);
 }
 
@@ -99,7 +100,7 @@
 }
 
 .site-nav__brand:hover {
-  color: #fff;
+  color: var(--c-accent-200);
 }
 
 /* ---------- Розділювач ---------- */
@@ -150,7 +151,7 @@
 .nav-item:hover,
 .nav-item:focus-visible {
   color: var(--nav-ink);
-  background: rgba(255, 255, 255, 0.055);
+  background: var(--surface-hover);
 }
 
 .nav-item:hover svg,
@@ -160,8 +161,8 @@
 }
 
 .nav-item[aria-current="page"] {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-strong);
+  background: var(--accent-soft);
 }
 
 .nav-item[aria-current="page"] svg {
@@ -179,7 +180,7 @@
   border-radius: 2px;
   transform: translateX(-50%);
   background: var(--nav-accent);
-  box-shadow: 0 0 10px rgba(255, 178, 106, 0.65);
+  box-shadow: 0 0 10px var(--accent-ring);
 }
 
 /* ---------- Блок гільдії (аватар + меню) ---------- */
@@ -206,7 +207,7 @@
 
 .nav-account__btn:hover,
 .nav-account.is-open .nav-account__btn {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--surface-hover);
 }
 
 .nav-account__avatar {
@@ -215,9 +216,9 @@
   flex: 0 0 auto;
   border-radius: 999px;
   object-fit: cover;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 0 0 3px rgba(255, 178, 106, 0.09);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .nav-account__meta {
@@ -232,7 +233,7 @@
 .nav-account__name {
   font-size: 12.5px;
   font-weight: 700;
-  color: #f2f6fc;
+  color: var(--text-strong);
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
@@ -298,6 +299,7 @@
 }
 
 .nav-account__menu a {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -305,7 +307,7 @@
   min-width: 0;
   padding: 10px 12px;
   border-radius: 12px;
-  color: #cdd7e6;
+  color: var(--text-soft);
   text-decoration: none;
   font-size: 13.5px;
   font-weight: 500;
@@ -322,8 +324,8 @@
 
 .nav-account__menu a:hover,
 .nav-account__menu a:focus-visible {
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
+  background: var(--surface-hover);
+  color: var(--text-strong);
   transform: translateX(3px);
 }
 
@@ -332,8 +334,8 @@
 }
 
 .nav-account__menu a.is-discord:hover {
-  background: rgba(88, 101, 242, 0.16);
-  color: #cdd3ff;
+  background: color-mix(in srgb, var(--c-discord) 18%, transparent);
+  color: #d6daff;
 }
 
 /* ---------- Бургер ---------- */
@@ -358,7 +360,7 @@
 
 .nav-burger:hover,
 .nav-burger.is-active {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--surface-hover);
 }
 
 .nav-burger__bars,
@@ -394,7 +396,7 @@
   padding: calc(var(--nav-space) + 8px) 16px calc(32px + env(safe-area-inset-bottom));
   overflow-y: auto;
   overscroll-behavior: contain;
-  background: rgba(8, 11, 18, 0.94);
+  background: rgba(14, 11, 8, 0.95);
   backdrop-filter: blur(22px) saturate(1.15);
   -webkit-backdrop-filter: blur(22px) saturate(1.15);
   opacity: 0;
@@ -437,8 +439,8 @@
   padding: 0 18px;
   border-radius: 16px;
   border: 1px solid var(--nav-line-soft);
-  background: rgba(255, 255, 255, 0.028);
-  color: #d5dde9;
+  background: var(--surface);
+  color: var(--text-soft);
   text-decoration: none;
   font-size: 15px;
   font-weight: 600;
@@ -458,9 +460,9 @@
 }
 
 .nav-sheet__link[aria-current="page"] {
-  color: #fff;
-  border-color: rgba(255, 178, 106, 0.32);
-  background: rgba(255, 178, 106, 0.09);
+  color: var(--text-strong);
+  border-color: var(--border-strong);
+  background: var(--accent-soft);
 }
 
 .nav-sheet__link[aria-current="page"] svg {
@@ -570,5 +572,240 @@ body.nav-open {
   .nav-burger__bars::before,
   .nav-burger__bars::after {
     transition: none;
+  }
+}
+
+/* =========================================================
+   АНІМАЦІЇ НАВІГАЦІЇ
+   ========================================================= */
+
+/* --- Поява панелі при завантаженні сторінки --- */
+@keyframes nav-drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.site-nav__shell {
+  animation: nav-drop-in var(--dur-slow) var(--ease-spring) both;
+}
+
+/* --- Пункти проявляються каскадом услід за панеллю --- */
+@keyframes nav-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.site-nav__brand,
+.site-nav__rule,
+.site-nav__links .nav-item,
+.nav-account {
+  animation: nav-item-in var(--dur-base) var(--ease-out) both;
+}
+
+.site-nav__brand { animation-delay: 0.10s; }
+.site-nav__rule  { animation-delay: 0.14s; }
+.nav-item:nth-child(1) { animation-delay: 0.18s; }
+.nav-item:nth-child(2) { animation-delay: 0.22s; }
+.nav-item:nth-child(3) { animation-delay: 0.26s; }
+.nav-item:nth-child(4) { animation-delay: 0.30s; }
+.nav-item:nth-child(5) { animation-delay: 0.34s; }
+.nav-item:nth-child(6) { animation-delay: 0.38s; }
+.nav-account { animation-delay: 0.42s; }
+
+/* --- Підсвітка пункту виїжджає знизу, а не просто з'являється --- */
+.nav-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--surface-hover);
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity var(--dur-fast) var(--ease-out),
+              transform var(--dur-fast) var(--ease-spring);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.nav-item:hover::before,
+.nav-item:focus-visible::before {
+  opacity: 1;
+  transform: none;
+}
+
+/* Фон уже малює ::before — прибираємо дубль, щоб не було двох шарів */
+.nav-item:hover,
+.nav-item:focus-visible {
+  background: transparent;
+}
+
+.nav-item > svg,
+.nav-item > span {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- Риска активного пункту розтягується з центру --- */
+.nav-item[aria-current="page"]::after {
+  animation: nav-underline-grow var(--dur-base) var(--ease-spring) both;
+  animation-delay: 0.45s;
+}
+
+@keyframes nav-underline-grow {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 14px;
+    opacity: 1;
+  }
+}
+
+/* --- Іконки трохи «дихають» при наведенні --- */
+.nav-item:hover svg {
+  animation: nav-icon-pop var(--dur-base) var(--ease-spring);
+}
+
+@keyframes nav-icon-pop {
+  0%   { transform: translateY(0) scale(1); }
+  45%  { transform: translateY(-3px) scale(1.12); }
+  100% { transform: translateY(-1px) scale(1); }
+}
+
+/* --- Бренд: м'який бурштиновий відблиск на наведенні --- */
+.site-nav__brand-text {
+  background-image: linear-gradient(
+    100deg,
+    currentColor 0%,
+    currentColor 40%,
+    var(--c-accent-200) 50%,
+    currentColor 60%,
+    currentColor 100%
+  );
+  background-size: 250% 100%;
+  background-position: 150% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.site-nav__brand:hover .site-nav__brand-text {
+  animation: nav-brand-sheen 0.9s var(--ease-in-out);
+}
+
+@keyframes nav-brand-sheen {
+  from { background-position: 150% 0; }
+  to   { background-position: -50% 0; }
+}
+
+/* --- Аватар гільдії злегка повертається при наведенні --- */
+.nav-account__avatar {
+  transition: transform var(--dur-base) var(--ease-spring),
+              box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.nav-account__btn:hover .nav-account__avatar {
+  transform: scale(1.07) rotate(-3deg);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+/* --- Пункти випадного меню виїжджають каскадом --- */
+.nav-account.is-open .nav-account__menu a {
+  animation: nav-item-in var(--dur-fast) var(--ease-out) both;
+}
+
+.nav-account.is-open .nav-account__menu a:nth-of-type(1) { animation-delay: 0.04s; }
+.nav-account.is-open .nav-account__menu a:nth-of-type(2) { animation-delay: 0.08s; }
+.nav-account.is-open .nav-account__menu a:nth-of-type(3) { animation-delay: 0.12s; }
+.nav-account.is-open .nav-account__menu a:nth-of-type(4) { animation-delay: 0.16s; }
+
+/* --- Рядки мобільної панелі виїжджають знизу --- */
+@keyframes nav-sheet-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.nav-sheet.is-open .nav-sheet__link {
+  animation: nav-sheet-row-in var(--dur-base) var(--ease-out) both;
+}
+
+.nav-sheet.is-open .nav-sheet__link:nth-of-type(1) { animation-delay: 0.05s; }
+.nav-sheet.is-open .nav-sheet__link:nth-of-type(2) { animation-delay: 0.09s; }
+.nav-sheet.is-open .nav-sheet__link:nth-of-type(3) { animation-delay: 0.13s; }
+.nav-sheet.is-open .nav-sheet__link:nth-of-type(4) { animation-delay: 0.17s; }
+.nav-sheet.is-open .nav-sheet__link:nth-of-type(5) { animation-delay: 0.21s; }
+.nav-sheet.is-open .nav-sheet__link:nth-of-type(6) { animation-delay: 0.25s; }
+.nav-sheet.is-open .nav-sheet__link:nth-of-type(n + 7) { animation-delay: 0.29s; }
+
+.nav-sheet.is-open .nav-sheet__group {
+  animation: nav-item-in var(--dur-fast) var(--ease-out) both;
+}
+
+/* --- Смужки бургера: середня зникає, крайні сходяться в хрест --- */
+.nav-burger__bars,
+.nav-burger__bars::before,
+.nav-burger__bars::after {
+  transition: transform var(--dur-base) var(--ease-spring),
+              background-color var(--dur-fast) var(--ease-out),
+              width var(--dur-fast) var(--ease-out);
+}
+
+.nav-burger:hover .nav-burger__bars::before {
+  transform: translateY(-7px);
+}
+
+.nav-burger:hover .nav-burger__bars::after {
+  transform: translateY(7px);
+}
+
+.nav-burger.is-active:hover .nav-burger__bars::before {
+  transform: rotate(45deg);
+}
+
+.nav-burger.is-active:hover .nav-burger__bars::after {
+  transform: rotate(-45deg);
+}
+
+/* --- Хто просить менше руху — отримує статику, але не зламану верстку --- */
+@media (prefers-reduced-motion: reduce) {
+  .site-nav__shell,
+  .site-nav__brand,
+  .site-nav__rule,
+  .site-nav__links .nav-item,
+  .nav-account,
+  .nav-item[aria-current="page"]::after,
+  .nav-account.is-open .nav-account__menu a,
+  .nav-sheet.is-open .nav-sheet__link,
+  .nav-sheet.is-open .nav-sheet__group {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .nav-item[aria-current="page"]::after {
+    width: 14px;
+    transform: translateX(-50%);
+  }
+
+  .nav-account__btn:hover .nav-account__avatar {
+    transform: none;
   }
 }

@@ -3,24 +3,18 @@
    ========================================= */
 :root {
   /* Colors */
-  --news-primary:       #e28552;
-  --news-primary-light: #e79e6f;
-  --news-accent:        #c89b3c;
+  --news-primary:       var(--c-accent-400);
+  --news-primary-light: var(--c-accent-300);
+  --news-accent:        var(--c-gold-400);
   
-  /* Backgrounds */
-  --bg-card:       rgba(33, 27, 23, 0.95);
-  --bg-card-dark:  #1a1714;
-  
-  /* Borders & Shadows */
-  --border-color:  rgba(226, 133, 82, 0.15);
-  --border-light:  rgba(255, 255, 255, 0.05);
-  --shadow-sm:     0 10px 30px rgba(0,0,0,0.3);
-  --shadow-lg:     0 20px 50px rgba(0,0,0,0.5);
+  /* Локальні аліаси. Раніше цей блок перевизначав глобальні
+     --text-primary / --text-secondary / --text-muted / --shadow-*
+     і зсував типографіку новин відносно решти сайту. */
+  --news-card-bg:  var(--surface-raised);
+  --news-card-bg-dark: var(--c-base-700);
 
-  /* Typography */
-  --text-primary:   #fff;
-  --text-secondary: hsla(0, 0%, 100%, 0.7);
-  --text-muted:     #888;
+  --border-color:  var(--border-strong);
+  --border-light:  var(--border-subtle);
 }
 
 /* =========================================
@@ -83,7 +77,7 @@
 
 /* --- Featured Article (Hero) --- */
 .featured-article {
-  background: var(--bg-card);
+  background: var(--news-card-bg);
   display: grid;
   grid-template-columns: 400px 1fr; /* Image | Content */
   margin-bottom: 2.5rem;
@@ -161,7 +155,7 @@
 
 /* --- Grid Card Item --- */
 .visual-news-card {
-  background: var(--bg-card-dark);
+  background: var(--news-card-bg-dark);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -288,7 +282,7 @@
 
 /* --- Article Content Wrapper --- */
 .article-wrapper {
-  background: var(--bg-card);
+  background: var(--news-card-bg);
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-lg);
   backdrop-filter: blur(10px);

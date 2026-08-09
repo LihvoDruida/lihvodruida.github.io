@@ -21,7 +21,7 @@
     padding: 40px 30px;
     
     /* Dark background matching the screenshots */
-    background: radial-gradient(circle at top center, #1e222b, #11141a);
+    background: radial-gradient(circle at top center, var(--c-base-600), var(--c-base-850));
     
     /* Subtle border */
     border: 1px solid rgba(255, 255, 255, 0.08);
