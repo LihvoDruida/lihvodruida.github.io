@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -44,6 +45,31 @@ EXPANSION_NAMES = {
     9: "Dragonflight",
     10: "The War Within",
     11: "Midnight",
+}
+
+# Короткі коди для id сезонів: midnight-1, tww-3 тощо.
+EXPANSION_CODES = {
+    6: "legion",
+    7: "bfa",
+    8: "sl",
+    9: "df",
+    10: "tww",
+    11: "midnight",
+}
+
+# Raider.IO агрегує стартові рейди тиру в один слаг виду "tier-mn-1",
+# де середня частина — скорочення доповнення, а цифра — номер сезону.
+TIER_SLUG_RE = re.compile(r"^tier-(.+)-(\d+)$")
+
+TIER_ABBREVIATIONS = {
+    "mn": 11,
+    "midnight": 11,
+    "tww": 10,
+    "war-within": 10,
+    "df": 9,
+    "sl": 8,
+    "bfa": 7,
+    "legion": 6,
 }
 
 # Secrets / tunables.
@@ -362,6 +388,122 @@ def clean_raid_progression(progression: Dict[str, Any]) -> Dict[str, Any]:
     return cleaned
 
 
+def _season_windows(catalog: Dict[str, Dict[str, Any]], expansion_id: int) -> Dict[str, int]:
+    """
+    Розбиває рейди доповнення на сезони за датами відкриття.
+
+    Raider.IO дає для кожного рейду starts.eu і ends.eu. ends — це момент,
+    коли відкрився наступний тир, тому [starts, ends) і є вікном сезону.
+    Рейд, що стартував усередині чужого вікна (ювілейний Blackrock Depths,
+    односбосовий Sporefall), приєднується до того сезону, а не створює свій.
+    Повертає slug -> номер сезону, рахуючи з 1.
+    """
+    dated = [
+        (slug, meta)
+        for slug, meta in catalog.items()
+        if meta.get("expansion_id") == expansion_id and meta.get("starts_eu")
+    ]
+    dated.sort(key=lambda item: item[1]["starts_eu"])
+
+    windows: List[Dict[str, Any]] = []
+    for slug, meta in dated:
+        start = meta["starts_eu"]
+        placed = False
+        for window in windows:
+            inside_start = start >= window["start"]
+            inside_end = window["end"] is None or start < window["end"]
+            if inside_start and inside_end:
+                window["raids"].append(slug)
+                placed = True
+                break
+        if not placed:
+            windows.append({"start": start, "end": meta.get("ends_eu"), "raids": [slug]})
+
+    mapping: Dict[str, int] = {}
+    for number, window in enumerate(windows, start=1):
+        for slug in window["raids"]:
+            mapping[slug] = number
+    return mapping
+
+
+def derive_seasons(
+    catalog: Dict[str, Dict[str, Any]],
+    progression: Dict[str, Any],
+) -> Tuple[List[Dict[str, Any]], Optional[str], List[str]]:
+    """
+    Сам розкладає рейди з прогресу по доповненнях і сезонах.
+
+    Джерела:
+      • агрегати виду tier-mn-1 — доповнення й номер сезону читаються зі слага;
+      • звичайні рейди — доповнення з каталогу static-data, сезон із дат.
+
+    Повертає (сезони, id поточного сезону, нерозпізнані слаги).
+    """
+    windows_cache: Dict[int, Dict[str, int]] = {}
+    groups: Dict[Tuple[int, int], Dict[str, Any]] = {}
+    unknown: List[str] = []
+
+    for slug in progression:
+        expansion_id: Optional[int] = None
+        season_number: Optional[int] = None
+
+        match = TIER_SLUG_RE.match(slug)
+        if match:
+            abbreviation, number = match.group(1), int(match.group(2))
+            expansion_id = TIER_ABBREVIATIONS.get(abbreviation)
+            season_number = number
+            if expansion_id is None:
+                print(f"   ？ Невідоме скорочення доповнення у слазі {slug!r} — додай його в TIER_ABBREVIATIONS")
+
+        meta = catalog.get(slug)
+        if expansion_id is None and meta:
+            expansion_id = meta.get("expansion_id")
+            if expansion_id not in windows_cache:
+                windows_cache[expansion_id] = _season_windows(catalog, expansion_id)
+            season_number = windows_cache[expansion_id].get(slug)
+
+        if expansion_id is None or season_number is None:
+            unknown.append(slug)
+            continue
+
+        key = (expansion_id, season_number)
+        if key not in groups:
+            code = EXPANSION_CODES.get(expansion_id, f"exp{expansion_id}")
+            name = EXPANSION_NAMES.get(expansion_id, f"Expansion {expansion_id}")
+            groups[key] = {
+                "id": f"{code}-{season_number}",
+                "expansion": name,
+                "label": f"{name} · Сезон {season_number}",
+                "short": f"{code.upper()} S{season_number}",
+                "raids": [],
+            }
+        groups[key]["raids"].append(slug)
+
+    def raid_sort_key(slug: str) -> Tuple[int, str]:
+        # Агрегат тиру завжди перший, далі за датою відкриття.
+        if TIER_SLUG_RE.match(slug):
+            return (0, "")
+        return (1, (catalog.get(slug) or {}).get("starts_eu") or slug)
+
+    for group in groups.values():
+        group["raids"].sort(key=raid_sort_key)
+
+    ordered_keys = sorted(groups, key=lambda key: (key[0], key[1]), reverse=True)
+    seasons = [groups[key] for key in ordered_keys]
+
+    current_id: Optional[str] = None
+    if ordered_keys:
+        current_expansion = RAID_EXPANSION_IDS[0] if RAID_EXPANSION_IDS else ordered_keys[0][0]
+        for key in ordered_keys:
+            if key[0] == current_expansion:
+                current_id = groups[key]["id"]
+                break
+        if current_id is None:
+            current_id = groups[ordered_keys[0]]["id"]
+
+    return seasons, current_id, sorted(unknown)
+
+
 def merge_raids_file(
     catalog: Dict[str, Dict[str, Any]],
     progression: Dict[str, Any],
@@ -383,9 +525,17 @@ def merge_raids_file(
             print(f"⚠️ Не вдалося прочитати {OUTPUT_RAIDS_FILE}: {exc}")
             return None
 
-    seasons = existing.get("seasons") or []
+    manual_seasons = existing.get("seasons") or []
     names: Dict[str, Any] = dict(existing.get("names") or {})
 
+    derived_seasons, derived_current, unknown = derive_seasons(catalog, progression)
+    if derived_seasons:
+        labels = ", ".join(season["label"] for season in derived_seasons)
+        print(f"🗓️ Визначено сезонів автоматично: {len(derived_seasons)} — {labels}")
+        print(f"🗓️ Поточний сезон: {derived_current}")
+
+    # Ручний список має пріоритет; якщо його немає — працює автовизначення.
+    seasons = manual_seasons or derived_seasons
     assigned = {slug for season in seasons for slug in (season.get("raids") or [])}
 
     # Назви для рейдів, яких ще немає в довіднику. Наявні підписи не чіпаємо.
@@ -401,13 +551,16 @@ def merge_raids_file(
         }
         print(f"   ＋ Додано назву для нового рейду: {slug}")
 
-    # Слаги з прогресу, які ще не розкладені по сезонах.
+    # Слаги з прогресу, які не потрапили в жоден сезон.
     unassigned = sorted(slug for slug in progression if slug not in assigned)
     if unassigned:
-        print("⚠️ Ці рейди ще не прив'язані до сезону в _data/raids.yml:")
+        source = "ручному списку seasons" if manual_seasons else "автовизначенні"
+        print(f"⚠️ Ці рейди не прив'язані до сезону в {source}:")
         for slug in unassigned:
             hint = catalog.get(slug, {}).get("expansion", "невідоме доповнення")
             print(f"     • {slug} ({hint})")
+    if unknown:
+        print(f"⚠️ Не вдалося визначити доповнення/сезон для: {', '.join(unknown)}")
 
     payload: Dict[str, Any] = {
         "metadata": {
@@ -416,10 +569,13 @@ def merge_raids_file(
             "expansion_ids": RAID_EXPANSION_IDS,
         },
         "current_season": existing.get("current_season"),
-        "seasons": seasons,
+        "seasons": manual_seasons,
+        "derived_current_season": derived_current,
+        "derived_seasons": derived_seasons,
         "names": names,
         "catalog": catalog,
         "unassigned": unassigned,
+        "undetected": unknown,
     }
     return payload
 

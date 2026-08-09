@@ -109,13 +109,22 @@ extra_css:
 
     {% assign raid_meta = site.data.raids %}
     {% assign progression = guild_root.raid_progression %}
-    {% assign current_season_id = raid_meta.current_season %}
+
+    {% comment %}
+      Ручний список сезонів має пріоритет. Якщо його немає — беремо той,
+      що update_guild.py вирахував із доповнень і дат відкриття рейдів.
+    {% endcomment %}
+    {% assign raid_seasons = raid_meta.seasons %}
+    {% if raid_seasons == nil or raid_seasons.size == 0 %}
+      {% assign raid_seasons = raid_meta.derived_seasons %}
+    {% endif %}
+    {% assign current_season_id = raid_meta.current_season | default: raid_meta.derived_current_season %}
 
     {% comment %} Які сезони мають хоч один вбитий бос — щоб не малювати порожні вкладки {% endcomment %}
-    {% capture seasons_with_data %}{% for season in raid_meta.seasons %}{% assign season_kills = 0 %}{% for slug in season.raids %}{% assign st = progression[slug] %}{% if st %}{% assign k = st.normal_bosses_killed | plus: st.heroic_bosses_killed | plus: st.mythic_bosses_killed %}{% assign season_kills = season_kills | plus: k %}{% endif %}{% endfor %}{% if season_kills > 0 %}|{{ season.id }}|{% endif %}{% endfor %}{% endcapture %}
+    {% capture seasons_with_data %}{% for season in raid_seasons %}{% assign season_kills = 0 %}{% for slug in season.raids %}{% assign st = progression[slug] %}{% if st %}{% assign k = st.normal_bosses_killed | plus: st.heroic_bosses_killed | plus: st.mythic_bosses_killed %}{% assign season_kills = season_kills | plus: k %}{% endif %}{% endfor %}{% if season_kills > 0 %}|{{ season.id }}|{% endif %}{% endfor %}{% endcapture %}
 
     {% comment %} Слаги, які вже розписані по сезонах у _data/raids.yml {% endcomment %}
-    {% capture known_slugs %}{% for season in raid_meta.seasons %}{% for slug in season.raids %}|{{ slug }}|{% endfor %}{% endfor %}{% endcapture %}
+    {% capture known_slugs %}{% for season in raid_seasons %}{% for slug in season.raids %}|{{ slug }}|{% endfor %}{% endfor %}{% endcapture %}
 
     {% comment %} Рейди з нових тирів, яких ще немає в довіднику {% endcomment %}
     {% assign orphan_kills = 0 %}
@@ -130,7 +139,7 @@ extra_css:
     {% capture current_needle %}|{{ current_season_id }}|{% endcapture %}
 
     {% assign visible_seasons = 0 %}
-    {% for season in raid_meta.seasons %}
+    {% for season in raid_seasons %}
       {% capture season_needle %}|{{ season.id }}|{% endcapture %}
       {% if seasons_with_data contains season_needle or season.id == current_season_id %}
         {% assign visible_seasons = visible_seasons | plus: 1 %}
@@ -142,7 +151,7 @@ extra_css:
     <div class="raid-seasons" id="raid-seasons">
       {% if visible_seasons > 1 %}
       <div class="season-switcher" role="tablist" aria-label="Перемикач сезонів">
-        {% for season in raid_meta.seasons %}
+        {% for season in raid_seasons %}
           {% capture season_needle %}|{{ season.id }}|{% endcapture %}
           {% if seasons_with_data contains season_needle or season.id == current_season_id %}
             {% assign is_current = false %}
@@ -167,7 +176,7 @@ extra_css:
       </div>
       {% endif %}
 
-      {% for season in raid_meta.seasons %}
+      {% for season in raid_seasons %}
         {% capture season_needle %}|{{ season.id }}|{% endcapture %}
         {% if seasons_with_data contains season_needle or season.id == current_season_id %}
 
@@ -220,7 +229,9 @@ extra_css:
                 {% if stats and stats.total_bosses > 0 %}
                   {% assign raid_kills = stats.normal_bosses_killed | plus: stats.heroic_bosses_killed | plus: stats.mythic_bosses_killed %}
                   {% if raid_kills > 0 %}
-                    {% include raid-card.html slug=slug stats=stats rankings=guild_root.raid_rankings[slug] %}
+                    {% comment %} Jekyll не приймає [..] у параметрах include — виносимо в assign {% endcomment %}
+                    {% assign raid_ranks = guild_root.raid_rankings[slug] %}
+                    {% include raid-card.html slug=slug stats=stats rankings=raid_ranks %}
                   {% endif %}
                 {% endif %}
               {% endfor %}
@@ -243,10 +254,12 @@ extra_css:
           {% for raid in progression %}
             {% capture needle %}|{{ raid[0] }}|{% endcapture %}
             {% unless known_slugs contains needle %}
+              {% assign orphan_slug = raid[0] %}
               {% assign stats = raid[1] %}
               {% assign raid_kills = stats.normal_bosses_killed | plus: stats.heroic_bosses_killed | plus: stats.mythic_bosses_killed %}
               {% if stats.total_bosses > 0 and raid_kills > 0 %}
-                {% include raid-card.html slug=raid[0] stats=stats rankings=guild_root.raid_rankings[raid[0]] fallback_subtitle="Сезон ще не вказано в _data/raids.yml" %}
+                {% assign raid_ranks = guild_root.raid_rankings[orphan_slug] %}
+                {% include raid-card.html slug=orphan_slug stats=stats rankings=raid_ranks fallback_subtitle="Сезон ще не вказано в _data/raids.yml" %}
               {% endif %}
             {% endunless %}
           {% endfor %}
