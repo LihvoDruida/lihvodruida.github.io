@@ -10,9 +10,9 @@
     realm: Terokkar
   dps:
     score: 2140.7
-    color: '#5eff43'
+    color: '#57ff3c'
   healer:
-    score: 3171.2
+    score: 3188.2
     color: '#5565e2'
   tank:
     score: 0
@@ -29,7 +29,7 @@
     realm: Terokkar
   dps:
     score: 995.6
-    color: '#ccffb9'
+    color: '#caffb7'
   healer:
     score: 0
     color: '#ffffff'
@@ -44,11 +44,11 @@
   avatar: https://render.worldofwarcraft.com/eu/character/terokkar/58/182523706-avatar.jpg?alt=/wow/static/images/2d/avatar/4-0.jpg
   link: https://raider.io/characters/eu/terokkar/Sebas
   guild:
-    name: Ababagalamaga
-    realm: Ravencrest
+    name: Mistblossom Vanguard
+    realm: Terokkar
   dps:
-    score: 0
-    color: '#ffffff'
+    score: 2756.4
+    color: '#5da9a0'
   healer:
     score: 0
     color: '#ffffff'
