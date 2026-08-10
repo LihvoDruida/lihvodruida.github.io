@@ -1,81 +1,171 @@
-# Довідник рейдів і сезонів.
-#
-# Файл наполовину автоматичний. scripts/update_guild.py тягне довідник рейдів
-# з Raider.IO (/api/v1/raiding/static-data) і перезаписує ТІЛЬКИ ці ключі:
-#   metadata, catalog, derived_seasons, derived_current_season,
-#   unassigned, undetected, а також додає нові записи в names.
-# Ручні ключі, які скрипт ніколи не чіпає:
-#   current_season, seasons і вже наявні підписи в names.
-#
-# СЕЗОНИ ВИЗНАЧАЮТЬСЯ АВТОМАТИЧНО.
-# Скрипт сам розкладає рейди по доповненнях і сезонах:
-#   • агрегати виду "tier-mn-1" — доповнення й номер сезону читаються зі слага;
-#   • звичайні рейди — доповнення з каталогу, сезон із дат starts/ends.
-# Результат лягає в derived_seasons. Список seasons нижче — ручне
-# перевизначення: поки він непорожній, використовується саме він.
-# Щоб перейти на повну автоматику, очисти seasons і current_season
-# (після першої успішної синхронізації, щоб derived_seasons уже існували).
-#
-# Raider.IO віддає raid_progression як плаский словник {slug: {...}} без жодної
-# інформації про сезон, тому прив'язку робимо тут вручну.
-#
-# Як додати новий сезон (наприклад, коли вийде Midnight Season 2):
-#   1. Дізнатися slug нового тиру — він з'явиться сам у _data/guild.yml
-#      після наступної синхронізації (напр. "tier-mn-2").
-#   2. Додати сезон у початок списку seasons.
-#   3. Перевести current_season на його id.
-# Рейди з невідомим slug не зникають — вони автоматично потрапляють
-# у групу «Інші рейди» наприкінці списку.
-
+metadata:
+  updated_at: '2026-08-10 17:09:26'
+  source: Raider.IO Raiding Static Data API
+  expansion_ids:
+  - 11
+  - 10
 current_season: midnight-1
-
 seasons:
-  - id: midnight-1
-    expansion: Midnight
-    label: "Midnight · Сезон 1"
-    short: "Сезон 1"
-    raids:
-      - tier-mn-1
-      - sporefall
-
-  - id: tww-3
-    expansion: The War Within
-    label: "The War Within · Сезон 3"
-    short: "TWW S3"
-    raids:
-      - manaforge-omega
-
-  - id: tww-2
-    expansion: The War Within
-    label: "The War Within · Сезон 2"
-    short: "TWW S2"
-    raids:
-      - liberation-of-undermine
-
-  - id: tww-1
-    expansion: The War Within
-    label: "The War Within · Сезон 1"
-    short: "TWW S1"
-    raids:
-      - nerubar-palace
-      - blackrock-depths
-
+- id: midnight-1
+  expansion: Midnight
+  label: Midnight · Сезон 1
+  short: Сезон 1
+  raids:
+  - tier-mn-1
+  - sporefall
+- id: tww-3
+  expansion: The War Within
+  label: The War Within · Сезон 3
+  short: TWW S3
+  raids:
+  - manaforge-omega
+- id: tww-2
+  expansion: The War Within
+  label: The War Within · Сезон 2
+  short: TWW S2
+  raids:
+  - liberation-of-undermine
+- id: tww-1
+  expansion: The War Within
+  label: The War Within · Сезон 1
+  short: TWW S1
+  raids:
+  - nerubar-palace
+  - blackrock-depths
+derived_current_season: midnight-2
+derived_seasons:
+- id: midnight-2
+  expansion: Midnight
+  label: Midnight · Сезон 2
+  short: MIDNIGHT S2
+  raids:
+  - the-tidebound-grotto
+  - the-venomous-abyss
+- id: midnight-1
+  expansion: Midnight
+  label: Midnight · Сезон 1
+  short: MIDNIGHT S1
+  raids:
+  - tier-mn-1
+  - sporefall
+- id: tww-3
+  expansion: The War Within
+  label: The War Within · Сезон 3
+  short: TWW S3
+  raids:
+  - manaforge-omega
+- id: tww-2
+  expansion: The War Within
+  label: The War Within · Сезон 2
+  short: TWW S2
+  raids:
+  - liberation-of-undermine
+- id: tww-1
+  expansion: The War Within
+  label: The War Within · Сезон 1
+  short: TWW S1
+  raids:
+  - nerubar-palace
+  - blackrock-depths
 names:
   tier-mn-1:
-    title: "Стартові рейди Midnight"
-    subtitle: "Voidspire · Dreamrift · March on Quel'Danas"
+    title: Стартові рейди Midnight
+    subtitle: Voidspire · Dreamrift · March on Quel'Danas
   sporefall:
-    title: "Sporefall"
-    subtitle: "Rotmire — рейд на одного боса, патч 12.0.7"
+    title: Sporefall
+    subtitle: Rotmire — рейд на одного боса, патч 12.0.7
   manaforge-omega:
-    title: "Manaforge Omega"
-    subtitle: "Фінальний рейд The War Within"
+    title: Manaforge Omega
+    subtitle: Фінальний рейд The War Within
   liberation-of-undermine:
-    title: "Liberation of Undermine"
-    subtitle: "Рейд другого сезону The War Within"
+    title: Liberation of Undermine
+    subtitle: Рейд другого сезону The War Within
   nerubar-palace:
-    title: "Nerub-ar Palace"
-    subtitle: "Стартовий рейд The War Within"
+    title: Nerub-ar Palace
+    subtitle: Стартовий рейд The War Within
   blackrock-depths:
-    title: "Blackrock Depths"
-    subtitle: "Ювілейний рейд, патч 11.0.5"
+    title: Blackrock Depths
+    subtitle: Ювілейний рейд, патч 11.0.5
+  the-tidebound-grotto:
+    title: The Tidebound Grotto
+    subtitle: Midnight · 1 босів
+  the-venomous-abyss:
+    title: The Venomous Abyss
+    subtitle: Midnight · 8 босів
+catalog:
+  tier-mn-1:
+    name: MN Tier 1 (VS / DR / MQD)
+    short_name: VS/DR/MQD
+    expansion: Midnight
+    expansion_id: 11
+    is_current_expansion: true
+    bosses: 9
+    starts_eu: '2026-03-18T04:00:00Z'
+    ends_eu: '2026-08-19T04:00:00Z'
+  sporefall:
+    name: Sporefall
+    short_name: SF
+    expansion: Midnight
+    expansion_id: 11
+    is_current_expansion: true
+    bosses: 1
+    starts_eu: '2026-06-17T04:00:00Z'
+    ends_eu: '2026-08-19T04:00:00Z'
+  the-tidebound-grotto:
+    name: The Tidebound Grotto
+    short_name: TG
+    expansion: Midnight
+    expansion_id: 11
+    is_current_expansion: true
+    bosses: 1
+    starts_eu: '2026-08-19T04:00:00Z'
+    ends_eu: '2030-01-01T00:00:00Z'
+  the-venomous-abyss:
+    name: The Venomous Abyss
+    short_name: VA
+    expansion: Midnight
+    expansion_id: 11
+    is_current_expansion: true
+    bosses: 8
+    starts_eu: '2026-08-19T04:00:00Z'
+    ends_eu: '2030-01-01T00:00:00Z'
+  blackrock-depths:
+    name: Blackrock Depths
+    short_name: BRD
+    expansion: The War Within
+    expansion_id: 10
+    is_current_expansion: false
+    bosses: 8
+    starts_eu: '2024-10-23T04:00:00Z'
+    ends_eu: '2025-01-08T04:00:00Z'
+  liberation-of-undermine:
+    name: Liberation of Undermine
+    short_name: LOU
+    expansion: The War Within
+    expansion_id: 10
+    is_current_expansion: false
+    bosses: 8
+    starts_eu: '2025-03-05T04:00:00Z'
+    ends_eu: '2025-08-13T04:00:00Z'
+  manaforge-omega:
+    name: Manaforge Omega
+    short_name: MFO
+    expansion: The War Within
+    expansion_id: 10
+    is_current_expansion: false
+    bosses: 8
+    starts_eu: '2025-08-13T04:00:00Z'
+    ends_eu: '2026-03-02T22:00:00Z'
+  nerubar-palace:
+    name: Nerub-ar Palace
+    short_name: NP
+    expansion: The War Within
+    expansion_id: 10
+    is_current_expansion: false
+    bosses: 8
+    starts_eu: '2024-09-11T04:00:00Z'
+    ends_eu: '2025-03-05T04:00:00Z'
+unassigned:
+- the-tidebound-grotto
+- the-venomous-abyss
+undetected: []
