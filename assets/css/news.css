@@ -1646,12 +1646,8 @@
     height: 200px;
   }
 
-  .header-actions .btn-primary-hero,
-  .header-actions .btn-secondary-hero,
-  .toolbar-links .btn-secondary-hero,
-  .toolbar-links .btn-primary-hero {
-    width: 100%;
-  }
+  /* width: 100% прибрано — ритм кнопок задає style.css одним правилом
+     для .header-actions і .toolbar-links, щоб не було двох джерел правди. */
 }
 
 @media (max-width: 480px) {

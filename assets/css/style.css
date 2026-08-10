@@ -276,8 +276,25 @@ h3 {
     color: var(--accent);
 }
 
+/* Було: нескінченна пульсація subtleGlow. На мобільному вона читалась
+   як помилка рендеру, а безкінечна анімація ще й тягне батарею.
+   Тепер акцент статичний і в одній мові з .guild-promo. */
 .card.featured {
-    animation: subtleGlow 4s ease-in-out infinite;
+    position: relative;
+    border: 1px solid var(--border-strong);
+    box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.card.featured::after {
+    content: "";
+    position: absolute;
+    /* відступ згори й знизу, щоб пряма смуга не виступала
+       за заокруглені кути картки */
+    inset: var(--space-sm) auto var(--space-sm) 0;
+    width: 3px;
+    border-radius: var(--radius-pill);
+    background: var(--accent-gradient);
+    pointer-events: none;
 }
 
 /* --- Character Card --- */
@@ -403,6 +420,7 @@ h3 {
 .btn-primary-hero {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     text-decoration: none;
     border-radius: var(--control-radius);
     transition: var(--transition-fast);
@@ -433,17 +451,25 @@ h3 {
 .btn-social.tt:hover { background: #010101; border-color: #69C9D0; box-shadow: 2px 2px 0 #EE1D52, -2px -2px 0 #69C9D0; }
 
 /* Кнопка донату */
-.donate { border: 1px solid rgba(200,155,60,0.3); }
 .donate a {
-    margin-top: var(--space-xs);
-    padding: var(--space-xs) var(--space-md);
-    background: var(--accent);
-    color: #000;
-    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    margin-top: var(--space-md);
+    padding: 0 var(--space-lg);
+    border-radius: var(--radius-pill);
+    background: var(--accent-gradient);
+    color: #1c1208;
+    font-weight: 700;
+    text-decoration: none;
+    transition: transform var(--dur-fast) var(--ease-out),
+                box-shadow var(--dur-fast) var(--ease-out);
 }
+
 .donate a:hover {
     transform: translateY(-2px);
-    box-shadow: 0 0 20px rgba(200, 155, 60, 0.5);
+    box-shadow: 0 10px 24px -12px var(--accent-ring);
 }
 
 /* Hero Button (Основна дія) */
@@ -469,11 +495,6 @@ h3 {
 @keyframes bounce {
     0%, 100% { transform: translateY(0); }
     50%      { transform: translateY(8px); }
-}
-
-@keyframes subtleGlow {
-    0%, 100% { box-shadow: 0 0 10px rgba(200,155,60,0.15); }
-    50%      { box-shadow: 0 0 20px rgba(200,155,60,0.35); }
 }
 
 /* =========================================
@@ -1200,4 +1221,117 @@ body.nav-open {
 .news-grid {
     content-visibility: auto;
     contain-intrinsic-size: 1px 900px;
+}
+
+/* =========================================================
+   ВЕРТИКАЛЬНИЙ РИТМ СТОРІНКИ
+
+   Проблема була в подвоєнні: кожна секція має власний вертикальний
+   паддінг, і на стику двох секцій виходило 2×48 = 96px порожнечі.
+   Плюс остання картка в сітці тягла свій margin-bottom.
+   На мобільному це читалось як «дірки» між блоками.
+
+   Тут ритм задається один раз, і на стику платить лише одна сторона.
+   ========================================================= */
+
+/* Паддінг задаємо логічними властивостями, а не shorthand:
+   інакше медіазапит нижче щоразу перетирав би padding-top,
+   і правило про стик секцій не спрацьовувало б. */
+.area.section {
+    padding-block: var(--pad-section);
+    padding-inline: var(--pad-page-inline);
+}
+
+.ui-blocks,
+#characters {
+    margin-block: 0;
+    padding-block: var(--pad-section);
+}
+
+@media (max-width: 768px) {
+    :root {
+        --pad-section: var(--space-xl);
+        --pad-page-inline: var(--space-md);
+    }
+
+    /* Кнопки в шапці секції: в один рядок замість двох повноширинних плит.
+       Раніше було width: 100%, і на екрані це виглядало як дві величезні смуги. */
+    .header-actions,
+    .toolbar-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-xs);
+        width: 100%;
+    }
+
+    .header-actions > *,
+    .toolbar-links > * {
+        flex: 1 1 auto;
+        min-width: 0;
+        width: auto;
+    }
+
+    .header-actions .btn-primary-hero,
+    .header-actions .btn-secondary-hero,
+    .toolbar-links .btn-primary-hero,
+    .toolbar-links .btn-secondary-hero {
+        width: auto;
+        min-height: 46px;
+        padding-inline: var(--space-md);
+        white-space: nowrap;
+    }
+
+    /* Однаковий внутрішній відступ усіх карток */
+    .card,
+    .news-card,
+    .guild-promo,
+    .method-card {
+        padding: var(--space-md);
+    }
+
+    .card.featured::after {
+        width: 2px;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --pad-section: var(--space-lg);
+    }
+
+    /* Два ярлики ділять рядок навпіл. Повноширинними стають лише тоді,
+       коли текст справді не влазить — про це подбає flex-wrap. */
+    .header-actions > *,
+    .toolbar-links > * {
+        flex: 1 1 45%;
+    }
+
+    /* Соцмережі: сітка 2×2 замість чотирьох смуг на весь екран */
+    .socials-links {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-xs);
+    }
+
+    .socials-links .btn-social {
+        width: auto;
+        min-width: 0;
+    }
+}
+
+/* --- Стик блоків. Іде після медіазапитів навмисно: це фінальне слово
+       про ритм, і жодне значення --pad-section його вже не перетирає. --- */
+.area.section + .area.section,
+.area.section + .ui-blocks,
+.area.section + #characters,
+.ui-blocks + .area.section,
+.ui-blocks + #characters,
+#characters + .area.section,
+#characters + .ui-blocks {
+    padding-block-start: 0;
+}
+
+/* Остання картка в сітці не додає відступ під собою */
+.ui-blocks > .card:last-child {
+    margin-bottom: 0;
 }

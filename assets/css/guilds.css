@@ -9,7 +9,9 @@
      діє тільки поки він менший за доступну ширину */
   grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
   gap: var(--gap-grid);
-  margin-top: var(--space-lg);
+  /* margin-top прибрано: він компенсував заголовок секції, якого більше
+     немає — через нього стик із попереднім блоком подвоювався */
+  margin-top: 0;
 }
 
 .guild-promo {
