@@ -95,6 +95,30 @@
   --shadow-md: 0 12px 28px -14px rgba(0, 0, 0, 0.75);
   --shadow-lg: 0 24px 50px -24px rgba(0, 0, 0, 0.9);
 
+  /* ---------- Відступи: шкала з кроком 4px ----------
+     У проєкті було 73 різні значення відступів на 718 входжень
+     (4,5,6,7,8,9,10,12,14,15,16,18,20,24,30,40px + купа rem).
+     Усе зводиться до цієї шкали. Нових значень поза нею не додавати. */
+  --space-3xs: 2px;
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* ---------- Ритм сторінки ----------
+     Похідні токени, щоб секції й картки дихали однаково скрізь. */
+  --gap-inline: var(--space-sm);  /* між дрібними елементами в рядку */
+  --gap-stack: var(--space-md);   /* між блоками всередині картки */
+  --gap-grid: var(--space-lg);    /* між картками в сітці */
+  --pad-card: var(--space-lg);    /* внутрішній відступ картки */
+  --pad-card-compact: var(--space-md);
+  --pad-section: clamp(var(--space-xl), 5vw, var(--space-3xl)); /* вертикальний ритм секцій */
+  --pad-page-inline: clamp(var(--space-md), 4vw, var(--space-xl));
+
   /* ---------- Радіуси ---------- */
   --radius-sm: 8px;
   --radius-md: 14px;

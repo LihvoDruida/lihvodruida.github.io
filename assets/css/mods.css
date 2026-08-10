@@ -3,7 +3,7 @@
 .mods-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 25px;
+  gap: var(--space-lg);
 }
 
 .mod-card {
@@ -25,9 +25,9 @@
 
 /* Header: Logo + Title */
 .mod-header {
-  padding: 20px;
+  padding: var(--space-md);
   display: flex;
-  gap: 15px;
+  gap: var(--space-md);
   background: linear-gradient(to bottom, rgba(255,255,255,0.03), transparent);
   border-bottom: 1px solid var(--border-subtle);
   /* Додаємо заокруглення вручну, бо overflow: visible */
@@ -48,7 +48,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 6px;
+  gap: var(--space-2xs);
 }
 
 .mod-name {
@@ -65,8 +65,8 @@
 .mod-versions {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  margin-bottom: 4px; /* Відступ до категорій */
+  gap: var(--space-2xs);
+  margin-bottom: var(--space-2xs); /* Відступ до категорій */
 }
 
 /* Стиль звичайного бейджика */
@@ -74,7 +74,7 @@
   font-size: 0.7rem;
   color: #b0b3b8; /* Світло-сірий */
   background: rgba(255, 255, 255, 0.05);
-  padding: 2px 6px;
+  padding: var(--space-3xs) var(--space-2xs);
   border-radius: 4px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   font-family: monospace;
@@ -102,7 +102,7 @@
   border: 1px solid var(--border-subtle);
   box-shadow: 0 10px 25px rgba(0,0,0,0.8);
   border-radius: 8px;
-  padding: 12px;
+  padding: var(--space-sm);
   width: max-content;
   max-width: 280px;
   z-index: 999;
@@ -117,7 +117,7 @@
   position: absolute;
   top: 100%;
   left: 50%;
-  margin-left: -6px;
+  margin-left: calc(-1 * var(--space-2xs));
   border-width: 6px;
   border-style: solid;
   border-color: var(--bg-card) transparent transparent transparent;
@@ -134,23 +134,23 @@
 .tooltip-header {
   font-size: 0.75rem;
   color: #8a8d95; /* var(--text-grey) */
-  margin-bottom: 8px;
+  margin-bottom: var(--space-xs);
   border-bottom: 1px solid rgba(255,255,255,0.05);
-  padding-bottom: 4px;
+  padding-bottom: var(--space-2xs);
   font-weight: 600;
 }
 
 .tooltip-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--space-2xs);
 }
 
 .tooltip-tag {
   font-size: 0.7rem;
   color: #b0b3b8;
   background: rgba(255, 255, 255, 0.05);
-  padding: 2px 5px;
+  padding: var(--space-3xs) var(--space-2xs);
   border-radius: 3px;
   font-family: monospace;
 }
@@ -161,21 +161,21 @@
 .mod-categories {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--space-2xs);
 }
 
 .mod-tag {
   font-size: 0.7rem;
   background: rgba(212, 160, 61, 0.1); /* Gold tint */
   color: var(--gold-primary);
-  padding: 2px 8px;
+  padding: var(--space-3xs) var(--space-xs);
   border-radius: 4px;
   border: 1px solid rgba(212, 160, 61, 0.2);
 }
 
 /* Body: Summary */
 .mod-body {
-  padding: 20px;
+  padding: var(--space-md);
   flex-grow: 1;
 }
 
@@ -188,7 +188,7 @@
 
 /* Footer: Stats + Button */
 .mod-footer {
-  padding: 15px 20px;
+  padding: var(--space-md) var(--space-md);
   background: rgba(0,0,0,0.2);
   border-top: 1px solid var(--border-subtle);
   /* Додаємо заокруглення вручну */
@@ -203,13 +203,13 @@
 .mod-stats {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-2xs);
 }
 
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2xs);
   font-size: 0.8rem;
   color: var(--text-grey);
   font-weight: 500;
@@ -219,7 +219,7 @@
   background: var(--bg-card-hover);
   color: var(--text-white);
   border: 1px solid var(--border-subtle);
-  padding: 8px 16px;
+  padding: var(--space-xs) var(--space-md);
   border-radius: var(--control-radius);
   font-size: 0.9rem;
   font-weight: 600;

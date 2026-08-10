@@ -8,7 +8,7 @@
     align-items: center;
     justify-content: center;
     min-height: 80vh;
-    padding: 15px;
+    padding: var(--space-md);
     position: relative;
     z-index: 1;
 }
@@ -18,7 +18,7 @@
     width: 100%;
     max-width: 500px;
     margin: 0 auto;
-    padding: 40px 30px;
+    padding: var(--space-xl) var(--space-xl);
     
     /* Dark background matching the screenshots */
     background: radial-gradient(circle at top center, var(--c-base-600), var(--c-base-850));
@@ -48,7 +48,7 @@
 .empty-icon-glow {
     width: 64px;
     height: 64px;
-    margin: 0 auto 16px;
+    margin: 0 auto var(--space-md);
     
     display: flex;
     align-items: center;
@@ -83,7 +83,7 @@
 
 /* --- 404 Error Code --- */
 .error-code-wrapper {
-    margin-bottom: 5px;
+    margin-bottom: var(--space-2xs);
 }
 
 .error-code-text {
@@ -99,7 +99,7 @@
     font-family: 'Lexend', sans-serif;
     font-size: 1.25rem;
     font-weight: 700;
-    margin-bottom: 12px;
+    margin-bottom: var(--space-sm);
     color: #fff;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -109,7 +109,7 @@
 .error-description {
     font-size: 0.9rem;
     color: #8890a0; /* Muted gray-blue */
-    margin-bottom: 30px;
+    margin-bottom: var(--space-xl);
     line-height: 1.6;
     max-width: 400px;
     margin-left: auto;
@@ -121,8 +121,8 @@
     background: #0b0d12; /* Very dark inner box */
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: var(--control-radius);
-    padding: 16px 20px;
-    margin-bottom: 30px;
+    padding: var(--space-md) var(--space-md);
+    margin-bottom: var(--space-xl);
     text-align: left;
     position: relative;
     min-height: 100px; /* Prevent jumping when text changes */
@@ -145,8 +145,8 @@
 .fun-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 8px;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-xs);
 }
 
 .tip-icon { font-size: 1rem; line-height: 1; }
@@ -187,7 +187,7 @@
 /* --- Action Buttons --- */
 .action-buttons {
     display: flex;
-    gap: 12px;
+    gap: var(--space-sm);
     justify-content: center;
     width: 100%;
 }
@@ -196,7 +196,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 12px 24px;
+    padding: var(--space-sm) var(--space-lg);
     font-size: 0.9rem;
     font-weight: 700;
     border-radius: var(--control-radius);
@@ -242,16 +242,16 @@
 ========================= */
 @media (max-width: 500px) {
     .empty-state-wow.error-state {
-        padding: 30px 20px;
+        padding: var(--space-xl) var(--space-md);
     }
 
     .action-buttons {
         flex-direction: column;
-        gap: 10px;
+        gap: var(--space-xs);
     }
 
     .btn-primary, .back-history-btn {
         width: 100%;
-        padding: 14px;
+        padding: var(--space-sm);
     }
 }

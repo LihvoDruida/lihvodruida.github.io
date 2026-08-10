@@ -122,11 +122,11 @@ body.has-starfield .layout {
   min-width: 54px;
   width: auto;
   max-width: none;
-  padding: 0 10px;
+  padding: 0 var(--space-xs);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: var(--space-2xs);
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.025));
   border: 1px solid rgba(255,255,255,0.12);
@@ -149,11 +149,11 @@ body.has-starfield .layout {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-xs);
 }
 
 #characters .home-rio-scores {
-  margin-top: 10px;
+  margin-top: var(--space-xs);
 }
 
 .rio-pill {
@@ -193,7 +193,7 @@ body.has-starfield .layout {
   width: max-content;
   min-width: 110px;
   max-width: 210px;
-  padding: 8px 10px;
+  padding: var(--space-xs) var(--space-xs);
   border-radius: 10px;
   border: 1px solid rgba(255,255,255,0.1);
   background: rgba(12, 14, 19, 0.96);
@@ -208,7 +208,7 @@ body.has-starfield .layout {
   position: absolute;
   top: 100%;
   left: 50%;
-  margin-left: -6px;
+  margin-left: calc(-1 * var(--space-2xs));
   border-width: 6px;
   border-style: solid;
   border-color: rgba(12, 14, 19, 0.96) transparent transparent transparent;
@@ -222,8 +222,8 @@ body.has-starfield .layout {
 }
 
 .rio-tooltip .tooltip-header {
-  margin-bottom: 4px;
-  padding-bottom: 4px;
+  margin-bottom: var(--space-2xs);
+  padding-bottom: var(--space-2xs);
   border-bottom: 1px solid rgba(255,255,255,0.08);
   color: var(--muted);
   font-size: 0.68rem;
@@ -248,7 +248,7 @@ body.has-starfield .layout {
   .rio-pill.member-chip {
     min-height: 28px;
     min-width: 48px;
-    padding: 0 8px;
+    padding: 0 var(--space-xs);
   }
 
   .rio-pill .role-icon,
