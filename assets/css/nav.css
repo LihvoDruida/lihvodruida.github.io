@@ -273,8 +273,6 @@
   background: var(--nav-panel);
   border: 1px solid var(--nav-line);
   box-shadow: 0 28px 60px -22px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   opacity: 0;
   visibility: hidden;
   transform: translateY(-8px) scale(0.97);
@@ -282,10 +280,13 @@
   transition: opacity 0.18s ease, transform 0.25s var(--nav-ease), visibility 0.18s;
 }
 
+/* backdrop-filter лише на відкритому меню — див. коментар у .nav-sheet */
 .nav-account.is-open .nav-account__menu {
   opacity: 1;
   visibility: visible;
   transform: none;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .nav-account__group {
@@ -397,18 +398,24 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   background: rgba(14, 11, 8, 0.95);
-  backdrop-filter: blur(22px) saturate(1.15);
-  -webkit-backdrop-filter: blur(22px) saturate(1.15);
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px);
   transition: opacity 0.28s ease, transform 0.32s var(--nav-ease), visibility 0.28s;
 }
 
+/* backdrop-filter вмикається ТІЛЬКИ на відкритій панелі.
+
+   Chrome на Android композитить backdrop-filter навіть при opacity: 0,
+   і при будь-якому перемальовуванні (тап по кнопці його викликає) цей
+   повноекранний шар встигає блимнути чорним прямокутником поверх сайту.
+   Поки панель закрита — фільтра просто немає, отже блимати нема чому. */
 .nav-sheet.is-open {
   opacity: 1;
   visibility: visible;
   transform: none;
+  backdrop-filter: blur(22px) saturate(1.15);
+  -webkit-backdrop-filter: blur(22px) saturate(1.15);
 }
 
 .nav-sheet__inner {

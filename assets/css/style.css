@@ -2,9 +2,15 @@
     1. MOBILE & ACCESSIBILITY ENHANCEMENTS
    ========================================= */
 
-/* iOS / Android tap highlight */
+/* iOS / Android tap highlight.
+
+   Було rgba(255,255,255,.15) на кожному елементі. Chrome на Android
+   малює цю підсвітку окремим композиторним шаром поверх контенту, і на
+   темній темі вона встигає блимнути суцільним прямокутником, перш ніж
+   стане напівпрозорою. Прибираємо системну підсвітку повністю й даємо
+   власний, передбачуваний відгук на натискання (див. :active нижче). */
 * {
-    -webkit-tap-highlight-color: rgba(255,255,255,0.15);
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* Мінімальний touch target */
@@ -15,10 +21,20 @@ a,
     min-width: 44px;
 }
 
-/* Натуральний клік */
+/* Відгук на натискання.
+
+   Раніше тут був filter: brightness(). filter створює новий контекст
+   накладання, і в Chrome це ламає композицію сусідніх елементів із
+   backdrop-filter (плаваюче меню) — звідси чорний прямокутник у момент
+   тапу. Заміна на background + scale дає той самий ефект без побічних. */
 button:active,
 a:active {
-    filter: brightness(0.92);
+    transform: scale(0.985);
+}
+
+button,
+a {
+    transition: transform var(--dur-instant, 0.12s) ease;
 }
 
 /* Менше руху — якщо користувач просить */
@@ -428,6 +444,15 @@ h3 {
     cursor: pointer;
 }
 
+/* Інлайнові SVG-іконки: розмір відносно тексту кнопки.
+   Після відмови від Font Awesome вони не мали жодного обмеження
+   й розтягувалися на всю доступну ширину. */
+.social-icon {
+    width: 1.25em;
+    height: 1.25em;
+    flex: 0 0 auto;
+}
+
 /* Соціальні кнопки */
 .btn-social {
     gap: var(--space-xs);
@@ -670,16 +695,8 @@ h3 {
    UX ENHANCEMENTS (GLOBAL & MOBILE)
    ========================================= */
 
-/* 1. Button Haptic Feedback (Вібрація/Відгук) */
-/* Додаємо ефект натискання для всіх кнопок */
-.btn-social:active,
-.donate a:active,
-.btn-primary-hero:active,
-button:active,
-a.button:active {
-    transform: scale(0.96); /* Легке зменшення при кліку */
-    transition: transform 0.1s ease-out; /* Миттєва реакція */
-}
+/* 1. Відгук на натискання задано вище одним правилом (button:active, a:active).
+   Тут раніше було друге, конфліктне: scale(0.96) проти scale(0.985). */
 
 /* 2. Inertial Scrolling (Інерційний скрол) */
 /* Для таблиць, блоків коду та горизонтальних списків */
