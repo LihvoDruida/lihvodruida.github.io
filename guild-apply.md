@@ -92,12 +92,30 @@ extra_js:
         <div class="form-grid form-grid--two">
           <label class="form-field">
             <span class="field-label">Ім’я персонажа <span class="field-required-note">Обов’язково</span></span>
-            <input type="text" name="characterName" maxlength="60" placeholder="Sebas" required>
+            <input type="text" name="characterName" id="characterNameField"
+                   minlength="2" maxlength="12"
+                   pattern="[\p{L}]{2,12}"
+                   autocomplete="off" autocapitalize="words" spellcheck="false"
+                   placeholder="Sebas" required
+                   aria-describedby="characterNameError">
+            <span class="field-error" id="characterNameError" role="alert" hidden></span>
           </label>
 
           <label class="form-field">
             <span class="field-label">Реалм <span class="field-required-note">Обов’язково</span></span>
-            <input type="text" name="realm" maxlength="60" placeholder="Terokkar" value="Terokkar" required>
+            <input type="text" name="realm" id="realmField"
+                   list="realm-options"
+                   minlength="2" maxlength="32"
+                   pattern="\p{Script=Latin}[\p{Script=Latin}\p{N} &#39;’.()\-]{1,31}"
+                   autocomplete="off" autocapitalize="words" spellcheck="false"
+                   placeholder="Terokkar" value="Terokkar" required
+                   aria-describedby="realmError">
+            <datalist id="realm-options">
+              {%- for realm in site.data.realms -%}
+              <option value="{{ realm }}"></option>
+              {%- endfor -%}
+            </datalist>
+            <span class="field-error" id="realmError" role="alert" hidden></span>
           </label>
         </div>
 
@@ -149,12 +167,23 @@ extra_js:
         <div class="form-grid form-grid--two">
           <label class="form-field">
             <span class="field-label">Discord</span>
-            <input type="text" name="discord" maxlength="80" placeholder="sebas123">
+            <input type="text" name="discord" id="discordField"
+                   maxlength="32" pattern="[a-z0-9._]{2,32}"
+                   autocomplete="off" autocapitalize="none" spellcheck="false"
+                   placeholder="sebas123"
+                   aria-describedby="discordError">
+            <span class="field-error" id="discordError" role="alert" hidden></span>
           </label>
 
           <label class="form-field">
             <span class="field-label">BattleTag <span id="battleTagRequiredBadge" class="field-required-note field-required-note--conditional" hidden>Обов’язково для Horde</span></span>
-            <input type="text" id="battleTagField" name="battleTag" maxlength="80" placeholder="Sebas#1234">
+            <input type="text" id="battleTagField" name="battleTag"
+                   maxlength="19"
+                   autocomplete="off" autocapitalize="none" spellcheck="false"
+                   placeholder="Molaf#21820"
+                   aria-describedby="battleTagHint battleTagError">
+            <span class="field-hint" id="battleTagHint">Нік і решітка з 4–6 цифрами, як у грі: <code>Molaf#21820</code></span>
+            <span class="field-error" id="battleTagError" role="alert" hidden></span>
           </label>
         </div>
 
@@ -200,7 +229,11 @@ extra_js:
 
         <label class="form-field form-field--full">
           <span class="field-label">Коли зазвичай граєш <span class="field-required-note">Обов’язково</span></span>
-          <textarea name="availability" rows="4" maxlength="400" placeholder="Наприклад: будні після 19:00, вихідні ввечері" required></textarea>
+          <textarea name="availability" id="availabilityField" rows="4" minlength="10" maxlength="400"
+                    placeholder="Наприклад: будні після 19:00, вихідні ввечері" required
+                    aria-describedby="availabilityCounter availabilityError"></textarea>
+          <span class="field-counter" id="availabilityCounter" aria-live="polite">0 / 400</span>
+          <span class="field-error" id="availabilityError" role="alert" hidden></span>
         </label>
 
         <div class="form-actions">

@@ -37,6 +37,66 @@
     return (STATUS[key] && STATUS[key].label) || item.status_text || 'На розгляді';
   }
 
+  /* ==========================================================
+     ПРАВИЛА ПОЛІВ
+
+     characterName — імена персонажів у WoW складаються лише з літер
+                     (будь-яка мова), 2–12 символів, без цифр і пробілів.
+     realm         — латиниця, цифри й ті спецсимволи, що реально
+                     трапляються в назвах реалмів: пробіл, апостроф
+                     (Zul'jin), дефіс, крапка, дужки.
+     battleTag     — формула Molaf#21820: нік із будь-яких літер і цифр,
+                     що починається з літери, 3–12 символів, решітка
+                     і 4–6 цифр дискримінатора.
+     discord       — сучасні ніки: малі латинські літери, цифри, крапка,
+                     підкреслення.
+     ========================================================== */
+  var FIELD_RULES = {
+    characterName: {
+      pattern: /^\p{L}{2,12}$/u,
+      message: 'Ім’я персонажа — лише літери, від 2 до 12 символів.'
+    },
+    realm: {
+      pattern: /^\p{Script=Latin}[\p{Script=Latin}\p{N} '’.()\-]{1,31}$/u,
+      message: 'Реалм — лише латиниця, цифри та символи з назв реалмів (пробіл, апостроф, дефіс, крапка, дужки).'
+    },
+    battleTag: {
+      pattern: /^\p{L}[\p{L}\p{N}]{2,11}#\d{4,6}$/u,
+      message: 'BattleTag має бути у форматі Molaf#21820: нік від 3 до 12 символів і 4–6 цифр після решітки.'
+    },
+    discord: {
+      pattern: /^[a-z0-9._]{2,32}$/,
+      message: 'Discord — малі латинські літери, цифри, крапка й підкреслення.'
+    },
+    availability: {
+      test: function (value) { return value.length >= 10; },
+      message: 'Опиши розклад хоча б кількома словами — це головне, на що дивляться офіцери.'
+    }
+  };
+
+  function validateField(name, rawValue, isRequired) {
+    var value = String(rawValue || '').trim();
+    if (!value) {
+      return isRequired ? { ok: false, message: 'Це поле обов’язкове.' } : { ok: true };
+    }
+    var rule = FIELD_RULES[name];
+    if (!rule) return { ok: true };
+    var valid = rule.pattern ? rule.pattern.test(value) : rule.test(value);
+    return valid ? { ok: true } : { ok: false, message: rule.message };
+  }
+
+  function showFieldError(input, message) {
+    if (!input) return;
+    var holder = document.getElementById(input.id + 'Error');
+    input.classList.toggle('has-error', Boolean(message));
+    input.setAttribute('aria-invalid', message ? 'true' : 'false');
+    if (holder) {
+      holder.textContent = message || '';
+      holder.hidden = !message;
+    }
+    input.setCustomValidity(message || '');
+  }
+
   function escapeHtml(value) {
     return String(value || '')
       .replace(/&/g, '&amp;')
@@ -74,34 +134,73 @@
     }).join(' ');
   }
 
+  var CLASS_SLUGS = {
+    'death knight': 'dk', 'demon hunter': 'dh', 'druid': 'druid', 'evoker': 'evoker',
+    'hunter': 'hunter', 'mage': 'mage', 'monk': 'monk', 'paladin': 'paladin',
+    'priest': 'priest', 'rogue': 'rogue', 'shaman': 'shaman', 'warlock': 'warlock',
+    'warrior': 'warrior'
+  };
+
+  function chip(label, value, modifier) {
+    if (!value) return '';
+    return '<span class="app-chip' + (modifier ? ' app-chip--' + modifier : '') + '">' +
+             '<span class="app-chip__label">' + escapeHtml(label) + '</span>' +
+             '<span class="app-chip__value">' + escapeHtml(value) + '</span>' +
+           '</span>';
+  }
+
+  /* Картка заявки.
+
+     Було: обгортка «Заявка до гільдії», номер у заголовку І ще раз у
+     метарядку, усі дані одним ланцюжком через «•», і на кожній картці
+     заглушка «Короткий опис буде доступний після відкриття картки».
+     Тепер: нік і статус у шапці, дані окремими чіпами, службові номери
+     та дата — у підвалі. Опис показується, лише якщо він справді є. */
   function renderApplicationCard(item) {
     var statusKey = normalizeStatus(item);
     var stateClass = (STATUS[statusKey] && STATUS[statusKey].className) || 'review';
-    var meta = [];
     var applicationNumber = item.number || item.application_number || '';
     var trackingNumber = item.tracking_number || '';
-    if (applicationNumber) meta.push('Заявка №' + applicationNumber);
-    if (trackingNumber) meta.push('Відстеження ' + trackingNumber);
-    if (item.created_at) meta.push('Подано ' + formatDate(item.created_at));
-    if (item.class_name) meta.push(item.class_name);
-    if (item.realm) meta.push(item.realm);
-    var description = item.summary || 'Короткий опис заявки буде доступний після відкриття картки.';
-    var title = item.character_name || String(item.title || '').replace(/^Заявка до гільдії:\s*/i, '').trim() || 'Нова заявка';
-    var metaHtml = meta.length
-      ? meta.map(escapeHtml).join('<span class="application-status-item__sep">•</span>')
-      : '<span>Без додаткових даних</span>';
+    var title = item.character_name ||
+      String(item.title || '').replace(/^Заявка до гільдії:\s*/i, '').trim() ||
+      'Нова заявка';
+
+    var className = item.class_name || '';
+    var classSlug = CLASS_SLUGS[className.toLowerCase()] || '';
+    var faction = item.faction || '';
+    var factionSlug = faction.toLowerCase() === 'horde' ? 'horde'
+      : (faction.toLowerCase() === 'alliance' ? 'alliance' : '');
+
+    var chips = [
+      chip('Клас', className, classSlug ? 'class is-' + classSlug : 'class'),
+      chip('Реалм', item.realm, 'realm'),
+      chip('Фракція', faction, factionSlug ? 'faction is-' + factionSlug : 'faction')
+    ].join('');
+
+    var footerBits = [];
+    if (applicationNumber) footerBits.push('№' + escapeHtml(applicationNumber));
+    if (trackingNumber) footerBits.push('Код ' + escapeHtml(trackingNumber));
+    if (item.created_at) footerBits.push(escapeHtml(formatDate(item.created_at)));
+
+    var hasSummary = item.summary && String(item.summary).trim().length > 0;
 
     return '<article class="application-status-item application-status-item--' + stateClass + '">' +
-      '<div class="application-status-item__head">' +
-        '<div class="application-status-item__eyebrow-row">' +
-          '<span class="application-status-item__eyebrow">Заявка до гільдії</span>' +
-          '<span class="application-status-badge application-status-badge--' + stateClass + '">' + escapeHtml(humanStatus(item)) + '</span>' +
-        '</div>' +
-        '<h3 class="application-status-item__title">' + (applicationNumber ? '<span class="application-status-item__number">#' + escapeHtml(applicationNumber) + '</span> ' : '') + escapeHtml(title) + '</h3>' +
-        '<div class="application-status-item__meta">' + metaHtml + '</div>' +
-      '</div>' +
-      '<p class="application-status-item__desc">' + escapeHtml(description) + '</p>' +
-      (item.html_url ? '<div class="application-status-item__footer"><a class="application-status-item__link" href="' + escapeHtml(item.html_url) + '" target="_blank" rel="noopener noreferrer">Відкрити заявку <span aria-hidden="true">↗</span></a></div>' : '') +
+      '<header class="application-status-item__head">' +
+        '<h3 class="application-status-item__title">' + escapeHtml(title) + '</h3>' +
+        '<span class="application-status-badge application-status-badge--' + stateClass + '">' +
+          escapeHtml(humanStatus(item)) +
+        '</span>' +
+      '</header>' +
+      (chips ? '<div class="application-status-item__chips">' + chips + '</div>' : '') +
+      (hasSummary ? '<p class="application-status-item__desc">' + escapeHtml(item.summary) + '</p>' : '') +
+      '<footer class="application-status-item__footer">' +
+        (footerBits.length
+          ? '<span class="application-status-item__ref">' + footerBits.join('<span class="application-status-item__sep">·</span>') + '</span>'
+          : '') +
+        (item.html_url
+          ? '<a class="application-status-item__link" href="' + escapeHtml(item.html_url) + '" target="_blank" rel="noopener noreferrer">Відкрити <span aria-hidden="true">↗</span></a>'
+          : '') +
+      '</footer>' +
     '</article>';
   }
 
@@ -329,6 +428,39 @@
       feedback.innerHTML = '';
     }
 
+    /* Живі перевірки: помилка показується під полем при виході з нього,
+       а зникає одразу, щойно значення стало коректним. */
+    var LIVE_FIELDS = ['characterName', 'realm', 'battleTag', 'discord', 'availability'];
+    LIVE_FIELDS.forEach(function (name) {
+      var input = form ? form.querySelector('[name="' + name + '"]') : null;
+      if (!input) return;
+
+      function check() {
+        var result = validateField(name, input.value, input.required);
+        showFieldError(input, result.ok ? '' : result.message);
+        return result.ok;
+      }
+
+      input.addEventListener('blur', check);
+      input.addEventListener('input', function () {
+        if (input.classList.contains('has-error')) check();
+      });
+    });
+
+    /* Лічильник символів у полі розкладу */
+    var availabilityInput = form ? form.querySelector('[name="availability"]') : null;
+    var availabilityCounter = document.getElementById('availabilityCounter');
+    if (availabilityInput && availabilityCounter) {
+      var maxLength = Number(availabilityInput.getAttribute('maxlength') || 400);
+      var updateCounter = function () {
+        var used = availabilityInput.value.length;
+        availabilityCounter.textContent = used + ' / ' + maxLength;
+        availabilityCounter.classList.toggle('is-near-limit', used > maxLength * 0.9);
+      };
+      availabilityInput.addEventListener('input', updateCounter);
+      updateCounter();
+    }
+
     if (battleTagInput) {
       battleTagInput.addEventListener('input', syncBattleTagRequirement);
       battleTagInput.addEventListener('blur', syncBattleTagRequirement);
@@ -431,17 +563,34 @@
           return;
         }
 
-        if (payload.battleTag && !/^[\p{L}\p{N}_-]{2,32}#\d{3,6}$/u.test(payload.battleTag)) {
-          if (battleTagInput) {
-            battleTagInput.focus();
-            battleTagInput.setCustomValidity('BattleTag має бути у форматі Rebell#2802.');
-            battleTagInput.reportValidity();
+        /* Єдина перевірка всіх полів за спільними правилами.
+           Раніше формат перевірявся тільки для BattleTag, і то іншим,
+           заниженим патерном (дозволяв 3 цифри й символи _ та -). */
+        var firstInvalid = null;
+        for (var i = 0; i < LIVE_FIELDS.length; i += 1) {
+          var fieldName = LIVE_FIELDS[i];
+          var fieldInput = form.querySelector('[name="' + fieldName + '"]');
+          if (!fieldInput) continue;
+          var check = validateField(fieldName, payload[fieldName], fieldInput.required);
+          showFieldError(fieldInput, check.ok ? '' : check.message);
+          if (!check.ok && !firstInvalid) {
+            firstInvalid = { input: fieldInput, message: check.message };
           }
-          setFeedback('error', 'BattleTag має бути у форматі Rebell#2802 або порожнім, якщо це не Horde.');
+        }
+
+        if (firstInvalid) {
+          firstInvalid.input.focus();
+          firstInvalid.input.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          setFeedback('error', firstInvalid.message);
           return;
         }
 
-        if (submitButton) submitButton.disabled = true;
+        if (submitButton) {
+          submitButton.disabled = true;
+          submitButton.dataset.idleLabel = submitButton.textContent;
+          submitButton.textContent = 'Надсилаємо…';
+          submitButton.classList.add('is-loading');
+        }
 
         try {
           const response = await fetch(apiUrl, {
@@ -485,7 +634,13 @@
         } catch (error) {
           setFeedback('error', escapeHtml(error.message || 'Зараз не вдалося надіслати заявку. Спробуй ще раз трохи пізніше.'));
         } finally {
-          if (submitButton) submitButton.disabled = false;
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.classList.remove('is-loading');
+            if (submitButton.dataset.idleLabel) {
+              submitButton.textContent = submitButton.dataset.idleLabel;
+            }
+          }
         }
       });
     }

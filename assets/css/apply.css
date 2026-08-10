@@ -1653,3 +1653,214 @@
 .legend-dot--approved,
 .legend-dot--accepted { background: var(--status-accepted); }
 .legend-dot--declined { background: var(--status-declined); }
+
+/* =========================================================
+   ПОМИЛКИ ТА ПІДКАЗКИ ПОЛІВ
+   ========================================================= */
+
+.field-hint,
+.field-counter {
+  display: block;
+  margin-top: var(--space-2xs);
+  font-size: 0.74rem;
+  line-height: 1.4;
+  color: var(--apply-text-dim);
+}
+
+.field-hint code {
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 0.72rem;
+  color: var(--c-accent-200);
+}
+
+.field-counter {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.field-counter.is-near-limit {
+  color: var(--status-review);
+}
+
+.field-error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2xs);
+  margin-top: var(--space-2xs);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--status-declined);
+}
+
+.field-error[hidden] {
+  display: none;
+}
+
+.field-error::before {
+  content: "!";
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  margin-top: 1px;
+  border-radius: var(--radius-pill);
+  background: var(--status-declined);
+  color: #2c0506;
+  font-size: 0.66rem;
+  font-weight: 900;
+}
+
+.guild-application-form input.has-error,
+.guild-application-form textarea.has-error {
+  border-color: rgba(var(--status-declined-rgb), 0.6);
+  box-shadow: 0 0 0 3px rgba(var(--status-declined-rgb), 0.12);
+}
+
+.application-submit-button.is-loading {
+  opacity: 0.75;
+  cursor: progress;
+}
+
+/* =========================================================
+   КАРТКА ЗАЯВКИ — компактна й читабельна
+   ========================================================= */
+
+.application-status-item {
+  display: grid;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.035);
+  box-shadow: var(--apply-shadow-sm);
+}
+
+/* Кольорова смуга статусу зліва — видно з першого погляду, без читання */
+.application-status-item::after {
+  content: "";
+  position: absolute;
+  inset: var(--space-sm) auto var(--space-sm) 0;
+  width: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--status-review);
+  pointer-events: none;
+}
+
+.application-status-item--accepted::after { background: var(--status-accepted); }
+.application-status-item--declined::after { background: var(--status-declined); }
+
+.application-status-item__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.application-status-item__title {
+  margin: 0;
+  min-width: 0;
+  color: #fff4e7;
+  font-size: 1.05rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+/* --- Чіпи з даними персонажа --- */
+.application-status-item__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+}
+
+.app-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2xs);
+  padding: var(--space-2xs) var(--space-xs);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+
+.app-chip__label {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--apply-text-dim);
+}
+
+.app-chip__value {
+  font-weight: 600;
+  color: var(--text-body);
+}
+
+.app-chip--faction.is-horde .app-chip__value { color: #e0705f; }
+.app-chip--faction.is-alliance .app-chip__value { color: var(--c-info); }
+
+.app-chip--class.is-dk .app-chip__value      { color: var(--class-dk); }
+.app-chip--class.is-dh .app-chip__value      { color: var(--class-dh); }
+.app-chip--class.is-druid .app-chip__value   { color: var(--class-druid); }
+.app-chip--class.is-evoker .app-chip__value  { color: var(--class-evoker); }
+.app-chip--class.is-hunter .app-chip__value  { color: var(--class-hunter); }
+.app-chip--class.is-mage .app-chip__value    { color: var(--class-mage); }
+.app-chip--class.is-monk .app-chip__value    { color: var(--class-monk); }
+.app-chip--class.is-paladin .app-chip__value { color: var(--class-paladin); }
+.app-chip--class.is-priest .app-chip__value  { color: var(--class-priest); }
+.app-chip--class.is-rogue .app-chip__value   { color: var(--class-rogue); }
+.app-chip--class.is-shaman .app-chip__value  { color: var(--class-shaman); }
+.app-chip--class.is-warlock .app-chip__value { color: var(--class-warlock); }
+.app-chip--class.is-warrior .app-chip__value { color: var(--class-warrior); }
+
+/* --- Підвал: службові номери й дата --- */
+.application-status-item__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  padding-top: var(--space-xs);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.application-status-item__ref {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  flex-wrap: wrap;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--apply-text-dim);
+}
+
+.application-status-item__sep {
+  color: rgba(255, 255, 255, 0.22);
+}
+
+@media (max-width: 560px) {
+  .application-status-item__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2xs);
+  }
+
+  .application-status-item__footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-xs);
+  }
+
+  /* Раніше бейдж і посилання розтягувалися на всю ширину картки через
+     загальне мобільне правило width: 100% для кнопок цієї сторінки.
+     Тут вони мають лишатися компактними. */
+  .application-status-item .application-status-badge,
+  .application-status-item .application-status-item__link {
+    align-self: flex-start;
+    width: auto;
+    min-width: 0;
+  }
+}

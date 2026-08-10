@@ -1,0 +1,83 @@
+# Реалми EU для підказки в полі «Реалм».
+#
+# Список не є обмеженням: поле приймає будь-яку назву, що проходить перевірку
+# символів (латиниця, цифри, пробіл, апостроф, дефіс, крапка, дужки).
+# Це саме datalist — щоб не друкувати руками й не робити помилок у написанні.
+#
+# Перші двадцять — реалми, з яких реально є люди в гільдії (взято зі складу).
+
+# Реалми складу гільдії
+- Terokkar
+- Silvermoon
+- Gordunni
+- Tarren Mill
+- Eversong
+- Doomhammer
+- Ravencrest
+- Draenor
+- Kazzak
+- Howling Fjord
+- Soulflayer
+- Galakrond
+- Turalyon
+- Burning Legion
+- Ragnaros
+- Lich King
+- Blackscar
+- Goldrinn
+- Burning Steppes
+- Grom
+
+# Інші популярні EU-реалми
+- Aegwynn
+- Aggramar
+- Antonidas
+- Arathor
+- Archimonde
+- Argent Dawn
+- Blackhand
+- Blackmoore
+- Blackrock
+- Bronze Dragonflight
+- Chamber of Aspects
+- Dalaran
+- Defias Brotherhood
+- Deathwing
+- Dragonblight
+- Dun Morogh
+- Earthen Ring
+- Eldre'Thalas
+- Elune
+- Emerald Dream
+- Eredar
+- Frostmourne
+- Frostwolf
+- Garona
+- Grim Batol
+- Hellscream
+- Hyjal
+- Illidan
+- Karazhan
+- Kazzak
+- Kel'Thuzad
+- Kil'jaeden
+- Kirin Tor
+- Kul Tiras
+- Malfurion
+- Malygos
+- Moonglade
+- Nagrand
+- Ner'zhul
+- Nozdormu
+- Onyxia
+- Outland
+- Sargeras
+- Steamwheedle Cartel
+- Stormscale
+- Suramar
+- Sylvanas
+- Thrall
+- Twisting Nether
+- Uldum
+- Ysondre
+- Zul'jin
