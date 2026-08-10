@@ -31,6 +31,7 @@
   logo: /assets/img/varta-logo.webp
   logo_fallback: /assets/img/varta-logo.png
   page: ""
+  # Discord самого легіону — саме він вважається "рідним" для VARTA
   discord: https://discord.gg/B7JxeZEyaE
   description: Українська легіон-спільнота в Aion на приватному сервері RiftShade.
   details:
@@ -42,6 +43,11 @@
     - label: Сайт сервера
       url: https://aionriftshade.com/
       type: site
-    - label: Discord
+    # Два різні Discord: перший — легіону, другий — усього сервера RiftShade.
+    # Підписи навмисно різні, інакше дві однакові кнопки "Discord" збивали б з пантелику.
+    - label: Discord легіону
       url: https://discord.gg/B7JxeZEyaE
+      type: discord
+    - label: Discord сервера
+      url: https://discord.gg/dEd3t7edCw
       type: discord
