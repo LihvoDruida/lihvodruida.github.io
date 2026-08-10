@@ -27,6 +27,8 @@ extra_js:
     <p>Донати допомагають розвивати сайт, стріми, гайди, адони та інструменти для української WoW-спільноти.</p>
   </header>
 
+  {% include donate-terms.html section="notice" %}
+
   <h2 class="donate-subtitle">Оберіть спосіб підтримки</h2>
 
   <div class="methods-grid">
@@ -93,4 +95,6 @@ extra_js:
       </div>
     </div>
   </section>
+
+  {% include donate-terms.html section="full" %}
 </section>

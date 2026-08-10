@@ -1,0 +1,78 @@
+{%- assign terms = site.data.donate_terms -%}
+{%- assign mode = include.section | default: "full" -%}
+{%- if terms -%}
+
+{%- if mode == "notice" -%}
+<aside class="donate-notice" role="note" aria-labelledby="donate-notice-title">
+  <h2 id="donate-notice-title" class="donate-notice__title">Перед тим, як підтримати</h2>
+  <ul class="donate-notice__list">
+    {%- for point in terms.summary -%}
+    <li>{{ point }}</li>
+    {%- endfor -%}
+  </ul>
+  <p class="donate-notice__consent">
+    Здійснюючи платіж, ви підтверджуєте, що ознайомилися з
+    <a href="#donate-terms">Умовами добровільної підтримки</a>
+    та повністю їх приймаєте.
+  </p>
+</aside>
+{%- endif -%}
+
+{%- if mode == "full" -%}
+<section id="donate-terms" class="donate-terms" aria-labelledby="donate-terms-title">
+  <header class="donate-terms__head">
+    <h2 id="donate-terms-title">Умови добровільної підтримки</h2>
+    <p class="donate-terms__meta">
+      Редакція {{ terms.version }} · чинна з
+      {%- if terms.effective_date %} {% include date-uk.html date=terms.effective_date %}{% endif %}
+    </p>
+  </header>
+
+  <div class="donate-terms__body">
+    {%- for section in terms.sections -%}
+    <details class="donate-terms__section" id="terms-{{ section.id }}">
+      <summary>
+        <span>{{ section.title }}</span>
+        <svg class="donate-terms__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </summary>
+      <ul>
+        {%- for item in section.items -%}
+        <li>{{ item }}</li>
+        {%- endfor -%}
+      </ul>
+    </details>
+    {%- endfor -%}
+
+    <details class="donate-terms__section" id="terms-contacts">
+      <summary>
+        <span>13. Реквізити та контакти</span>
+        <svg class="donate-terms__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </summary>
+      <dl class="donate-terms__contacts">
+        <div>
+          <dt>Одержувач підтримки</dt>
+          <dd>{{ terms.recipient.name }}</dd>
+        </div>
+        {%- if terms.recipient.registry_id and terms.recipient.registry_id != "" -%}
+        <div>
+          <dt>Реєстраційний номер</dt>
+          <dd>{{ terms.recipient.registry_id }}</dd>
+        </div>
+        {%- endif -%}
+        <div>
+          <dt>Країна</dt>
+          <dd>{{ terms.recipient.country }}</dd>
+        </div>
+        <div>
+          <dt>Пошта для звернень</dt>
+          <dd><a href="mailto:{{ terms.recipient.email }}">{{ terms.recipient.email }}</a></dd>
+        </div>
+      </dl>
+      <p class="donate-terms__note">
+        Звернення щодо помилкових платежів, персональних даних і видалення повідомлень надсилайте на вказану пошту.
+      </p>
+    </details>
+  </div>
+</section>
+{%- endif -%}
+{%- endif -%}
