@@ -1,15 +1,16 @@
 # ==============================================================================
 # SITE SETTINGS
 # ==============================================================================
-title: Лігво Себаса
+title: Лігво Друїда
 tagline: WoW гайди, гільдія, адони та новини
 description: >-
-  Україномовний хаб про World of Warcraft: гайди, адони, новини,
-  сторінка гільдії Mistblossom Vanguard, Raider.IO статистика та корисні матеріали для спільноти.
+  Україномовний хаб про World of Warcraft: гайди українською, адони, новини патчів,
+  гільдія Mistblossom Vanguard, рейтинги Raider.IO та Mythic+ статистика складу.
 lang: uk
 locale: uk_UA
 author:
-  name: Sebas
+  name: Halytskyi Dmytro
+  alternate_name: Sebas
   url: https://lihvodruida.pp.ua/
 email: lihvo.druida@gmail.com
 timezone: Europe/Kyiv
@@ -19,12 +20,13 @@ url: "https://lihvodruida.pp.ua"
 baseurl: ""
 
 social:
-  name: Лігво Себаса
+  name: Лігво Друїда
   links:
     - https://www.youtube.com/@lihvo_druida
     - https://www.tiktok.com/@lihvo_druida
     - https://www.twitch.tv/lihvo_druida/about
-    - https://discord.gg/SR8JsQBCxn
+    - https://discord.gg/stNeSaVkhM
+    - https://www.curseforge.com/members/lihvo_druida
 
 curseforge_profile_url: https://www.curseforge.com/members/lihvo_druida
 
@@ -79,8 +81,8 @@ defaults:
       path: ""
     values:
       layout: default
-      image: /assets/img/news-placeholder.webp
-      robots: index, follow, max-image-preview:large
+      image: /assets/img/og-image-default.webp
+      robots: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
 
   - scope:
       path: ""
@@ -111,7 +113,9 @@ defaults:
 # PLUGINS (Стандартний набір GitHub Pages)
 # ==============================================================================
 plugins:
-  - jekyll-seo-tag
+  # jekyll-seo-tag прибрано: тег {% seo %} ніде не викликається, а всі мета-теги
+  # й JSON-LD зібрані вручну в _layouts/default.html і _includes/structured-data.html.
+  # Тримати плагін, який нічого не робить, — зайва залежність у збірці.
   - jekyll-sitemap
   - jekyll-feed
   - jekyll-include-cache

@@ -3,8 +3,10 @@ layout: default
 title: Вступ до Mistblossom Vanguard
 permalink: /guild/apply/
 description: "Коротка заявка до Mistblossom Vanguard з перевіркою обов’язкових полів, приватними контактами та статусами останніх заявок."
-robots: noindex, nofollow, noarchive
-sitemap: false
+# Сторінка набору — це саме те, що люди шукають («набір у гільдію WoW українською»),
+# тож вона має бути в індексі. Персональних даних тут не відображається:
+# заявки показуються на /guild/applications/, яка лишається закритою.
+robots: "index, follow, max-image-preview:large"
 image: /assets/img/guild-finder-apply.webp
 tags: [Mistblossom Vanguard, вступ до гільдії, World of Warcraft, Alliance, рейди, Mythic+]
 extra_css:
@@ -68,7 +70,7 @@ extra_js:
           <a href="#guild-application-form" class="application-primary-link">Подати заявку</a>
           <a href="{{ '/guild/applications/' | relative_url }}" class="btn-secondary-hero">Переглянути статус</a>
           <a href="{{ guild_discord }}" target="_blank" rel="noopener noreferrer" class="btn-secondary-hero btn-secondary-hero--discord">
-            <i class="fab fa-discord" aria-hidden="true"></i>
+            {% include social-icon.html name="discord" %}
             <span>Discord</span>
           </a>
         </div>

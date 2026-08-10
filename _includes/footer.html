@@ -1,0 +1,58 @@
+{%- assign wow_guild = site.data.guilds | where: "id", "mistblossom" | first -%}
+<footer class="site-footer" role="contentinfo">
+  <div class="site-footer__inner">
+
+    <div class="site-footer__brand">
+      <a class="site-footer__logo" href="{{ '/' | relative_url }}" aria-label="{{ site.title }} — на головну">
+        <img src="{{ site.logo | relative_url }}" alt="" width="44" height="44" loading="lazy" decoding="async">
+        <span>{{ site.title }}</span>
+      </a>
+      <p class="site-footer__tagline">{{ site.tagline }}</p>
+      <ul class="site-footer__socials">
+        <li><a href="{{ site.data.socials.youtube }}" target="_blank" rel="noopener me" aria-label="YouTube">{% include social-icon.html name="youtube" %}</a></li>
+        <li><a href="{{ site.data.socials.tiktok }}" target="_blank" rel="noopener me" aria-label="TikTok">{% include social-icon.html name="tiktok" %}</a></li>
+        <li><a href="{{ site.data.socials.twitch }}" target="_blank" rel="noopener me" aria-label="Twitch">{% include social-icon.html name="twitch" %}</a></li>
+        <li><a href="{{ wow_guild.discord }}" target="_blank" rel="noopener" aria-label="Discord гільдії">{% include social-icon.html name="discord" %}</a></li>
+      </ul>
+    </div>
+
+    <nav class="site-footer__nav" aria-label="Розділи сайту">
+      <div class="site-footer__col">
+        <h2>Матеріали</h2>
+        <ul>
+          <li><a href="{{ '/news/' | relative_url }}">Новини</a></li>
+          <li><a href="{{ '/guides/' | relative_url }}">Гайди</a></li>
+          <li><a href="{{ '/mods/' | relative_url }}">Адони</a></li>
+        </ul>
+      </div>
+
+      <div class="site-footer__col">
+        <h2>Гільдія</h2>
+        <ul>
+          <li><a href="{{ '/guild/' | relative_url }}">Склад і прогрес</a></li>
+          <li><a href="{{ '/guild/apply/' | relative_url }}">Подати заявку</a></li>
+        </ul>
+      </div>
+
+      <div class="site-footer__col">
+        <h2>Проєкт</h2>
+        <ul>
+          <li><a href="{{ '/donate/' | relative_url }}">Підтримати</a></li>
+          <li><a href="{{ '/donate/#donate-terms' | relative_url }}">Умови підтримки</a></li>
+          <li><a href="{{ '/feed.xml' | relative_url }}">RSS-стрічка</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="site-footer__legal">
+      <p>
+        © {{ 'now' | date: "%Y" }} {{ site.author.name }} ·
+        <a href="mailto:{{ site.email }}">{{ site.email }}</a>
+      </p>
+      <p class="site-footer__disclaimer">
+        World of Warcraft і Aion належать їхнім правовласникам. Сайт не пов'язаний
+        із Blizzard Entertainment і NCSOFT та не представляє їхні інтереси.
+      </p>
+    </div>
+  </div>
+</footer>

@@ -50,9 +50,15 @@
       </summary>
       <dl class="donate-terms__contacts">
         <div>
-          <dt>Одержувач підтримки</dt>
+          <dt>Одержувач</dt>
           <dd>{{ terms.recipient.name }}</dd>
         </div>
+        {%- if terms.recipient.status and terms.recipient.status != "" -%}
+        <div>
+          <dt>Правова форма</dt>
+          <dd>{{ terms.recipient.status }}</dd>
+        </div>
+        {%- endif -%}
         {%- if terms.recipient.registry_id and terms.recipient.registry_id != "" -%}
         <div>
           <dt>Реєстраційний номер</dt>
@@ -60,16 +66,22 @@
         </div>
         {%- endif -%}
         <div>
-          <dt>Країна</dt>
+          <dt>Юрисдикція</dt>
           <dd>{{ terms.recipient.country }}</dd>
         </div>
-        <div>
-          <dt>Пошта для звернень</dt>
-          <dd><a href="mailto:{{ terms.recipient.email }}">{{ terms.recipient.email }}</a></dd>
-        </div>
       </dl>
+
+      <a class="donate-terms__contact-cta" href="mailto:{{ terms.recipient.email }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.6 6.6 8.4 6 8.4-6"/></svg>
+        <span class="donate-terms__contact-text">
+          <span class="donate-terms__contact-label">Пошта для звернень</span>
+          <span class="donate-terms__contact-value">{{ terms.recipient.email }}</span>
+        </span>
+      </a>
+
       <p class="donate-terms__note">
-        Звернення щодо помилкових платежів, персональних даних і видалення повідомлень надсилайте на вказану пошту.
+        Сюди надсилайте звернення щодо помилкових платежів, персональних даних
+        і видалення повідомлень. Відповідь — протягом {{ terms.recipient.response_days | default: 30 }} календарних днів.
       </p>
     </details>
   </div>

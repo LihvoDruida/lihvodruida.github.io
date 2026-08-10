@@ -1,7 +1,19 @@
+# https://lihvodruida.pp.ua/robots.txt
+
 User-agent: *
 Allow: /
-Disallow: /guild/apply/
+
+# Особисті дані заявників — не для індексу
 Disallow: /guild/applications/
 Disallow: /api/guild-applications
+Disallow: /callback.html
+
+# Технічні параметри не створюють окремих сторінок
+Disallow: /*?*utm_
+Disallow: /*?*fbclid
+
+# Скани вразливостей — не наші, але хай не витрачають краулінговий бюджет
+Disallow: /wp-admin/
+Disallow: /wp-login.php
 
 Sitemap: https://lihvodruida.pp.ua/sitemap.xml

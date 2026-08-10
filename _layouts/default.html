@@ -7,7 +7,7 @@
   {% assign page_keywords = page.keywords | default: page.tags | default: page.categories | default: site.default_keywords %}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#2a2118">
+  <meta name="theme-color" content="#120f0c">
   <meta name="color-scheme" content="dark">
   <meta name="description" content="{{ meta_description | escape }}">
   <meta name="author" content="{{ page_author | escape }}">
@@ -30,11 +30,26 @@
   <meta property="og:description" content="{{ meta_description | escape }}">
   <meta property="og:url" content="{{ page_url }}">
   <meta property="og:image" content="{{ page_image }}">
-  <meta property="og:type" content="{{ page.seo.type | default: 'website' }}">
+  <meta property="og:type" content="{% if page.layout == 'news' or page.layout == 'guides' %}article{% else %}website{% endif %}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="{% if page.title %}{{ page.title | escape }}{% else %}{{ site.title | escape }}{% endif %}">
+  {% if page.layout == 'news' or page.layout == 'guides' %}
+  <meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}">
+  <meta property="article:modified_time" content="{{ page.last_modified_at | default: page.date | date_to_xmlschema }}">
+  <meta property="article:author" content="{{ page_author | escape }}">
+  {% for tag in page.tags %}<meta property="article:tag" content="{{ tag | escape }}">
+  {% endfor %}
+  {% endif %}
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{% if page.title %}{{ page.title | escape }} — {{ site.title | escape }}{% else %}{{ site.title | escape }}{% endif %}">
   <meta name="twitter:description" content="{{ meta_description | escape }}">
   <meta name="twitter:image" content="{{ page_image }}">
+  <meta name="twitter:image:alt" content="{% if page.title %}{{ page.title | escape }}{% else %}{{ site.title | escape }}{% endif %}">
+
+  <link rel="alternate" type="application/atom+xml" title="{{ site.title | escape }} — стрічка новин" href="{{ '/feed.xml' | absolute_url }}">
+  <link rel="alternate" hreflang="uk" href="{{ page_url }}">
+  <link rel="alternate" hreflang="x-default" href="{{ page_url }}">
 
   <link rel="icon" href="{{ '/favicon.ico' | relative_url }}" sizes="any">
   <link rel="apple-touch-icon" sizes="57x57" href="{{ '/assets/favicon/apple-icon-57x57.png' | relative_url }}">
@@ -52,14 +67,15 @@
   <link rel="icon" type="image/png" sizes="16x16" href="{{ '/assets/favicon/favicon-16x16.png' | relative_url }}">
   <link rel="manifest" href="{{ '/assets/favicon/manifest.json' | relative_url }}">
   <meta name="msapplication-config" content="{{ '/assets/favicon/browserconfig.xml' | relative_url }}">
-  <meta name="msapplication-TileColor" content="#2a2118">
+  <meta name="msapplication-TileColor" content="#120f0c">
   <meta name="msapplication-TileImage" content="{{ '/assets/favicon/ms-icon-144x144.png' | relative_url }}">
 
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-  <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
   {% if page.wowhead_tooltips %}
   <link rel="preconnect" href="https://wow.zamimg.com" crossorigin>
   <link rel="dns-prefetch" href="//wow.zamimg.com">
+  {% endif %}
+  {% if page.image and page.layout != 'default' %}
+  <link rel="preload" as="image" href="{{ page.image | relative_url }}" fetchpriority="high">
   {% endif %}
   <link rel="preload" href="{{ '/assets/css/base/variables.css' | relative_url }}" as="style">
   <link rel="preload" href="{{ '/assets/css/style.css' | relative_url }}" as="style">
@@ -75,21 +91,7 @@
   {% feed_meta %}
 
 
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "{{ page.seo.type | default: 'WebSite' }}",
-    "name": "{% if page.title %}{{ page.title | escape }}{% else %}{{ site.title | escape }}{% endif %}",
-    "url": "{{ page_url }}",
-    "description": "{{ meta_description | escape }}",
-    "publisher": {
-      "@type": "Organization",
-      "name": "Mistblossom Vanguard",
-      "url": "{{ site.url }}",
-      "logo": "{{ site.logo | default: site.image | absolute_url }}"
-    }
-  }
-  </script>
+  {% include structured-data.html %}
 
   {% if page.wowhead_tooltips %}
   <script>
@@ -104,8 +106,6 @@
   <script src="{{ '/assets/js/wowhead-tooltips.js' | relative_url }}" defer></script>
   {% endif %}
 
-  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer"></noscript>
   <link rel="stylesheet" href="{{ '/assets/css/base/variables.css' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/site-polish.css' | relative_url }}">
@@ -115,6 +115,24 @@
   <link rel="stylesheet" href="{{ stylesheet | relative_url }}">
     {% endfor %}
   {% endif %}
+
+  {%- comment -%}
+    Speculation Rules API: браузер сам підвантажує сторінку, коли користувач
+    наводить курсор або починає натискати посилання. Перехід стає миттєвим,
+    а браузери без підтримки просто ігнорують цей блок.
+  {%- endcomment -%}
+  <script type="speculationrules">
+  {
+    "prefetch": [{
+      "where": { "and": [
+        { "href_matches": "/*" },
+        { "not": { "href_matches": "/guild/applications/*" } },
+        { "not": { "href_matches": "/callback*" } }
+      ]},
+      "eagerness": "moderate"
+    }]
+  }
+  </script>
 
   <script src="{{ '/assets/js/mobile-menu.js' | relative_url }}" defer></script>
   <script src="{{ '/assets/js/sidebar-scroll.js' | relative_url }}" defer></script>
@@ -136,6 +154,8 @@
     <main id="main-content">
       {{ content }}
     </main>
+
+    {% include footer.html %}
   </div>
 </body>
 </html>

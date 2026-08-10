@@ -2,7 +2,7 @@
 layout: default
 title: Підтримати проєкт
 permalink: /donate/
-description: "Сторінка підтримки Лігва Себаса: Monobank, Donatello та інші способи допомогти розвитку сайту, стрімів і нового контенту."
+description: "Сторінка підтримки Лігва Друїда: Monobank, Donatello та інші способи допомогти розвитку сайту, стрімів і нового контенту."
 image: /assets/img/og-image-default.webp
 tags: [підтримка, донат, Monobank, Donatello, стріми, контент]
 extra_css:

@@ -500,10 +500,170 @@ h3 {
 /* =========================================
    11. FOOTER
    ========================================= */
-footer {
-    margin-top: var(--space-xl);
-    font-size: 13px;
-    color: var(--muted);
+/* =========================================================
+   ФУТЕР САЙТУ
+   Раніше футера не було зовсім — сторінки просто обривалися.
+   Для SEO це втрачені внутрішні лінки, для користувача — глухий кут.
+   ========================================================= */
+
+.site-footer {
+    position: relative;
+    z-index: 1;
+    margin-top: var(--space-3xl);
+    padding: var(--space-2xl) var(--pad-page-inline) var(--space-xl);
+    border-top: 1px solid var(--border-subtle);
+    background: var(--surface-sunken);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.site-footer__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr);
+    gap: var(--space-xl);
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.site-footer__logo {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    min-height: 0;
+    min-width: 0;
+    color: var(--text-strong);
+    text-decoration: none;
+    font-family: var(--font-brand);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.site-footer__logo img {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-sm);
+}
+
+.site-footer__tagline {
+    margin: var(--space-sm) 0 var(--space-md);
+    max-width: 34ch;
+    line-height: 1.55;
+    color: var(--text-muted);
+}
+
+.site-footer__socials {
+    display: flex;
+    gap: var(--space-xs);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.site-footer__socials a {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    color: var(--text-muted);
+    transition: color var(--dur-fast) var(--ease-out),
+                border-color var(--dur-fast) var(--ease-out),
+                transform var(--dur-fast) var(--ease-out);
+}
+
+.site-footer__socials a:hover {
+    color: var(--c-accent-300);
+    border-color: var(--border-strong);
+    transform: translateY(-2px);
+}
+
+.site-footer__socials svg {
+    width: 18px;
+    height: 18px;
+}
+
+.site-footer__nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr));
+    gap: var(--space-lg);
+}
+
+.site-footer__col h2 {
+    margin: 0 0 var(--space-sm);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--c-accent-300);
+    background: none;
+    -webkit-text-fill-color: currentColor;
+}
+
+.site-footer__col ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.site-footer__col a {
+    min-height: 0;
+    min-width: 0;
+    color: var(--text-soft);
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease-out);
+}
+
+.site-footer__col a:hover {
+    color: var(--c-accent-200);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.site-footer__legal {
+    grid-column: 1 / -1;
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border-subtle);
+    font-size: 0.82rem;
+}
+
+.site-footer__legal p {
+    margin: 0;
+}
+
+.site-footer__legal a {
+    color: var(--c-accent-300);
+}
+
+.site-footer__disclaimer {
+    margin-top: var(--space-2xs) !important;
+    max-width: 70ch;
+    color: var(--text-faint);
+}
+
+@media (max-width: 768px) {
+    .site-footer {
+        margin-top: var(--space-2xl);
+        padding: var(--space-xl) var(--pad-page-inline) var(--space-lg);
+    }
+
+    .site-footer__inner {
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+    }
+
+    .site-footer__nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 /* =========================================
@@ -1220,7 +1380,10 @@ body.nav-open {
 .methods-grid,
 .news-grid {
     content-visibility: auto;
-    contain-intrinsic-size: 1px 900px;
+    /* Ключове слово auto змушує браузер запам'ятати реальну висоту секції
+       після першого рендеру. Без нього кожна невідмальована секція
+       займала рівно 900px, і при скролі сторінка стрибала. */
+    contain-intrinsic-size: auto 900px;
 }
 
 /* =========================================================
