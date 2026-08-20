@@ -4,13 +4,13 @@
     awareness. Features Smart Zoom for Combat & Mounts with smooth transitions. Safe
     for The War Within (12.x) raids and compatible with MoP Classic & Anniversary
     TBC.
-  downloads: 552080
-  updated_at: '2026-08-07T14:54:45.817Z'
+  downloads: 565800
+  updated_at: '2026-08-17T21:23:45.037Z'
   link: https://www.curseforge.com/wow/addons/max-camera-distance
   logo: https://media.forgecdn.net/avatars/thumbnails/1665/847/256/256/639060492329175207.png
   categories:
-  - Miscellaneous
   - Bags & Inventory
+  - Miscellaneous
   - Audio & Video
   - PvP
   game_versions:
@@ -22,13 +22,13 @@
   - 3.4.5
   - 2.5.6
   - 1.15.9
-  version: v9.0
+  version: v9.1
 - id: 1458193
   name: Chatify (Chat Enhancer)
   summary: A lightweight and modular chat enhancement addon. Features include chat
     history, URL copying, spam filtering, visual customization, and sound alerts.
-  downloads: 37679
-  updated_at: '2026-08-09T12:46:33.047Z'
+  downloads: 40105
+  updated_at: '2026-08-18T11:00:57Z'
   link: https://www.curseforge.com/wow/addons/chatify-chat-enhancer
   logo: https://media.forgecdn.net/avatars/thumbnails/1669/900/256/256/639062343636465468.png
   categories:
@@ -46,12 +46,12 @@
   - 2.5.6
   - 2.5.5
   - 1.15.8
-  version: v2.3
+  version: v2.5
 - id: 852433
   name: DBM Voice Pack (Ukrainian Female)
   summary: This modification is an addition to DBM that adds Ukrainian dubbing to
     events.
-  downloads: 15203
+  downloads: 15234
   updated_at: '2025-04-10T18:36:37.1Z'
   link: https://www.curseforge.com/wow/addons/dbm-voice-pack-ukrainian-female
   logo: https://media.forgecdn.net/avatars/thumbnails/806/845/256/256/638175218140299754.png
@@ -76,7 +76,7 @@
 - id: 889139
   name: DBM Countdown Pack (Ukrainian)
   summary: This addon adds sound effects of a countdown timer for DBM.
-  downloads: 5837
+  downloads: 5861
   updated_at: '2023-09-10T06:00:53.857Z'
   link: https://www.curseforge.com/wow/addons/deadly-boss-mods-dbm-ukrainian-countdown-pack
   logo: https://media.forgecdn.net/avatars/thumbnails/849/488/256/256/638250468272545947.jpeg
@@ -95,7 +95,7 @@
     minimal setup, ensuring easy activation and compatibility with the latest game
     versions. Install, configure, and enjoy automatic loot collection with an intuitive
     interface.
-  downloads: 2319
+  downloads: 2328
   updated_at: '2025-06-12T17:28:41.107Z'
   link: https://www.curseforge.com/wow/addons/quicklootenabler
   logo: https://media.forgecdn.net/avatars/thumbnails/1052/780/256/256/638583080114749769.jpg
@@ -112,7 +112,7 @@
 - id: 890116
   name: AddonTranslator (Ukrainian)
   summary: AddonTranslator is a Ukrainian localization modification for some Addons.
-  downloads: 4130
+  downloads: 4143
   updated_at: '2023-09-07T20:17:54.41Z'
   link: https://www.curseforge.com/wow/addons/addontranslator-ukrainian
   logo: https://media.forgecdn.net/avatars/thumbnails/850/644/256/256/638252260809236370.jpeg
@@ -129,7 +129,7 @@
     dungeon experience. It adds warning icons, tooltips, and animated affix icons
     to highlight critical effects, providing a more intuitive and efficient gameplay
     experience.
-  downloads: 368
+  downloads: 374
   updated_at: '2025-01-15T15:55:17.05Z'
   link: https://www.curseforge.com/wow/addons/mythic-affix-helper
   logo: https://media.forgecdn.net/avatars/thumbnails/1157/481/256/256/638725525966939062.png
@@ -143,17 +143,17 @@
   name: Group Guard LFG
   summary: Manage LFG applications and party/raid alerts with simple custom rules,
     highlights, and quick actions.
-  downloads: 81
-  updated_at: '2026-07-31T22:41:20.477Z'
+  downloads: 96
+  updated_at: '2026-08-11T19:14:10.963Z'
   link: https://www.curseforge.com/wow/addons/group-guard-lfg
   logo: https://media.forgecdn.net/avatars/thumbnails/1861/816/256/256/639169041505277999.png
   categories:
   - Miscellaneous
   - HUDs
+  - Battleground
   - Arena
   - PvP
-  - Battleground
   game_versions:
   - 12.1.0
   - 12.0.7
-  version: v0.7
+  version: v0.8
