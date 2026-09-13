@@ -167,32 +167,52 @@ extra_css:
 
     {% capture current_needle %}|{{ current_season_id }}|{% endcapture %}
 
+    {% comment %}
+      Показуємо тільки сезони, у яких є фактичний прогрес хоча б одного рейду.
+      Поточний сезон без убитих босів не створює порожню вкладку.
+    {% endcomment %}
     {% assign visible_seasons = 0 %}
+    {% assign active_season_id = '' %}
+    {% if seasons_with_data contains current_needle %}
+      {% assign active_season_id = current_season_id %}
+    {% endif %}
     {% for season in raid_seasons %}
       {% capture season_needle %}|{{ season.id }}|{% endcapture %}
-      {% if seasons_with_data contains season_needle or season.id == current_season_id %}
+      {% if seasons_with_data contains season_needle %}
         {% assign visible_seasons = visible_seasons | plus: 1 %}
+        {% if active_season_id == '' %}{% assign active_season_id = season.id %}{% endif %}
       {% endif %}
     {% endfor %}
-    {% if orphan_kills > 0 %}{% assign visible_seasons = visible_seasons | plus: 1 %}{% endif %}
+    {% if orphan_kills > 0 %}
+      {% assign visible_seasons = visible_seasons | plus: 1 %}
+      {% if active_season_id == '' %}{% assign active_season_id = 'other' %}{% endif %}
+    {% endif %}
 
     <div id="guild-live-raid-progress" class="guild-live-progress" hidden></div>
 
     {% if progression and progression.size > 0 %}
     <div class="raid-seasons" id="raid-seasons">
+      {% if visible_seasons == 0 %}
+      <div class="raid-progress-empty">
+        <span aria-hidden="true">◇</span>
+        <div><strong>Ще немає закритих босів</strong><small>Рейд з’явиться тут після першого фактичного kill на Normal, Heroic або Mythic.</small></div>
+      </div>
+      {% endif %}
       {% if visible_seasons > 1 %}
       <div class="season-switcher" role="tablist" aria-label="Перемикач сезонів">
         {% for season in raid_seasons %}
           {% capture season_needle %}|{{ season.id }}|{% endcapture %}
-          {% if seasons_with_data contains season_needle or season.id == current_season_id %}
+          {% if seasons_with_data contains season_needle %}
             {% assign is_current = false %}
             {% if season.id == current_season_id %}{% assign is_current = true %}{% endif %}
+            {% assign is_active = false %}
+            {% if season.id == active_season_id %}{% assign is_active = true %}{% endif %}
             <button type="button"
-                    class="season-tab{% if is_current %} is-active{% endif %}"
+                    class="season-tab{% if is_active %} is-active{% endif %}"
                     id="season-tab-{{ season.id }}"
                     data-season-tab="{{ season.id }}"
                     role="tab"
-                    aria-selected="{% if is_current %}true{% else %}false{% endif %}"
+                    aria-selected="{% if is_active %}true{% else %}false{% endif %}"
                     aria-controls="season-panel-{{ season.id }}">
               <span class="season-tab-label">{{ season.label }}</span>
               {% if is_current %}<span class="season-tab-flag">Актуальний</span>{% endif %}
@@ -200,7 +220,7 @@ extra_css:
           {% endif %}
         {% endfor %}
         {% if orphan_kills > 0 %}
-          <button type="button" class="season-tab" id="season-tab-other" data-season-tab="other" role="tab" aria-selected="false" aria-controls="season-panel-other">
+          <button type="button" class="season-tab{% if active_season_id == 'other' %} is-active{% endif %}" id="season-tab-other" data-season-tab="other" role="tab" aria-selected="{% if active_season_id == 'other' %}true{% else %}false{% endif %}" aria-controls="season-panel-other">
             <span class="season-tab-label">Інші рейди</span>
           </button>
         {% endif %}
@@ -209,10 +229,12 @@ extra_css:
 
       {% for season in raid_seasons %}
         {% capture season_needle %}|{{ season.id }}|{% endcapture %}
-        {% if seasons_with_data contains season_needle or season.id == current_season_id %}
+        {% if seasons_with_data contains season_needle %}
 
           {% assign is_current = false %}
           {% if season.id == current_season_id %}{% assign is_current = true %}{% endif %}
+          {% assign is_active = false %}
+          {% if season.id == active_season_id %}{% assign is_active = true %}{% endif %}
 
           {% assign s_total = 0 %}
           {% assign s_mythic = 0 %}
@@ -233,12 +255,12 @@ extra_css:
             {% endif %}
           {% endfor %}
 
-          <div class="season-panel{% if is_current %} is-active{% endif %}"
+          <div class="season-panel{% if is_active %} is-active{% endif %}"
                id="season-panel-{{ season.id }}"
                data-season-panel="{{ season.id }}"
                role="tabpanel"
                aria-labelledby="season-tab-{{ season.id }}"
-               {% unless is_current %}hidden{% endunless %}>
+               {% unless is_active %}hidden{% endunless %}>
 
             {% if s_raids > 0 %}
             <div class="season-summary">
@@ -260,7 +282,7 @@ extra_css:
                 {% assign stats = progression[slug] %}
                 {% if stats and stats.total_bosses > 0 %}
                   {% assign raid_kills = stats.normal_bosses_killed | plus: stats.heroic_bosses_killed | plus: stats.mythic_bosses_killed %}
-                  {% if raid_kills > 0 or is_current %}
+                  {% if raid_kills > 0 %}
                     {% comment %} Jekyll не приймає [..] у параметрах include — виносимо в assign {% endcomment %}
                     {% assign raid_ranks = guild_root.raid_rankings[slug] %}
                     {% include raid-card.html slug=slug stats=stats rankings=raid_ranks current=is_current %}
@@ -268,20 +290,13 @@ extra_css:
                 {% endif %}
               {% endfor %}
 
-              {% if s_raids == 0 %}
-              <div class="raid-card placeholder-card">
-                <div class="placeholder-icon">💤</div>
-                <h3 class="raid-title">Прогресу в цьому сезоні ще немає</h3>
-                <p class="placeholder-text">{% if is_current %}Гільдія ще не має вбитих босів у поточному сезоні.{% else %}За цей сезон дані не збереглися.{% endif %}</p>
-              </div>
-              {% endif %}
             </div>
           </div>
         {% endif %}
       {% endfor %}
 
       {% if orphan_kills > 0 %}
-      <div class="season-panel" id="season-panel-other" data-season-panel="other" role="tabpanel" aria-labelledby="season-tab-other" hidden>
+      <div class="season-panel{% if active_season_id == 'other' %} is-active{% endif %}" id="season-panel-other" data-season-panel="other" role="tabpanel" aria-labelledby="season-tab-other"{% unless active_season_id == 'other' %} hidden{% endunless %}>
         <div class="raid-grid">
           {% for raid in progression %}
             {% capture needle %}|{{ raid[0] }}|{% endcapture %}

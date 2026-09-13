@@ -2980,45 +2980,209 @@
   .guild-live-season-tabs { margin-inline: -4px; }
 }
 
-/* Static fallback uses the same full-width composition instead of leaving empty columns. */
-.raid-grid {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 430px), 1fr));
-  gap: 14px;
+/* Raid progress carousel — fixed 4-card pages without stretching partial pages. */
+.raid-carousel {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
 }
 
-@media (min-width: 860px) {
-  .raid-grid > .raid-card:only-child:not(.placeholder-card) {
-    display: grid;
-    grid-template-columns: minmax(260px, .78fr) minmax(360px, 1.22fr);
-    column-gap: 18px;
-    align-items: start;
+.raid-carousel-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 38px;
+  padding: 0 2px;
+}
+
+.raid-carousel-toolbar[hidden] {
+  display: none;
+}
+
+.raid-carousel-range {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  color: #b4a99f;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.raid-carousel-range > span {
+  color: #f0e6dc;
+  font-size: 12px;
+}
+
+.raid-carousel-range small {
+  color: #756d66;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.raid-carousel-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.raid-carousel-page {
+  min-width: 46px;
+  color: #8f867e;
+  font-size: 10px;
+  font-weight: 800;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.raid-carousel-arrow {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid rgba(244, 154, 69, .20);
+  border-radius: 11px;
+  background: rgba(244, 154, 69, .055);
+  color: #f3c184;
+  font: inherit;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform .16s ease, background-color .16s ease, border-color .16s ease, color .16s ease, opacity .16s ease;
+}
+
+.raid-carousel-arrow:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(244, 154, 69, .40);
+  background: rgba(244, 154, 69, .11);
+  color: #ffd19b;
+}
+
+.raid-carousel-arrow:focus-visible {
+  outline: 2px solid rgba(244, 154, 69, .72);
+  outline-offset: 2px;
+}
+
+.raid-carousel-arrow:disabled {
+  opacity: .28;
+  cursor: default;
+}
+
+.raid-carousel-viewport {
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+/* Always keep a 2×2 desktop matrix. Missing raids occupy invisible slots. */
+.raid-grid.raid-carousel-grid,
+.guild-live-progress-grid.raid-carousel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  min-width: 0;
+  transition: opacity .17s ease, transform .17s cubic-bezier(.2,.75,.25,1);
+  will-change: opacity, transform;
+}
+
+.raid-carousel-grid > .raid-card,
+.raid-carousel-grid > .guild-live-progress-card {
+  width: 100%;
+  min-width: 0;
+  min-height: 248px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.raid-carousel-empty {
+  min-width: 0;
+  min-height: 248px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.raid-carousel-grid.is-leaving-left {
+  opacity: 0;
+  transform: translateX(-28px);
+}
+
+.raid-carousel-grid.is-leaving-right {
+  opacity: 0;
+  transform: translateX(28px);
+}
+
+.raid-carousel-grid.is-entering-right {
+  opacity: 0;
+  transform: translateX(28px);
+  transition: none;
+}
+
+.raid-carousel-grid.is-entering-left {
+  opacity: 0;
+  transform: translateX(-28px);
+  transition: none;
+}
+
+.raid-progress-empty {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border: 1px dashed rgba(244, 154, 69, .20);
+  border-radius: 16px;
+  background: rgba(244, 154, 69, .025);
+}
+
+.raid-progress-empty > span {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  background: rgba(244, 154, 69, .08);
+  color: #dca754;
+}
+
+.raid-progress-empty div {
+  display: grid;
+  gap: 2px;
+}
+
+.raid-progress-empty strong {
+  color: #e8ded4;
+  font-size: 12px;
+}
+
+.raid-progress-empty small {
+  color: #8b827b;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+@media (max-width: 760px) {
+  .raid-grid.raid-carousel-grid,
+  .guild-live-progress-grid.raid-carousel-grid {
+    grid-template-columns: 1fr;
   }
 
-  .raid-grid > .raid-card:only-child:not(.placeholder-card) .raid-card-header {
-    grid-column: 1 / -1;
+  /* Mobile keeps four records per page, but invisible desktop matrix slots do not add dead vertical space. */
+  .raid-carousel-empty {
+    display: none;
   }
 
-  .raid-grid > .raid-card:only-child:not(.placeholder-card) .rank-stats,
-  .raid-grid > .raid-card:only-child:not(.placeholder-card) .raid-bars {
-    margin-bottom: 0;
+  .raid-carousel-grid > .raid-card,
+  .raid-carousel-grid > .guild-live-progress-card {
+    min-height: 0;
   }
 }
 
-/* One-raid states still use the available width instead of leaving a dead column. */
-@media (min-width: 900px) {
-  .guild-live-progress-grid > .guild-live-progress-card:only-child {
-    grid-column: 1 / -1;
-    grid-template-columns: minmax(280px, .82fr) minmax(420px, 1.18fr);
-    column-gap: 20px;
-    align-items: start;
-  }
-
-  .guild-live-progress-grid > .guild-live-progress-card:only-child .guild-live-progress-card__head {
-    grid-row: 1 / span 2;
-  }
-
-  .guild-live-progress-grid > .guild-live-progress-card:only-child .guild-live-progress-card__ranks,
-  .guild-live-progress-grid > .guild-live-progress-card:only-child .guild-live-progress-card__difficulties {
-    grid-column: 2;
+@media (prefers-reduced-motion: reduce) {
+  .raid-carousel-grid,
+  .raid-carousel-arrow {
+    transition: none !important;
   }
 }

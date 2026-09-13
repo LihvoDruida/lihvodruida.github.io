@@ -183,7 +183,11 @@
         catalog: c,
         rank: rankings && rankings[slug] || {}
       };
-    }).filter(function (entry) { return entry.p.total_bosses > 0 || entry.p.name; });
+    }).filter(function (entry) {
+      var p = entry.p;
+      var kills = Number(p.normal_bosses_killed || 0) + Number(p.heroic_bosses_killed || 0) + Number(p.mythic_bosses_killed || 0);
+      return p.total_bosses > 0 && kills > 0;
+    });
   }
 
   function seasonHasProgress(entries) {
@@ -251,10 +255,16 @@
     if (!meta) {
       var flat = Object.keys(progression).map(function (slug) {
         return { slug: slug, p: progression[slug] || {}, catalog: {}, rank: rankings && rankings[slug] || {} };
-      }).filter(function (entry) { return entry.p && (entry.p.name || entry.p.total_bosses); });
+      }).filter(function (entry) {
+        var p = entry.p || {};
+        return Number(p.total_bosses || 0) > 0 && (Number(p.normal_bosses_killed || 0) + Number(p.heroic_bosses_killed || 0) + Number(p.mythic_bosses_killed || 0) > 0);
+      });
       if (!flat.length) return;
       progressNode.hidden = false;
       progressNode.innerHTML = '<div class="guild-live-progress-grid">' + flat.map(function (entry) { return liveRaidProgressCard(entry, false); }).join('') + '</div>';
+      if (window.MistblossomRaidCarousel && typeof window.MistblossomRaidCarousel.initAll === 'function') {
+        window.MistblossomRaidCarousel.initAll(progressNode);
+      }
       if (staticRaidSeasons) staticRaidSeasons.hidden = true;
       return;
     }
@@ -263,7 +273,7 @@
     var prepared = meta.seasons.map(function (season) {
       return { season: season, entries: seasonRaidEntries(season, progression, rankings, catalog) };
     }).filter(function (item) {
-      return item.season.current || seasonHasProgress(item.entries);
+      return seasonHasProgress(item.entries);
     });
     if (!prepared.length) return;
 
@@ -289,6 +299,10 @@
     progressNode.hidden = false;
     progressNode.innerHTML = '<div class="guild-live-season-shell"><div class="guild-live-season-detection"><div><span>Автовизначення сезону</span><strong>' + escapeHtml(meta.current_expansion || current.season.expansion || 'World of Warcraft') + '</strong><small>' + escapeHtml(sourceLabel) + ' · ' + escapeHtml(meta.region ? String(meta.region).toUpperCase() : 'EU') + '</small></div><div class="guild-live-season-detection__totals"><span><b>' + currentTotals.mythic + '/' + currentTotals.total + '</b>M</span><span><b>' + currentTotals.heroic + '/' + currentTotals.total + '</b>H</span><span><b>' + currentTotals.normal + '/' + currentTotals.total + '</b>N</span></div></div>' +
       (prepared.length > 1 ? '<div class="guild-live-season-tabs" role="tablist">' + tabs + '</div>' : '') + panels + '</div>';
+
+    if (window.MistblossomRaidCarousel && typeof window.MistblossomRaidCarousel.initAll === 'function') {
+      window.MistblossomRaidCarousel.initAll(progressNode);
+    }
 
     progressNode.querySelectorAll('[data-live-season]').forEach(function (button) {
       button.addEventListener('click', function () {
