@@ -131,16 +131,23 @@ extra_css:
 
     {% assign raid_meta = site.data.raids %}
     {% assign progression = guild_root.raid_progression %}
+    {% assign live_raid_meta = guild_root.raid_seasons %}
 
     {% comment %}
-      Ручний список сезонів має пріоритет. Якщо його немає — беремо той,
-      що update_guild.py вирахував із доповнень і дат відкриття рейдів.
+      VPS є основним джерелом актуальності: Battle.net визначає поточне
+      доповнення, Raider.IO — активний main season та часові вікна рейдів.
+      Старий _data/raids.yml лишається тільки offline fallback.
     {% endcomment %}
-    {% assign raid_seasons = raid_meta.seasons %}
-    {% if raid_seasons == nil or raid_seasons.size == 0 %}
+    {% if live_raid_meta and live_raid_meta.seasons and live_raid_meta.seasons.size > 0 %}
+      {% assign raid_seasons = live_raid_meta.seasons %}
+      {% assign current_season_id = live_raid_meta.current_season_id %}
+    {% else %}
       {% assign raid_seasons = raid_meta.derived_seasons %}
+      {% if raid_seasons == nil or raid_seasons.size == 0 %}
+        {% assign raid_seasons = raid_meta.seasons %}
+      {% endif %}
+      {% assign current_season_id = raid_meta.derived_current_season | default: raid_meta.current_season %}
     {% endif %}
-    {% assign current_season_id = raid_meta.current_season | default: raid_meta.derived_current_season %}
 
     {% comment %} Які сезони мають хоч один вбитий бос — щоб не малювати порожні вкладки {% endcomment %}
     {% capture seasons_with_data %}{% for season in raid_seasons %}{% assign season_kills = 0 %}{% for slug in season.raids %}{% assign st = progression[slug] %}{% if st %}{% assign k = st.normal_bosses_killed | plus: st.heroic_bosses_killed | plus: st.mythic_bosses_killed %}{% assign season_kills = season_kills | plus: k %}{% endif %}{% endfor %}{% if season_kills > 0 %}|{{ season.id }}|{% endif %}{% endfor %}{% endcapture %}
@@ -238,6 +245,7 @@ extra_css:
               <div class="season-summary-head">
                 <span class="season-summary-title">{{ season.label }}</span>
                 {% if is_current %}<span class="season-badge is-current">Актуальний сезон</span>{% else %}<span class="season-badge">Завершений сезон</span>{% endif %}
+                {% if is_current and live_raid_meta %}<span class="season-auto-source">Battle.net + Raider.IO · автоматично</span>{% endif %}
               </div>
               <div class="season-summary-stats">
                 <span class="season-stat is-mythic"><b>{{ s_mythic }}/{{ s_total }}</b> M</span>
@@ -252,10 +260,10 @@ extra_css:
                 {% assign stats = progression[slug] %}
                 {% if stats and stats.total_bosses > 0 %}
                   {% assign raid_kills = stats.normal_bosses_killed | plus: stats.heroic_bosses_killed | plus: stats.mythic_bosses_killed %}
-                  {% if raid_kills > 0 %}
+                  {% if raid_kills > 0 or is_current %}
                     {% comment %} Jekyll не приймає [..] у параметрах include — виносимо в assign {% endcomment %}
                     {% assign raid_ranks = guild_root.raid_rankings[slug] %}
-                    {% include raid-card.html slug=slug stats=stats rankings=raid_ranks %}
+                    {% include raid-card.html slug=slug stats=stats rankings=raid_ranks current=is_current %}
                   {% endif %}
                 {% endif %}
               {% endfor %}

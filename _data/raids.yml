@@ -4,12 +4,20 @@ metadata:
   expansion_ids:
   - 11
   - 10
-current_season: midnight-1
+  fallback_mode: derived-from-raiderio-static-data
+current_season: midnight-2
 seasons:
+- id: midnight-2
+  expansion: Midnight
+  label: Midnight · Сезон 2
+  short: MIDNIGHT S2
+  raids:
+  - the-tidebound-grotto
+  - the-venomous-abyss
 - id: midnight-1
   expansion: Midnight
   label: Midnight · Сезон 1
-  short: Сезон 1
+  short: MIDNIGHT S1
   raids:
   - tier-mn-1
   - sporefall
@@ -165,7 +173,5 @@ catalog:
     bosses: 8
     starts_eu: '2024-09-11T04:00:00Z'
     ends_eu: '2025-03-05T04:00:00Z'
-unassigned:
-- the-tidebound-grotto
-- the-venomous-abyss
+unassigned: []
 undetected: []

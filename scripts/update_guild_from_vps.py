@@ -38,6 +38,7 @@ def clean_payload(payload: Any) -> dict[str, Any]:
         "guild": guild,
         "raid_progression": payload.get("raid_progression") or {},
         "raid_rankings": payload.get("raid_rankings") or {},
+        "raid_seasons": payload.get("raid_seasons") or {},
         "members": members,
         # Stored as fallback data. guild-live.js replaces this with the current
         # server response whenever the API is reachable.

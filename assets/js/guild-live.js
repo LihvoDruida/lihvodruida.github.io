@@ -111,42 +111,196 @@
     }
   }
 
+  function percent(value, total) {
+    var n = Number(value || 0);
+    var t = Number(total || 0);
+    if (!t) return 0;
+    return Math.max(0, Math.min(100, Math.round((n / t) * 100)));
+  }
+
+  function bestRank(rank) {
+    rank = rank || {};
+    var order = ['mythic', 'heroic', 'normal'];
+    for (var i = 0; i < order.length; i += 1) {
+      var row = rank[order[i]] || {};
+      if (Number(row.world || 0) || Number(row.region || 0) || Number(row.realm || 0)) {
+        return { difficulty: order[i], world: Number(row.world || 0), region: Number(row.region || 0), realm: Number(row.realm || 0) };
+      }
+    }
+    return null;
+  }
+
   function renderRaids(raids) {
     if (!raidsNode) return;
     if (!Array.isArray(raids) || !raids.length) {
       raidsNode.innerHTML = '<article class="guild-live-placeholder">Найближчих опублікованих рейдів поки немає.</article>';
       return;
     }
-    raidsNode.innerHTML = raids.map(function (raid) {
+    raidsNode.innerHTML = raids.map(function (raid, index) {
+      var filled = Number(raid.roster || raid.going || 0);
+      var capacity = Number(raid.capacity || 0);
+      var fillPct = capacity ? Math.min(100, Math.round((filled / capacity) * 100)) : 0;
       var roles = [
-        '<span><b>' + Number(raid.tanks || 0) + '</b> танки</span>',
-        '<span><b>' + Number(raid.healers || 0) + '</b> хіли</span>',
-        '<span><b>' + Number(raid.dps || 0) + '</b> DPS</span>'
+        '<span class="is-tank"><b>' + Number(raid.tanks || 0) + '</b><small>танки</small></span>',
+        '<span class="is-healer"><b>' + Number(raid.healers || 0) + '</b><small>хіли</small></span>',
+        '<span class="is-dps"><b>' + Number(raid.dps || 0) + '</b><small>DPS</small></span>'
       ].join('');
-      return '<article class="guild-live-raid-card">' +
-        '<div class="guild-live-raid-card__top"><div><span class="guild-live-raid-card__eyebrow">' + escapeHtml(raid.difficulty || 'Raid') + '</span><h3>' + escapeHtml(raid.title || 'Рейд гільдії') + '</h3></div><span class="guild-live-raid-card__capacity">' + Number(raid.roster || raid.going || 0) + '/' + Number(raid.capacity || 0) + '</span></div>' +
+      return '<article class="guild-live-raid-card' + (index === 0 ? ' is-next' : '') + '">' +
+        '<div class="guild-live-raid-card__top"><div><div class="guild-live-raid-card__chips">' +
+        (index === 0 ? '<span class="guild-live-raid-card__next">Найближчий</span>' : '') +
+        '<span class="guild-live-raid-card__eyebrow">' + escapeHtml(raid.difficulty || 'Raid') + '</span></div>' +
+        '<h3>' + escapeHtml(raid.title || 'Рейд гільдії') + '</h3></div>' +
+        '<span class="guild-live-raid-card__capacity"><b>' + filled + '</b>/' + capacity + '</span></div>' +
         '<div class="guild-live-raid-card__time">' + escapeHtml(formatDateTime(raid.date, raid.time)) + '</div>' +
-        '<div class="guild-live-raid-card__roles">' + roles + '</div>' +
-        (raid.raid_leader ? '<div class="guild-live-raid-card__leader">RL: ' + escapeHtml(raid.raid_leader) + '</div>' : '') +
-        '</article>';
+        '<div class="guild-live-raid-card__progress"><i style="width:' + fillPct + '%"></i></div>' +
+        '<div class="guild-live-raid-card__bottom"><div class="guild-live-raid-card__roles">' + roles + '</div>' +
+        (raid.raid_leader ? '<div class="guild-live-raid-card__leader"><small>RL</small><b>' + escapeHtml(raid.raid_leader) + '</b></div>' : '') +
+        '</div></article>';
     }).join('');
   }
 
-  function renderProgress(progression, rankings) {
-    if (!progressNode || !progression || typeof progression !== 'object') return;
-    var raids = Object.keys(progression).map(function (slug) {
-      var p = progression[slug] || {};
-      var rank = rankings && rankings[slug] || {};
-      return { slug: slug, p: p, rank: rank };
-    }).filter(function (entry) { return entry.p && (entry.p.name || entry.p.total_bosses); });
+  function normalizeSeasonMeta(meta) {
+    if (!meta || typeof meta !== 'object' || !Array.isArray(meta.seasons)) return null;
+    return meta;
+  }
 
-    if (!raids.length) return;
-    progressNode.hidden = false;
-    progressNode.innerHTML = raids.map(function (entry) {
+  function seasonRaidEntries(season, progression, rankings, catalog) {
+    var slugs = Array.isArray(season.raids) ? season.raids.slice() : [];
+    return slugs.map(function (slug) {
+      var p = progression && progression[slug] || {};
+      var c = catalog && catalog[slug] || {};
+      var total = Number(p.total_bosses || c.bosses || 0);
+      return {
+        slug: slug,
+        p: {
+          name: p.name || c.name || slug,
+          summary: p.summary || '',
+          total_bosses: total,
+          normal_bosses_killed: Number(p.normal_bosses_killed || 0),
+          heroic_bosses_killed: Number(p.heroic_bosses_killed || 0),
+          mythic_bosses_killed: Number(p.mythic_bosses_killed || 0)
+        },
+        catalog: c,
+        rank: rankings && rankings[slug] || {}
+      };
+    }).filter(function (entry) { return entry.p.total_bosses > 0 || entry.p.name; });
+  }
+
+  function seasonHasProgress(entries) {
+    return entries.some(function (entry) {
       var p = entry.p;
-      return '<article class="guild-live-progress-card"><div class="guild-live-progress-card__head"><h3>' + escapeHtml(p.name || entry.slug) + '</h3><span>' + escapeHtml(p.summary || '') + '</span></div>' +
-        '<div class="guild-live-progress-card__kills"><span>N <b>' + Number(p.normal_bosses_killed || 0) + '/' + Number(p.total_bosses || 0) + '</b></span><span>HC <b>' + Number(p.heroic_bosses_killed || 0) + '/' + Number(p.total_bosses || 0) + '</b></span><span>M <b>' + Number(p.mythic_bosses_killed || 0) + '/' + Number(p.total_bosses || 0) + '</b></span></div></article>';
+      return Number(p.normal_bosses_killed || 0) + Number(p.heroic_bosses_killed || 0) + Number(p.mythic_bosses_killed || 0) > 0;
+    });
+  }
+
+  function seasonTotals(entries) {
+    return entries.reduce(function (acc, entry) {
+      var p = entry.p;
+      acc.total += Number(p.total_bosses || 0);
+      acc.normal += Number(p.normal_bosses_killed || 0);
+      acc.heroic += Number(p.heroic_bosses_killed || 0);
+      acc.mythic += Number(p.mythic_bosses_killed || 0);
+      return acc;
+    }, { total: 0, normal: 0, heroic: 0, mythic: 0 });
+  }
+
+  function rankMarkup(rank) {
+    var best = bestRank(rank);
+    if (!best) return '';
+    return '<div class="guild-live-progress-card__ranks">' +
+      '<span><small>Світ</small><b>' + (best.world ? '#' + best.world : '—') + '</b></span>' +
+      '<span><small>EU</small><b>' + (best.region ? '#' + best.region : '—') + '</b></span>' +
+      '<span><small>Сервер</small><b>' + (best.realm ? '#' + best.realm : '—') + '</b></span>' +
+      '</div>';
+  }
+
+  function difficultyMarkup(kind, label, killed, total) {
+    return '<div class="guild-live-diff is-' + kind + '">' +
+      '<span class="guild-live-diff__badge">' + label + '</span>' +
+      '<div class="guild-live-diff__body"><div><b>' + killed + '/' + total + '</b><small>' +
+      (kind === 'mythic' ? 'Mythic' : kind === 'heroic' ? 'Heroic' : 'Normal') +
+      '</small></div><div class="guild-live-diff__track"><i style="width:' + percent(killed, total) + '%"></i></div></div></div>';
+  }
+
+  function liveRaidProgressCard(entry, current) {
+    var p = entry.p;
+    var c = entry.catalog || {};
+    var total = Number(p.total_bosses || c.bosses || 0);
+    var timing = '';
+    if (c.starts_at) {
+      var start = new Date(c.starts_at);
+      if (!Number.isNaN(start.getTime())) timing = new Intl.DateTimeFormat('uk-UA', { timeZone: 'Europe/Kyiv', day: '2-digit', month: 'short', year: 'numeric' }).format(start);
+    }
+    return '<article class="guild-live-progress-card' + (current && c.current_season ? ' is-current' : '') + '">' +
+      '<div class="guild-live-progress-card__head"><div><div class="guild-live-progress-card__chips">' +
+      (current && c.current_season ? '<span class="guild-live-progress-card__current">Актуальний рейд</span>' : '') +
+      (c.active_now ? '<span class="guild-live-progress-card__active">LIVE TIER</span>' : '') +
+      '</div><h3>' + escapeHtml(p.name || entry.slug) + '</h3><span>' + escapeHtml((c.expansion || '') + (timing ? ' · з ' + timing : '')) + '</span></div>' +
+      '<strong class="guild-live-progress-card__score">' + escapeHtml(p.summary || (p.mythic_bosses_killed + '/' + total + ' M')) + '</strong></div>' +
+      rankMarkup(entry.rank) +
+      '<div class="guild-live-progress-card__difficulties">' +
+      difficultyMarkup('mythic', 'M', Number(p.mythic_bosses_killed || 0), total) +
+      difficultyMarkup('heroic', 'H', Number(p.heroic_bosses_killed || 0), total) +
+      difficultyMarkup('normal', 'N', Number(p.normal_bosses_killed || 0), total) +
+      '</div></article>';
+  }
+
+  function renderProgress(progression, rankings, seasonMeta) {
+    if (!progressNode || !progression || typeof progression !== 'object') return;
+    var meta = normalizeSeasonMeta(seasonMeta);
+    if (!meta) {
+      var flat = Object.keys(progression).map(function (slug) {
+        return { slug: slug, p: progression[slug] || {}, catalog: {}, rank: rankings && rankings[slug] || {} };
+      }).filter(function (entry) { return entry.p && (entry.p.name || entry.p.total_bosses); });
+      if (!flat.length) return;
+      progressNode.hidden = false;
+      progressNode.innerHTML = '<div class="guild-live-progress-grid">' + flat.map(function (entry) { return liveRaidProgressCard(entry, false); }).join('') + '</div>';
+      if (staticRaidSeasons) staticRaidSeasons.hidden = true;
+      return;
+    }
+
+    var catalog = meta.catalog || {};
+    var prepared = meta.seasons.map(function (season) {
+      return { season: season, entries: seasonRaidEntries(season, progression, rankings, catalog) };
+    }).filter(function (item) {
+      return item.season.current || seasonHasProgress(item.entries);
+    });
+    if (!prepared.length) return;
+
+    var currentIndex = prepared.findIndex(function (item) { return item.season.current; });
+    if (currentIndex < 0) currentIndex = 0;
+    var current = prepared[currentIndex];
+    var currentTotals = seasonTotals(current.entries);
+    var sourceLabel = meta.source === 'battlenet+raiderio' ? 'Battle.net + Raider.IO' : 'Raider.IO';
+
+    var tabs = prepared.map(function (item, index) {
+      return '<button type="button" class="guild-live-season-tab' + (index === currentIndex ? ' is-active' : '') + '" data-live-season="' + index + '"><span>' + escapeHtml(item.season.label || item.season.name || item.season.id) + '</span>' + (item.season.current ? '<b>Актуальний</b>' : '') + '</button>';
     }).join('');
+
+    var panels = prepared.map(function (item, index) {
+      var totals = seasonTotals(item.entries);
+      return '<section class="guild-live-season-panel' + (index === currentIndex ? ' is-active' : '') + '" data-live-season-panel="' + index + '"' + (index === currentIndex ? '' : ' hidden') + '>' +
+        '<div class="guild-live-season-summary"><div><span class="guild-live-season-summary__eyebrow">' + escapeHtml(item.season.expansion || meta.current_expansion || 'World of Warcraft') + '</span><h3>' + escapeHtml(item.season.name || item.season.label || 'Рейдовий сезон') + '</h3>' +
+        '<p>' + (item.season.current ? 'Поточний сезон визначено автоматично за активним часовим вікном API.' : 'Збережений прогрес завершеного сезону.') + '</p></div>' +
+        '<div class="guild-live-season-summary__stats"><span class="is-mythic"><b>' + totals.mythic + '/' + totals.total + '</b>M</span><span class="is-heroic"><b>' + totals.heroic + '/' + totals.total + '</b>H</span><span class="is-normal"><b>' + totals.normal + '/' + totals.total + '</b>N</span></div></div>' +
+        '<div class="guild-live-progress-grid">' + item.entries.map(function (entry) { return liveRaidProgressCard(entry, Boolean(item.season.current)); }).join('') + '</div></section>';
+    }).join('');
+
+    progressNode.hidden = false;
+    progressNode.innerHTML = '<div class="guild-live-season-shell"><div class="guild-live-season-detection"><div><span>Автовизначення сезону</span><strong>' + escapeHtml(meta.current_expansion || current.season.expansion || 'World of Warcraft') + '</strong><small>' + escapeHtml(sourceLabel) + ' · ' + escapeHtml(meta.region ? String(meta.region).toUpperCase() : 'EU') + '</small></div><div class="guild-live-season-detection__totals"><span><b>' + currentTotals.mythic + '/' + currentTotals.total + '</b>M</span><span><b>' + currentTotals.heroic + '/' + currentTotals.total + '</b>H</span><span><b>' + currentTotals.normal + '/' + currentTotals.total + '</b>N</span></div></div>' +
+      (prepared.length > 1 ? '<div class="guild-live-season-tabs" role="tablist">' + tabs + '</div>' : '') + panels + '</div>';
+
+    progressNode.querySelectorAll('[data-live-season]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        var id = button.getAttribute('data-live-season');
+        progressNode.querySelectorAll('[data-live-season]').forEach(function (tab) { tab.classList.toggle('is-active', tab === button); });
+        progressNode.querySelectorAll('[data-live-season-panel]').forEach(function (panel) {
+          var active = panel.getAttribute('data-live-season-panel') === id;
+          panel.classList.toggle('is-active', active);
+          panel.hidden = !active;
+        });
+      });
+    });
     if (staticRaidSeasons) staticRaidSeasons.hidden = true;
   }
 
@@ -176,7 +330,7 @@
       if (!response.ok || payload.schema !== 'mistblossom.public-guild.v1') throw new Error(payload.error || 'Некоректна відповідь VPS');
       updateHeader(payload);
       renderRaids(payload.scheduled_raids || []);
-      renderProgress(payload.raid_progression || {}, payload.raid_rankings || {});
+      renderProgress(payload.raid_progression || {}, payload.raid_rankings || {}, payload.raid_seasons || null);
       renderRoster(payload.members || []);
       setState('online', 'VPS: live');
     } catch (error) {

@@ -2472,3 +2472,553 @@
 /* ===== Mistblossom VPS live bridge ===== */
 .guild-live-state{display:inline-flex;align-items:center;gap:7px}.guild-live-state i,.live-source-badge i{width:7px;height:7px;border-radius:50%;background:#d49a43;box-shadow:0 0 10px rgba(212,154,67,.65)}.guild-live-state[data-state="online"] i,.live-source-badge[data-state="online"] i{background:#5bd58a;box-shadow:0 0 12px rgba(91,213,138,.55)}.guild-live-state[data-state="offline"] i,.live-source-badge[data-state="offline"] i{background:#e46f61;box-shadow:0 0 12px rgba(228,111,97,.45)}.guild-live-raids{position:relative}.live-source-badge{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border:1px solid rgba(212,154,67,.22);border-radius:999px;background:rgba(212,154,67,.06);color:#d8b777;font-size:11px;font-weight:800;letter-spacing:.08em}.live-source-badge[data-state="online"]{border-color:rgba(91,213,138,.2);background:rgba(91,213,138,.07);color:#a9eec1}.live-source-badge[data-state="offline"]{border-color:rgba(228,111,97,.22);background:rgba(228,111,97,.07);color:#efaaa1}.guild-live-raids-grid,.guild-live-progress{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.guild-live-placeholder{grid-column:1/-1;padding:22px;border:1px dashed rgba(221,169,91,.2);border-radius:16px;color:var(--muted,#aaa);background:rgba(255,255,255,.015)}.guild-live-raid-card,.guild-live-progress-card{position:relative;overflow:hidden;padding:16px;border:1px solid rgba(224,165,77,.18);border-radius:16px;background:linear-gradient(145deg,rgba(35,27,21,.88),rgba(17,14,12,.94));box-shadow:0 14px 34px rgba(0,0,0,.16)}.guild-live-raid-card__top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.guild-live-raid-card__eyebrow{display:block;margin-bottom:5px;color:#dba65b;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.12em}.guild-live-raid-card h3,.guild-live-progress-card h3{margin:0;color:#f7efe6;font-size:16px}.guild-live-raid-card__capacity{padding:5px 8px;border-radius:10px;background:rgba(224,165,77,.1);color:#f2c37d;font-weight:800;font-size:12px}.guild-live-raid-card__time{margin-top:12px;color:#e7ded4;font-weight:700}.guild-live-raid-card__roles{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.guild-live-raid-card__roles span{padding:5px 8px;border-radius:9px;background:rgba(255,255,255,.045);color:#bdb4aa;font-size:11px}.guild-live-raid-card__roles b{color:#f5e8d8}.guild-live-raid-card__leader{margin-top:10px;color:#9f978f;font-size:11px}.guild-live-progress{margin:0 0 18px}.guild-live-progress-card__head{display:flex;flex-direction:column;gap:4px}.guild-live-progress-card__head span{color:#938b83;font-size:11px}.guild-live-progress-card__kills{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}.guild-live-progress-card__kills span{padding:8px;border-radius:10px;background:rgba(255,255,255,.035);text-align:center;color:#aaa19a;font-size:11px}.guild-live-progress-card__kills b{display:block;margin-top:2px;color:#f0dfca;font-size:13px}.live-raid-glow{color:#66d997;box-shadow:inset 0 0 18px rgba(102,217,151,.08)}
 @media(max-width:900px){.guild-live-raids-grid,.guild-live-progress{grid-template-columns:1fr 1fr}}@media(max-width:620px){.guild-live-raids-grid,.guild-live-progress{grid-template-columns:1fr}.live-source-badge{display:none}}
+
+/* =========================================================
+   RAID LIVE UX 2026 — auto seasons + denser raid composition
+   ========================================================= */
+.guild-live-raids-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+  gap: 14px;
+}
+
+.guild-live-raid-card {
+  min-height: 0;
+  padding: 18px;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 100% 0, rgba(244, 153, 69, .09), transparent 34%),
+    linear-gradient(145deg, rgba(35, 27, 21, .92), rgba(16, 13, 11, .96));
+}
+
+.guild-live-raid-card.is-next {
+  border-color: rgba(244, 153, 69, .36);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .22), inset 3px 0 0 rgba(244, 153, 69, .82);
+}
+
+.guild-live-raid-card__chips,
+.guild-live-progress-card__chips {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.guild-live-raid-card__eyebrow,
+.guild-live-raid-card__next,
+.guild-live-progress-card__current,
+.guild-live-progress-card__active {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.guild-live-raid-card__eyebrow {
+  margin: 0;
+  color: #d9a968;
+  background: rgba(217, 169, 104, .08);
+  border: 1px solid rgba(217, 169, 104, .14);
+}
+
+.guild-live-raid-card__next {
+  color: #17110b;
+  background: #f49a45;
+}
+
+.guild-live-raid-card__capacity {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  padding: 7px 10px;
+  border-radius: 11px;
+  font-size: 11px;
+}
+
+.guild-live-raid-card__capacity b {
+  font-size: 16px;
+  color: #ffe0b5;
+}
+
+.guild-live-raid-card__progress {
+  height: 5px;
+  margin-top: 13px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .055);
+}
+
+.guild-live-raid-card__progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #d78636, #ffb25f);
+  box-shadow: 0 0 12px rgba(244, 154, 69, .24);
+}
+
+.guild-live-raid-card__bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 13px;
+}
+
+.guild-live-raid-card__roles {
+  margin: 0;
+  gap: 6px;
+}
+
+.guild-live-raid-card__roles span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 6px 9px;
+}
+
+.guild-live-raid-card__roles span b {
+  font-size: 13px;
+}
+
+.guild-live-raid-card__roles span small {
+  color: #999087;
+  font-size: 10px;
+}
+
+.guild-live-raid-card__roles .is-tank { border-left: 2px solid #4aa6ff; }
+.guild-live-raid-card__roles .is-healer { border-left: 2px solid #5fd28a; }
+.guild-live-raid-card__roles .is-dps { border-left: 2px solid #ef765f; }
+
+.guild-live-raid-card__leader {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  text-align: right;
+}
+
+.guild-live-raid-card__leader small {
+  color: #7f776f;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.guild-live-raid-card__leader b {
+  color: #ded3c7;
+  font-size: 12px;
+}
+
+.guild-live-progress {
+  display: block;
+  margin: 0;
+}
+
+.guild-live-season-shell {
+  display: grid;
+  gap: 14px;
+}
+
+.guild-live-season-detection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 18px;
+  border: 1px solid rgba(244, 154, 69, .22);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 0 0, rgba(244, 154, 69, .10), transparent 42%),
+    rgba(255, 255, 255, .018);
+}
+
+.guild-live-season-detection > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+.guild-live-season-detection > div:first-child > span {
+  color: #d79958;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.guild-live-season-detection strong {
+  color: #f5eee7;
+  font-size: 18px;
+}
+
+.guild-live-season-detection small {
+  color: #8f877f;
+  font-size: 10px;
+}
+
+.guild-live-season-detection__totals,
+.guild-live-season-summary__stats {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.guild-live-season-detection__totals span,
+.guild-live-season-summary__stats span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  min-width: 64px;
+  justify-content: center;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, .065);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, .025);
+  color: #988f87;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.guild-live-season-detection__totals b,
+.guild-live-season-summary__stats b {
+  color: #f4ece4;
+  font-size: 14px;
+}
+
+.guild-live-season-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 3px;
+  scrollbar-width: thin;
+}
+
+.guild-live-season-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, .065);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .018);
+  color: #a49b93;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.guild-live-season-tab b {
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: rgba(244, 154, 69, .13);
+  color: #f6b36e;
+  font-size: 8px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.guild-live-season-tab.is-active {
+  border-color: rgba(244, 154, 69, .32);
+  background: rgba(244, 154, 69, .09);
+  color: #f4e9de;
+}
+
+.guild-live-season-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.guild-live-season-panel[hidden] { display: none; }
+
+.guild-live-season-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, .055);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .015);
+}
+
+.guild-live-season-summary > div:first-child {
+  min-width: 0;
+}
+
+.guild-live-season-summary__eyebrow {
+  color: #92887f;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.guild-live-season-summary h3 {
+  margin: 3px 0 2px;
+  color: #f3ebe3;
+  font-size: 16px;
+}
+
+.guild-live-season-summary p {
+  margin: 0;
+  color: #837b74;
+  font-size: 10px;
+}
+
+.guild-live-season-summary__stats .is-mythic { border-color: rgba(163, 53, 238, .20); color: #c88df2; }
+.guild-live-season-summary__stats .is-heroic { border-color: rgba(0, 112, 221, .22); color: #75b8ff; }
+.guild-live-season-summary__stats .is-normal { border-color: rgba(30, 255, 0, .16); color: #74df68; }
+
+.guild-live-progress-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.guild-live-progress-card {
+  display: grid;
+  gap: 13px;
+  padding: 17px;
+  min-width: 0;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 100% 0, rgba(255, 255, 255, .035), transparent 35%),
+    linear-gradient(145deg, rgba(31, 25, 21, .92), rgba(15, 13, 12, .97));
+}
+
+.guild-live-progress-card.is-current {
+  border-color: rgba(244, 154, 69, .30);
+  box-shadow: inset 3px 0 0 rgba(244, 154, 69, .72), 0 14px 34px rgba(0, 0, 0, .16);
+}
+
+.guild-live-progress-card__head {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.guild-live-progress-card__head h3 {
+  font-size: 17px;
+  line-height: 1.18;
+}
+
+.guild-live-progress-card__head span:not(.guild-live-progress-card__current):not(.guild-live-progress-card__active) {
+  display: block;
+  margin-top: 4px;
+  color: #847c74;
+  font-size: 10px;
+}
+
+.guild-live-progress-card__current,
+.guild-live-progress-card__active {
+  color: #f8b56d;
+  background: rgba(244, 154, 69, .10);
+  border: 1px solid rgba(244, 154, 69, .18);
+}
+
+.guild-live-progress-card__active {
+  color: #87e7a8;
+  background: rgba(91, 213, 138, .08);
+  border-color: rgba(91, 213, 138, .18);
+}
+
+.guild-live-progress-card__score {
+  flex: 0 0 auto;
+  color: #dca754;
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+.guild-live-progress-card__ranks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.guild-live-progress-card__ranks span {
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, .05);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .022);
+}
+
+.guild-live-progress-card__ranks small {
+  color: #817970;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.guild-live-progress-card__ranks b {
+  color: #ddd2c7;
+  font-size: 12px;
+}
+
+.guild-live-progress-card__difficulties {
+  display: grid;
+  gap: 8px;
+}
+
+.guild-live-diff {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+}
+
+.guild-live-diff__badge {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.guild-live-diff.is-mythic .guild-live-diff__badge { background: #9234d8; }
+.guild-live-diff.is-heroic .guild-live-diff__badge { background: #1677ce; }
+.guild-live-diff.is-normal .guild-live-diff__badge { background: #34c82b; color: #0e1a0d; }
+
+.guild-live-diff__body > div:first-child {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.guild-live-diff__body b {
+  color: #eee5dc;
+  font-size: 11px;
+}
+
+.guild-live-diff__body small {
+  color: #817970;
+  font-size: 9px;
+}
+
+.guild-live-diff__track {
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .055);
+}
+
+.guild-live-diff__track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.guild-live-diff.is-mythic .guild-live-diff__track i { background: #aa4ce6; }
+.guild-live-diff.is-heroic .guild-live-diff__track i { background: #3e9af0; }
+.guild-live-diff.is-normal .guild-live-diff__track i { background: #55dd4a; }
+
+.season-auto-source {
+  color: #80776f;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.raid-card.is-current-raid {
+  border-color: rgba(244, 154, 69, .28);
+  box-shadow: inset 3px 0 0 rgba(244, 154, 69, .68), 0 10px 30px rgba(0, 0, 0, .22);
+}
+
+.raid-card-status {
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+}
+
+.raid-current-chip {
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: rgba(244, 154, 69, .10);
+  border: 1px solid rgba(244, 154, 69, .18);
+  color: #f6b36e;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+  .guild-live-progress-grid { grid-template-columns: 1fr; }
+  .guild-live-season-detection,
+  .guild-live-season-summary { align-items: flex-start; flex-direction: column; }
+  .guild-live-season-detection__totals,
+  .guild-live-season-summary__stats { width: 100%; }
+  .guild-live-season-detection__totals span,
+  .guild-live-season-summary__stats span { flex: 1 1 0; }
+}
+
+@media (max-width: 620px) {
+  .guild-live-raid-card__bottom { align-items: stretch; flex-direction: column; }
+  .guild-live-raid-card__leader { text-align: left; }
+  .guild-live-progress-card__head { flex-direction: column; }
+  .guild-live-progress-card__ranks { grid-template-columns: repeat(3, 1fr); }
+  .guild-live-season-tabs { margin-inline: -4px; }
+}
+
+/* Static fallback uses the same full-width composition instead of leaving empty columns. */
+.raid-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 430px), 1fr));
+  gap: 14px;
+}
+
+@media (min-width: 860px) {
+  .raid-grid > .raid-card:only-child:not(.placeholder-card) {
+    display: grid;
+    grid-template-columns: minmax(260px, .78fr) minmax(360px, 1.22fr);
+    column-gap: 18px;
+    align-items: start;
+  }
+
+  .raid-grid > .raid-card:only-child:not(.placeholder-card) .raid-card-header {
+    grid-column: 1 / -1;
+  }
+
+  .raid-grid > .raid-card:only-child:not(.placeholder-card) .rank-stats,
+  .raid-grid > .raid-card:only-child:not(.placeholder-card) .raid-bars {
+    margin-bottom: 0;
+  }
+}
+
+/* One-raid states still use the available width instead of leaving a dead column. */
+@media (min-width: 900px) {
+  .guild-live-progress-grid > .guild-live-progress-card:only-child {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(280px, .82fr) minmax(420px, 1.18fr);
+    column-gap: 20px;
+    align-items: start;
+  }
+
+  .guild-live-progress-grid > .guild-live-progress-card:only-child .guild-live-progress-card__head {
+    grid-row: 1 / span 2;
+  }
+
+  .guild-live-progress-grid > .guild-live-progress-card:only-child .guild-live-progress-card__ranks,
+  .guild-live-progress-grid > .guild-live-progress-card:only-child .guild-live-progress-card__difficulties {
+    grid-column: 2;
+  }
+}

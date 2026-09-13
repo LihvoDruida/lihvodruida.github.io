@@ -2,7 +2,8 @@
 {% assign stats = include.stats %}
 {% assign rankings = include.rankings %}
 {% assign raid_name = site.data.raids.names[raid_slug] %}
-{% assign raid_static = site.data.raids.catalog[raid_slug] %}
+{% assign live_catalog = guild_root.raid_seasons.catalog %}
+{% assign raid_static = live_catalog[raid_slug] | default: site.data.raids.catalog[raid_slug] %}
 
 {% assign raid_title = raid_name.title | default: raid_static.name | default: raid_slug | replace: '-', ' ' | capitalize %}
 {% assign raid_subtitle = raid_name.subtitle | default: raid_static.expansion | default: include.fallback_subtitle | default: "Прогрес рейду" %}
@@ -38,13 +39,16 @@
 {% assign has_ranks = false %}
 {% if world_rank != '-' or region_rank != '-' or realm_rank != '-' %}{% assign has_ranks = true %}{% endif %}
 
-<div class="raid-card">
+<div class="raid-card{% if include.current %} is-current-raid{% endif %}">
   <div class="raid-card-header">
     <div class="raid-heading">
       <h3 class="raid-title">{{ raid_title }}</h3>
       <span class="raid-subtitle">{{ raid_subtitle }}</span>
     </div>
-    <div class="raid-score">{{ stats.summary }}</div>
+    <div class="raid-card-status">
+      {% if include.current %}<span class="raid-current-chip">Поточний сезон</span>{% endif %}
+      <div class="raid-score">{{ stats.summary }}</div>
+    </div>
   </div>
 
   {% if has_ranks %}
