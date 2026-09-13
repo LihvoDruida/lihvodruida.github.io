@@ -8,6 +8,7 @@
   if (!apiUrl) return;
 
   var stateNode = document.getElementById('guild-live-state');
+  var sourceBadge = document.getElementById('guild-live-source-badge');
   var raidsNode = document.getElementById('guild-live-raids-list');
   var progressNode = document.getElementById('guild-live-raid-progress');
   var membersNode = document.getElementById('guild-members-json');
@@ -24,10 +25,19 @@
   }
 
   function setState(state, text) {
-    if (!stateNode) return;
-    stateNode.dataset.state = state;
-    var label = stateNode.querySelector('span');
-    if (label) label.textContent = text;
+    if (stateNode) {
+      stateNode.dataset.state = state;
+      var label = stateNode.querySelector('span');
+      if (label) label.textContent = text;
+    }
+    if (sourceBadge) {
+      sourceBadge.dataset.state = state;
+      var badgeLabel = sourceBadge.querySelector('span');
+      if (badgeLabel) {
+        badgeLabel.textContent = state === 'online' ? 'SERVER LIVE'
+          : (state === 'loading' ? 'SERVER CONNECTING' : 'SERVER FALLBACK');
+      }
+    }
   }
 
   function formatDateTime(date, time) {

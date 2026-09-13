@@ -106,7 +106,7 @@ extra_css:
           <span class="subtitle">Live з рейдової системи Mistblossom VPS</span>
         </div>
       </div>
-      <div class="live-source-badge"><i aria-hidden="true"></i>SERVER LIVE</div>
+      <div class="live-source-badge" id="guild-live-source-badge" data-state="loading"><i aria-hidden="true"></i><span>SERVER CONNECTING</span></div>
     </div>
     <div class="guild-live-raids-grid" id="guild-live-raids-list">
       <article class="guild-live-placeholder">Підключаємось до рейдової системи…</article>

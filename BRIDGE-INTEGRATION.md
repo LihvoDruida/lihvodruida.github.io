@@ -1,6 +1,6 @@
 # Mistblossom VPS bridge
 
-`index (2)` remains a separate Jekyll/GitHub Pages site. It does not connect to PostgreSQL directly.
+`Main Site` remains a separate Jekyll/GitHub Pages site. It does not connect to PostgreSQL directly.
 
 Public integration endpoints:
 

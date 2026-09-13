@@ -632,7 +632,11 @@
             : 'Заявку надіслано. Дані перевірено й заявку створено.' + numberHtml);
           loadRecent();
         } catch (error) {
-          setFeedback('error', escapeHtml(error.message || 'Зараз не вдалося надіслати заявку. Спробуй ще раз трохи пізніше.'));
+          var rawMessage = String(error && error.message || '');
+          var networkFailure = /failed to fetch|networkerror|load failed/i.test(rawMessage);
+          setFeedback('error', escapeHtml(networkFailure
+            ? 'Не вдалося зв’язатися із сервером заявок. Перевір з’єднання та спробуй ще раз за кілька секунд.'
+            : (rawMessage || 'Зараз не вдалося надіслати заявку. Спробуй ще раз трохи пізніше.')));
         } finally {
           if (submitButton) {
             submitButton.disabled = false;
