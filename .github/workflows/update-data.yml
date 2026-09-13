@@ -27,9 +27,9 @@ jobs:
             message: "chore: update mods data"
 
           - name: guild
-            script: scripts/update_guild.py
-            files: "_data/guild.yml _data/professions.yml _data/raids.yml"
-            message: "chore: update guild data"
+            script: scripts/update_guild_from_vps.py
+            files: "_data/guild.yml"
+            message: "chore: sync guild data from Mistblossom VPS"
 
           - name: characters
             script: scripts/update_characters.py
@@ -39,6 +39,7 @@ jobs:
     env:
       BLIZZARD_CLIENT_ID: ${{ secrets.BLIZZARD_CLIENT_ID }}
       BLIZZARD_CLIENT_SECRET: ${{ secrets.BLIZZARD_CLIENT_SECRET }}
+      GUILD_LIVE_API_URL: https://guild.lihvodruida.pp.ua/api/site/guild
 
     steps:
       - name: Checkout live branch

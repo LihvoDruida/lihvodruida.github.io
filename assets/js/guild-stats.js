@@ -1,4 +1,7 @@
 (function () {
+  window.MistblossomGuildStats = window.MistblossomGuildStats || {};
+  window.MistblossomGuildStats.refresh = function () {
+
   const membersDataNode = document.getElementById('guild-members-json');
   const statsSection = document.querySelector('.guild-stats-section');
 
@@ -536,4 +539,7 @@
 
   window.addEventListener('scroll', hideTooltip, true);
   window.addEventListener('resize', hideTooltip);
+
+  };
+  window.MistblossomGuildStats.refresh();
 })();

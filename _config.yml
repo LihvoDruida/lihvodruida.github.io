@@ -33,7 +33,8 @@ curseforge_profile_url: https://www.curseforge.com/members/lihvo_druida
 # Інтеграції
 github_repo_owner: "LihvoDruida"
 github_repo_name: "lihvodruida.github.io"
-guild_applications_api_url: "https://guild-applications.melles-android.workers.dev/api/guild-applications"
+guild_applications_api_url: "https://guild.lihvodruida.pp.ua/api/site/applications"
+guild_live_api_url: "https://guild.lihvodruida.pp.ua/api/site/guild"
 guild_applications_label: "guild-application"
 # Optional: Cloudflare Worker that returns Donatello donations JSON.
 # Supported shapes: { stats: {...}, list: { content: [...] } }, { content: [...] }, { donations: [...] }.

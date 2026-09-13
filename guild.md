@@ -19,7 +19,7 @@ extra_css:
 {% assign guild_info = guild_root.guild | default: empty %}
 {% assign guild_members = guild_root.members | default: empty %}
 
-<div class="guild-page-container">
+<div class="guild-page-container" data-guild-api-url="{{ site.guild_live_api_url }}">
 
   <header class="guild-header">
   <div class="guild-header-glow"></div>
@@ -42,24 +42,25 @@ extra_css:
 
     <div class="guild-info">
       <div class="guild-eyebrow">Гільдія World of Warcraft</div>
-      <h1 class="guild-name">{{ guild_info.name }}</h1>
+      <h1 class="guild-name" id="guild-live-name">{{ guild_info.name }}</h1>
 
       <div class="guild-meta">
-        <span class="meta-tag">{{ guild_meta.region | upcase }}</span>
-        <span class="meta-tag">{{ guild_info.realm.name }}</span>
-        <span class="meta-tag faction-{{ guild_info.faction.type | downcase }}">
+        <span class="meta-tag" id="guild-live-region">{{ guild_meta.region | upcase }}</span>
+        <span class="meta-tag" id="guild-live-realm">{{ guild_info.realm.name }}</span>
+        <span class="meta-tag faction-{{ guild_info.faction.type | downcase }}" id="guild-live-faction">
           {{ guild_info.faction.name }}
         </span>
         {% if guild_info.member_count %}
-        <span class="meta-tag">{{ guild_info.member_count }} учасників</span>
+        <span class="meta-tag" id="guild-live-member-count">{{ guild_info.member_count }} учасників</span>
         {% endif %}
       </div>
 
       <div class="guild-updated">
-        <span class="updated-pill">Оновлено: {{ guild_meta.updated_at }}</span>
+        <span class="updated-pill" id="guild-data-updated">Оновлено: {{ guild_meta.updated_at }}</span>
         {% if guild_meta.raider_io_last_crawled_at %}
         <span class="updated-pill">Оновлено за даними Raider.IO: {{ guild_meta.raider_io_last_crawled_at }}</span>
         {% endif %}
+        <span class="updated-pill guild-live-state" id="guild-live-state" data-state="loading"><i aria-hidden="true"></i><span>VPS: підключення…</span></span>
       </div>
     </div>
   </div>
@@ -95,6 +96,22 @@ extra_css:
     <a href="{{ '/guild/apply/' | relative_url }}" class="btn-apply btn-apply--large">Заповнити заявку</a>
   </div>
 </section>
+
+  <section class="guild-section guild-live-raids" id="guild-live-raids-section" aria-labelledby="guild-live-raids-title">
+    <div class="modern-header">
+      <div class="header-left">
+        <div class="icon-box live-raid-glow" aria-hidden="true">⌁</div>
+        <div class="title-wrapper">
+          <h2 class="section-title" id="guild-live-raids-title">Заплановані рейди гільдії</h2>
+          <span class="subtitle">Live з рейдової системи Mistblossom VPS</span>
+        </div>
+      </div>
+      <div class="live-source-badge"><i aria-hidden="true"></i>SERVER LIVE</div>
+    </div>
+    <div class="guild-live-raids-grid" id="guild-live-raids-list">
+      <article class="guild-live-placeholder">Підключаємось до рейдової системи…</article>
+    </div>
+  </section>
 
   <section class="guild-section">
     <div class="modern-header">
@@ -151,6 +168,8 @@ extra_css:
       {% endif %}
     {% endfor %}
     {% if orphan_kills > 0 %}{% assign visible_seasons = visible_seasons | plus: 1 %}{% endif %}
+
+    <div id="guild-live-raid-progress" class="guild-live-progress" hidden></div>
 
     {% if progression and progression.size > 0 %}
     <div class="raid-seasons" id="raid-seasons">
@@ -384,6 +403,8 @@ extra_css:
     </div>
 
     <script id="guild-members-json" type="application/json" data-region="{{ guild_meta.region | escape }}">{{ guild_members | jsonify }}</script>
+    <script id="guild-scheduled-raids-json" type="application/json">{{ guild_root.scheduled_raids | default: empty | jsonify }}</script>
+    <script src="{{ '/assets/js/guild-live.js' | relative_url }}" defer></script>
     <script src="{{ '/assets/js/guild-stats.js' | relative_url }}" defer></script>
     <script src="{{ '/assets/js/guild-roster-search.js' | relative_url }}" defer></script>
   </section>
@@ -403,7 +424,7 @@ extra_css:
       </div>
 
       <div class="stat-badge">
-        <span class="stat-val">{{ guild_members | size }}</span>
+        <span class="stat-val" id="guild-live-roster-count">{{ guild_members | size }}</span>
         <span class="stat-label">Учасники</span>
       </div>
     </div>

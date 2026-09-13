@@ -21,6 +21,13 @@ document.addEventListener("DOMContentLoaded", function () {
   var total = rows.length;
   var limit = CHUNK;
 
+  function refreshRows() {
+    rows = Array.prototype.slice.call(body.querySelectorAll(".roster-row"));
+    total = rows.length;
+    limit = CHUNK;
+    render();
+  }
+
   function normalize(value) {
     return (value || "")
       .toLowerCase()
@@ -88,6 +95,8 @@ document.addEventListener("DOMContentLoaded", function () {
       render();
     });
   }
+
+  document.addEventListener("guild:live-updated", refreshRows);
 
   render();
 });

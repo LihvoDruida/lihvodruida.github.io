@@ -2,7 +2,7 @@
 layout: default
 title: Усі заявки до Mistblossom Vanguard
 permalink: /guild/applications/
-description: "Закритий список заявок до Mistblossom Vanguard зі статусами, пошуком, фільтрами за класом і сортуванням."
+description: "Список статусів заявок до Mistblossom Vanguard: дані синхронізуються з VPS-панеллю, доступні пошук, фільтри та сортування."
 robots: noindex, nofollow, noarchive
 sitemap: false
 image: /assets/img/guild-finder-apply.webp
@@ -22,9 +22,9 @@ extra_js:
         <p class="section-subtitle">Тут зібрані всі заявки до гільдії: шукай за ніком, класом або реалмом, перевіряй статус і відкривай оригінальну заявку.</p>
 
         <div class="hero-chip-row">
-          <span class="application-chip">Живий список</span>
-          <span class="application-chip">Пошук за ніком</span>
-          <span class="application-chip">Firebase заявки</span>
+          <span class="application-chip">VPS live</span>
+          <span class="application-chip">Оновлення кожні 30 с</span>
+          <span class="application-chip">PostgreSQL source</span>
         </div>
       </div>
 

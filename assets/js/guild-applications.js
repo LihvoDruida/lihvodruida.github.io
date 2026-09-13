@@ -490,9 +490,9 @@
       statusRoot.innerHTML = items.map(renderApplicationCard).join('');
     }
 
-    async function loadRecent() {
-      if (!statusRoot) return;
-      statusRoot.innerHTML = '<div class="applications-placeholder">Оновлюємо список заявок…</div>';
+    async function loadRecent(silent) {
+      if (!statusRoot || !apiUrl) return;
+      if (!silent) statusRoot.innerHTML = '<div class="applications-placeholder">Оновлюємо список заявок…</div>';
       try {
         const items = await fetchApplications(apiUrl, statusLimit);
         renderRecent(items);
@@ -645,7 +645,10 @@
       });
     }
 
-    loadRecent();
+    loadRecent(false);
+    window.setInterval(function () {
+      if (document.visibilityState === 'visible') loadRecent(true);
+    }, 30000);
   }
 
   const directoryPage = document.querySelector('.guild-applications-directory');
@@ -731,9 +734,9 @@
       listRoot.innerHTML = items.map(renderApplicationCard).join('');
     }
 
-    async function loadDirectory() {
-      if (!listRoot) return;
-      listRoot.innerHTML = '<div class="applications-placeholder">Оновлюємо повний список заявок…</div>';
+    async function loadDirectory(silent) {
+      if (!listRoot || !apiUrl) return;
+      if (!silent) listRoot.innerHTML = '<div class="applications-placeholder">Оновлюємо повний список заявок…</div>';
       try {
         allItems = await fetchApplications(apiUrl, limit, {
           sort: 'created',
@@ -771,6 +774,9 @@
       refreshButton.addEventListener('click', loadDirectory);
     }
 
-    loadDirectory();
+    loadDirectory(false);
+    window.setInterval(function () {
+      if (document.visibilityState === 'visible') loadDirectory(true);
+    }, 30000);
   }
 })();
