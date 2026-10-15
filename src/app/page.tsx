@@ -2,7 +2,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {articles,data,type Character} from '@/lib/content';
 import {ArticleCards,CommunityCards} from '@/components/Shared';
-export default function Home(){const feed=[...articles('guides'),...articles('news')].sort((a,b)=>b.date.localeCompare(a.date));return <>
+export const dynamic='force-dynamic';
+export default async function Home(){const feed=[...await articles('guides'),...await articles('news')].sort((a,b)=>b.date.localeCompare(a.date));return <>
  <section className="hero"><Image className="hero-art" src="/assets/img/og-image-default.webp" alt="Друїд і його супутники у чарівному лісі" fill priority sizes="100vw"/><div className="hero-shade"/><div className="hero-content"><div className="hero-kicker"><span/>ТВОЄ МІСЦЕ В АЗЕРОТІ</div><h1>Знаходь своїх.<br/><em>Твори свою історію.</em></h1><p>Гайди, авторські адони та українська спільнота.<br/>Усе, що робить World of Warcraft ближчим.</p><div className="actions"><Link className="button primary" href="/guild/apply">Приєднатися до гільдії <span>↗</span></Link><Link className="button glass" href="/guides">Переглянути гайди</Link></div><div className="hero-footnote"><span>WORLD OF WARCRAFT</span><i/><span>УКРАЇНСЬКОЮ</span><i/><span>ЗІ СВОЇМИ</span></div></div><span className="hero-caption">ЛІГВО ДРУЇДА / СПІЛЬНОТА SEBAS</span></section>
  <div className="content-shell"><section className="section"><div className="section-heading"><div><span className="eyebrow">01 / СПІЛЬНОТИ</span><h2>Різні світи. Спільні цінності.</h2></div><p>Граємо, допомагаємо й зростаємо разом.</p></div><CommunityCards/></section>
  <section className="section"><div className="section-heading"><div><span className="eyebrow">02 / БІБЛІОТЕКА</span><h2>Знання для наступної пригоди</h2></div><Link href="/guides" className="text-link">Усі гайди ↗</Link></div><ArticleCards items={feed.slice(0,6)}/></section>

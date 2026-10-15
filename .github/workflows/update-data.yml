@@ -37,6 +37,7 @@ jobs:
             message: "chore: update characters data"
 
     env:
+      CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
       BLIZZARD_CLIENT_ID: ${{ secrets.BLIZZARD_CLIENT_ID }}
       BLIZZARD_CLIENT_SECRET: ${{ secrets.BLIZZARD_CLIENT_SECRET }}
       GUILD_LIVE_API_URL: https://guild.lihvodruida.pp.ua/api/site/guild

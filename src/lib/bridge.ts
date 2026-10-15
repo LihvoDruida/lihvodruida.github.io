@@ -1,9 +1,9 @@
 import {createHash,randomUUID} from 'node:crypto';
 import {NextResponse} from 'next/server';
 import {SnapshotCache} from './bridge-cache';
-import {dashboardUrl,fallbackGuild} from './content';
+import {dashboardReadTransport,fallbackGuild} from './content';
 import {applicationQuery,isApplications,isGuild,publicApplications,type Applications,type Guild,type Envelope} from './contracts';
-const guildCache=new SnapshotCache<Guild>(60000,15*60000);
+const guildCache=new SnapshotCache<Guild>(60000,24*60*60000);
 const applicationCaches=new Map<string,SnapshotCache<Applications>>();
 const deadline=8000;
 export function logBridge(event:string,fields:Record<string,string|number|boolean>={}){if(event==='bridge.unchanged'&&process.env.SITE_DEBUG_LOGS!=='true')return;console.info(JSON.stringify({time:new Date().toISOString(),service:'lihvodruida-site',level:event==='bridge.failed'?'warn':event==='bridge.unchanged'?'debug':'info',event,...fields}));}
@@ -11,7 +11,8 @@ const revisions=new Map<string,string>();
 async function upstream<T>(resource:string,validate:(x:unknown)=>x is T):Promise<T>{
  const start=Date.now();const requestId=randomUUID();
  try{
-  const response=await fetch(new URL(`/api/site/${resource}`,dashboardUrl()),{cache:'no-store',signal:AbortSignal.timeout(deadline),redirect:'error',headers:{Accept:'application/json','X-Request-Id':requestId}});
+  const transport=dashboardReadTransport();
+  const response=await fetch(new URL(`/api/site/${resource}`,transport.base),{cache:'no-store',signal:AbortSignal.timeout(deadline),redirect:'error',headers:{Accept:'application/json','X-Request-Id':requestId,...transport.headers}});
   if(!response.ok)throw new Error(`http_${response.status}`);
   // Bound actual response bytes, including responses without Content-Length.
   const reader=response.body?.getReader();if(!reader)throw new Error('empty_body');
@@ -21,8 +22,9 @@ async function upstream<T>(resource:string,validate:(x:unknown)=>x is T):Promise
   const {generated_at:_,updated_at:__,...stable}=value as Record<string,unknown>;const revision=createHash('sha256').update(JSON.stringify(stable)).digest('hex');const unchanged=revisions.get(resource)===revision;if(revisions.size>=100)revisions.delete(revisions.keys().next().value!);revisions.set(resource,revision);logBridge(unchanged?'bridge.unchanged':'bridge.refreshed',{resource:resource.split('?')[0],requestId,durationMs:Date.now()-start});return value;
  }catch(error){const name=error instanceof Error?error.message:'';logBridge('bridge.failed',{resource:resource.split('?')[0],requestId,durationMs:Date.now()-start,reason:/^(http_\d{3}|body_limit|invalid_schema|empty_body)$/.test(name)?name:'transport_error'});throw error;}
 }
+function isOutdated(value:string|null|undefined){const at=Date.parse(value||'');return !Number.isFinite(at)||Date.now()-at>24*60*60*1000;}
 export async function guildSnapshot():Promise<Envelope<Guild>>{
- try{const s=await guildCache.get(()=>upstream('guild',isGuild));return {data:s.data,sync:{source:s.stale?'cache':'dashboard',stale:s.stale,checkedAt:new Date(s.at).toISOString(),updatedAt:s.data.metadata.updated_at}};}
+ try{const s=await guildCache.get(()=>upstream('guild',isGuild));return {data:s.data,sync:{source:s.stale?'cache':'dashboard',stale:s.stale||isOutdated(s.data.metadata.updated_at),checkedAt:new Date(s.at).toISOString(),updatedAt:s.data.metadata.updated_at}};}
  catch{return {data:fallbackGuild(),sync:{source:'archive',stale:true,checkedAt:null,updatedAt:fallbackGuild().metadata.updated_at}};}
 }
 export async function applicationsSnapshot(params:URLSearchParams):Promise<Envelope<Applications>>{

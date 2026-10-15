@@ -4,12 +4,14 @@ import time
 import os
 
 # --- НАЛАШТУВАННЯ ---
-API_KEY = "$2a$10$JluGEcJ9pdU87F13T10hrepUKFsdV5Kmyo9WOifGAwGaotAVEE0Ua"
-AUTHOR_ID = 104580421
+API_KEY = os.environ.get("CURSEFORGE_API_KEY", "")
+AUTHOR_ID = int(os.environ.get("CURSEFORGE_AUTHOR_ID", "104580421"))
 GAME_ID = 1
 API_URL = "https://api.curseforge.com/v1/mods/search"
 
 def fetch_author_mods(author_id):
+    if not API_KEY:
+        raise RuntimeError('Missing CURSEFORGE_API_KEY; configure repository secret or site environment')
     headers = {
         'x-api-key': API_KEY,
         'Accept': 'application/json'
