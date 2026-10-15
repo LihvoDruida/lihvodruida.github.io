@@ -1,0 +1,35 @@
+{
+  "name": "lihvodruida-site",
+  "version": "4.0.1",
+  "private": true,
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "dev": "node scripts/sync-assets.mjs && next dev",
+    "prebuild": "node scripts/sync-assets.mjs",
+    "build": "node scripts/build.mjs",
+    "start": "node .next/standalone/server.js",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "check:content": "node --import tsx scripts/check-content.ts",
+    "build:ci": "npm run typecheck && npm test && npm run check:content && npm run check:deploy && npm run build",
+    "check:deploy": "bash -n deploy/deploy.sh && python3 -m unittest discover -s tests -p test_deploy.py -v"
+  },
+  "dependencies": {
+    "next": "16.3.5",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "sharp": "0.35.4",
+    "yaml": "2.9.0",
+    "react-markdown": "10.1.0",
+    "remark-gfm": "4.0.1"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "@types/node": "25.9.1",
+    "@types/react": "19.2.15",
+    "@types/react-dom": "19.2.3",
+    "tsx": "4.21.0"
+  }
+}

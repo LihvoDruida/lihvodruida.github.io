@@ -1,0 +1,13 @@
+node_modules
+.next
+.git
+.env
+.env.*
+!.env.example
+*.log
+*.zip
+*.tsbuildinfo
+legacy
+
+.deploy.lock
+compose.override.yml

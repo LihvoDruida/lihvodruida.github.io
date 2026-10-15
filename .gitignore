@@ -37,3 +37,8 @@ dashboard/tsconfig*.tsbuildinfo
 .DS_Store
 Thumbs.db
 /workers/guild-applications-worker/guild-applications
+public/assets/
+public/favicon.ico
+*.tsbuildinfo
+
+.deploy.lock

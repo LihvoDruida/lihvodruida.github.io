@@ -1,0 +1,18 @@
+import type { NextConfig } from 'next';
+const config: NextConfig = {
+  experimental: {cpus: Math.max(1, Math.min(8, Number(process.env.NEXT_BUILD_CPUS) || 2))},
+  output: 'standalone', poweredByHeader: false, reactStrictMode: true,
+  outputFileTracingIncludes: { '/*': ['./_data/**/*', './_guides/**/*', './_news/**/*'] },
+  async redirects() { return [
+    ...['guild','guides','news','mods','donate'].map(p=>({source:`/${p}.html`,destination:`/${p}`,permanent:true})),
+    {source:'/guild-apply.html',destination:'/guild/apply',permanent:true},
+    {source:'/guild-applications.html',destination:'/guild/applications',permanent:true},
+    {source:'/index.html',destination:'/',permanent:true},
+    {source:'/callback.html',destination:'/guild/apply',permanent:false},
+  ]; },
+  async headers() { return [{ source:'/:path*', headers:[
+    {key:'X-Content-Type-Options',value:'nosniff'}, {key:'Referrer-Policy',value:'strict-origin-when-cross-origin'},
+    {key:'X-Frame-Options',value:'DENY'}, {key:'Permissions-Policy',value:'camera=(), microphone=(), geolocation=()'},
+  ]}]; },
+};
+export default config;

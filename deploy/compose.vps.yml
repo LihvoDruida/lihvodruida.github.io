@@ -1,0 +1,12 @@
+# Used by `make deploy`; existing user overrides are loaded before this file.
+services:
+  site:
+    image: ${SITE_IMAGE:-lihvodruida-site:4.0.1}
+    networks:
+      dashboard_edge:
+        aliases:
+          - lihvodruida-public-site
+networks:
+  dashboard_edge:
+    external: true
+    name: ${SITE_EDGE_NETWORK:-mistblossom_edge}

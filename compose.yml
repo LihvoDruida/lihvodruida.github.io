@@ -1,0 +1,27 @@
+services:
+  site:
+    build:
+      context: .
+      args:
+        NEXT_BUILD_CPUS: ${NEXT_BUILD_CPUS:-2}
+        NODE_BUILD_MEMORY_MB: ${NODE_BUILD_MEMORY_MB:-1536}
+        SITE_URL: ${SITE_URL:-https://lihvodruida.pp.ua}
+    image: ${SITE_IMAGE:-lihvodruida-site:4.0.1}
+    restart: unless-stopped
+    init: true
+    env_file: .env
+    ports:
+      - "127.0.0.1:3001:3000"
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+      - /app/.next/cache:size=128m,uid=10001,gid=10001,mode=0700
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

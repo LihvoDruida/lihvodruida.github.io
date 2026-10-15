@@ -1,0 +1,7 @@
+import Link from 'next/link';
+import {data,dashboardUrl} from '@/lib/content';
+import {PageHeading} from '@/components/Shared';
+import {ApplicationForm} from '@/components/ApplicationForm';
+export const dynamic='force-dynamic';
+export const metadata={title:'Вступити до Mistblossom Vanguard',alternates:{canonical:'/guild/apply'}};
+export default function Apply(){return <div className="content-shell"><PageHeading eyebrow="MISTBLOSSOM VANGUARD / ПРИЄДНАТИСЯ" title="Твоя наступна пригода — з нами" description="Розкажи трохи про себе й персонажа. Решта почнеться зі знайомства."/><div className="apply-layout"><ApplicationForm endpoint={new URL('/api/site/applications',dashboardUrl()).href} realms={[...new Set(data<string[]>('realms'))]}/><aside className="apply-aside"><img src="/assets/img/guild-logo.webp" width="104" height="104" alt=""/><h2>У гільдії важливі люди</h2><p>Ми — українська спільнота для спільних рейдів, Mythic+ та гри у своє задоволення.</p><ol><li><strong>Заповни заявку</strong><span>Персонаж, час гри та контакт.</span></li><li><strong>Збережи номер</strong><span>Він допоможе знайти статус.</span></li><li><strong>Познайомимось у Discord</strong><span>Офіцери зв’яжуться з тобою.</span></li></ol><a className="button" href="https://discord.gg/stNeSaVkhM" target="_blank" rel="noopener noreferrer">Приєднатися до Discord ↗</a><Link className="text-link" href="/guild/applications">Уже подавав заявку? Перевір статус →</Link></aside></div></div>;}
