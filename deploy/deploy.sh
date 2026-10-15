@@ -59,6 +59,9 @@ try:
     for key in ('SITE_URL','DASHBOARD_URL'):
         url=urlsplit(service.get('environment',{}).get(key,''))
         assert url.scheme=='https' and url.hostname and not url.username and not url.password and url.path in ('','/') and not url.query and not url.fragment, f'{key}: потрібен HTTPS origin без шляху та облікових даних.'
+    env=service.get('environment',{})
+    assert env.get('DASHBOARD_INTERNAL_URL')=='http://dashboard:3000', 'DASHBOARD_INTERNAL_URL must be http://dashboard:3000.'
+    assert re.fullmatch(r'[A-Za-z0-9_-]{32,256}',env.get('PUBLIC_SITE_BRIDGE_TOKEN','')), 'PUBLIC_SITE_BRIDGE_TOKEN is required in both projects.'
     net=config['networks']['dashboard_edge']
     name=net.get('name','')
     assert net.get('external') is True and re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,127}',name), 'Некоректна зовнішня мережа.'
@@ -136,6 +139,8 @@ trap 'exit 143' TERM
 info 'Запускаємо лише site та очікуємо healthy.'
 "${compose[@]}" up -d --no-build --no-deps --pull never site
 wait_healthy
+# Health is process liveness; deployment additionally requires a compatible database-backed bridge.
+"${compose[@]}" exec -T site node -e "fetch('http://127.0.0.1:3000/api/bridge/status').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
 rollback_active=0
 trap - ERR INT TERM
 info 'Деплой сайту завершено; healthcheck успішний.'

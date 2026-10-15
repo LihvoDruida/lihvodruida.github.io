@@ -1,8 +1,10 @@
 import type { NextConfig } from 'next';
 const config: NextConfig = {
+  outputFileTracingRoot: process.cwd(),
+  turbopack: {root: process.cwd()},
   experimental: {cpus: Math.max(1, Math.min(8, Number(process.env.NEXT_BUILD_CPUS) || 2))},
   output: 'standalone', poweredByHeader: false, reactStrictMode: true,
-  outputFileTracingIncludes: { '/*': ['./_data/**/*', './_guides/**/*', './_news/**/*'] },
+  outputFileTracingIncludes: { '/*': ['./_data/**/*'] },
   async redirects() { return [
     ...['guild','guides','news','mods','donate'].map(p=>({source:`/${p}.html`,destination:`/${p}`,permanent:true})),
     {source:'/guild-apply.html',destination:'/guild/apply',permanent:true},

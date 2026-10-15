@@ -7,8 +7,12 @@ import {useLiveSnapshot} from './useLiveSnapshot';
 import {SyncStatus} from './SyncStatus';
 const roles:Record<string,string>={TANK:'Танк',HEALING:'Цілитель',DPS:'Боєць',NONE:'—'};
 const rank=(n:number)=>n===0?'Глава':n===1?'Офіцер':`Ранг ${n}`;
-export function GuildView({initial,professions}:{initial:Envelope<Guild>;professions:{name:string;realm:string;items:string[]}[]}){
- const {snapshot,error,loading,refresh}=useLiveSnapshot('/api/bridge/guild',120000,initial);const g=snapshot?.data||initial.data;
+export function GuildView({initial,professions}:{initial?:Envelope<Guild>;professions:{name:string;realm:string;items:string[]}[]}){
+ const {snapshot,error,loading,refresh}=useLiveSnapshot('/api/bridge/guild',120000,initial);const g=snapshot?.data;
+ if(!g)return <div className="content-shell"><h1>Mistblossom Vanguard</h1><SyncStatus sync={snapshot?.sync} error={error||'Дані гільдії тимчасово недоступні.'} loading={loading} refresh={refresh}/></div>;
+ return <GuildData g={g} professions={professions} snapshot={snapshot} error={error} loading={loading} refresh={refresh}/>;
+}
+function GuildData({g,professions,snapshot,error,loading,refresh}:{g:Guild;professions:{name:string;realm:string;items:string[]}[];snapshot?:Envelope<Guild>;error:string;loading:boolean;refresh:()=>void}){
  const [tab,setTab]=useState('roster'),[query,setQuery]=useState(''),[role,setRole]=useState('all'),[sort,setSort]=useState('rank'),[page,setPage]=useState(1),[season,setSeason]=useState('');
  const members=useMemo(()=>g.members.filter(m=>`${m.character.name} ${m.character.realm.name||m.character.realm.slug} ${m.character.playable_class?.name||''}`.toLocaleLowerCase('uk').includes(query.toLocaleLowerCase('uk'))&&(role==='all'||m.character.active_spec?.role===role)).sort((a,b)=>sort==='score'?score(b)-score(a):sort==='ilvl'?(b.character.item_level_equipped||0)-(a.character.item_level_equipped||0):a.rank-b.rank||a.character.name.localeCompare(b.character.name)),[g.members,query,role,sort]);
  const seasonData=g.raid_seasons;const current=season||seasonData?.current_season_id;const selected=seasonData?.seasons.find(s=>s.id===current);const progress=(selected?selected.raids:Object.keys(g.raid_progression)).map(slug=>{const p=g.raid_progression[slug];const total=Math.max(p?.total_bosses||0,Number((seasonData?.catalog?.[slug] as {bosses?:number}|undefined)?.bosses||0));return [slug,p||{name:seasonData?.catalog?.[slug]?.name||slug,total_bosses:total,normal_bosses_killed:0,heroic_bosses_killed:0,mythic_bosses_killed:0}] as const;});

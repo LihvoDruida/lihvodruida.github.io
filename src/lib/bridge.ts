@@ -1,7 +1,7 @@
 import {createHash,randomUUID} from 'node:crypto';
 import {NextResponse} from 'next/server';
 import {SnapshotCache} from './bridge-cache';
-import {dashboardReadTransport,fallbackGuild} from './content';
+import {dashboardTransport} from './config';
 import {applicationQuery,isApplications,isGuild,publicApplications,type Applications,type Guild,type Envelope} from './contracts';
 const guildCache=new SnapshotCache<Guild>(60000,24*60*60000);
 const applicationCaches=new Map<string,SnapshotCache<Applications>>();
@@ -11,8 +11,8 @@ const revisions=new Map<string,string>();
 async function upstream<T>(resource:string,validate:(x:unknown)=>x is T):Promise<T>{
  const start=Date.now();const requestId=randomUUID();
  try{
-  const transport=dashboardReadTransport();
-  const response=await fetch(new URL(`/api/site/${resource}`,transport.base),{cache:'no-store',signal:AbortSignal.timeout(deadline),redirect:'error',headers:{Accept:'application/json','X-Request-Id':requestId,...transport.headers}});
+  const transport=dashboardTransport();
+  const response=await fetch(new URL(`/api/site/${resource}`,transport.base),{cache:'no-store',signal:AbortSignal.timeout(deadline),redirect:'error',headers:{Accept:'application/json','X-Request-Id':requestId,'X-Site-Client-IP':'',...transport.headers}});
   if(!response.ok)throw new Error(`http_${response.status}`);
   // Bound actual response bytes, including responses without Content-Length.
   const reader=response.body?.getReader();if(!reader)throw new Error('empty_body');
@@ -24,8 +24,7 @@ async function upstream<T>(resource:string,validate:(x:unknown)=>x is T):Promise
 }
 function isOutdated(value:string|null|undefined){const at=Date.parse(value||'');return !Number.isFinite(at)||Date.now()-at>24*60*60*1000;}
 export async function guildSnapshot():Promise<Envelope<Guild>>{
- try{const s=await guildCache.get(()=>upstream('guild',isGuild));return {data:s.data,sync:{source:s.stale?'cache':'dashboard',stale:s.stale||isOutdated(s.data.metadata.updated_at),checkedAt:new Date(s.at).toISOString(),updatedAt:s.data.metadata.updated_at}};}
- catch{return {data:fallbackGuild(),sync:{source:'archive',stale:true,checkedAt:null,updatedAt:fallbackGuild().metadata.updated_at}};}
+ const s=await guildCache.get(()=>upstream('guild',isGuild));return {data:s.data,sync:{source:s.stale?'cache':'dashboard',stale:s.stale||s.data.metadata.stale===true||isOutdated(s.data.metadata.updated_at),checkedAt:new Date(s.at).toISOString(),updatedAt:s.data.metadata.updated_at}};
 }
 export async function applicationsSnapshot(params:URLSearchParams):Promise<Envelope<Applications>>{
  const query=applicationQuery(params).toString();let cache=applicationCaches.get(query);

@@ -51,6 +51,7 @@ if action=='up':
     (state/'current').write_text('restored' if rollback else 'new')
     if scenario=='bad_up' and not rollback:sys.exit(1)
     sys.exit(0)
+if action=='exec':sys.exit(1 if scenario=='bad_bridge' and (state/'current').read_text()=='new' else 0)
 if action in ['stop','restart','logs']:sys.exit(0)
 sys.exit(98)
 '''
@@ -69,6 +70,7 @@ class DeploymentTests(unittest.TestCase):
         (self.bin/'docker').chmod(0o755)
         self.env={**os.environ,'PATH':str(self.bin)+os.pathsep+os.environ['PATH'],'FAKE_STATE':str(self.root),'SITE_HEALTH_TIMEOUT':'1'}
         self.env.pop('SITE_IMAGE',None)
+        (self.root/'.env.example').write_text((self.root/'.env.example').read_text().replace('PUBLIC_SITE_BRIDGE_TOKEN=','PUBLIC_SITE_BRIDGE_TOKEN='+'a'*64))
     def tearDown(self): self.temp.cleanup()
     def run_script(self,scenario='ok',action='deploy'):
         result=subprocess.run(['bash',str(self.root/'deploy/deploy.sh'),action],cwd='/',env={**self.env,'SCENARIO':scenario},capture_output=True,text=True,timeout=15)
@@ -89,7 +91,7 @@ class DeploymentTests(unittest.TestCase):
                 self.assertNotIn('/srv/mistblossom',call['args'])
         self.assertFalse(any(c['args'][:2]==['network','create'] for c in self.calls))
     def test_existing_env_and_override_are_preserved(self):
-        content='SITE_URL=https://lihvodruida.pp.ua\nDASHBOARD_URL=https://guild.lihvodruida.pp.ua\nCUSTOM=value\n'
+        content='SITE_URL=https://lihvodruida.pp.ua\nDASHBOARD_URL=https://guild.lihvodruida.pp.ua\nCUSTOM=value\nDASHBOARD_INTERNAL_URL=http://dashboard:3000\nPUBLIC_SITE_BRIDGE_TOKEN=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n'
         (self.root/'.env').write_text(content)
         (self.root/'compose.override.yml').write_text('services: {}\n')
         r=self.run_script()
@@ -123,6 +125,14 @@ class DeploymentTests(unittest.TestCase):
         self.assertEqual(len(self.actions('up')),2)
         self.assertTrue(self.actions('up')[1]['image'].startswith('lihvodruida-site:rollback-'))
         self.assertEqual((self.root/'current').read_text(),'restored')
+    def test_incompatible_bridge_rolls_back(self):
+        self.assertNotEqual(self.run_script('bad_bridge').returncode,0)
+        self.assertEqual((self.root/'current').read_text(),'restored')
+    def test_missing_token_stops_before_build(self):
+        env=(self.root/'.env.example').read_text().replace('PUBLIC_SITE_BRIDGE_TOKEN='+'a'*64,'PUBLIC_SITE_BRIDGE_TOKEN=')
+        (self.root/'.env').write_text(env)
+        self.assertNotEqual(self.run_script().returncode,0)
+        self.assertFalse(self.actions('build'))
     def test_failed_start_rolls_back(self):
         self.assertNotEqual(self.run_script('bad_up').returncode,0)
         self.assertEqual((self.root/'current').read_text(),'restored')

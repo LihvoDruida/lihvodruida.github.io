@@ -6,10 +6,15 @@ services:
         NEXT_BUILD_CPUS: ${NEXT_BUILD_CPUS:-2}
         NODE_BUILD_MEMORY_MB: ${NODE_BUILD_MEMORY_MB:-1536}
         SITE_URL: ${SITE_URL:-https://lihvodruida.pp.ua}
-    image: ${SITE_IMAGE:-lihvodruida-site:4.0.1}
+    image: ${SITE_IMAGE:-lihvodruida-site:4.1.0}
     restart: unless-stopped
     init: true
     env_file: .env
+    environment:
+      SITE_URL: ${SITE_URL:-https://lihvodruida.pp.ua}
+      DASHBOARD_URL: ${DASHBOARD_URL:-https://guild.lihvodruida.pp.ua}
+      DASHBOARD_INTERNAL_URL: ${DASHBOARD_INTERNAL_URL:?set DASHBOARD_INTERNAL_URL}
+      PUBLIC_SITE_BRIDGE_TOKEN: ${PUBLIC_SITE_BRIDGE_TOKEN:?set the same bridge token in both projects}
     ports:
       - "127.0.0.1:3001:3000"
     read_only: true
