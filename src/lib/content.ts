@@ -9,7 +9,7 @@ export const dashboardUrl=()=>{const u=new URL(process.env.DASHBOARD_URL||'https
  * Browser POST keeps the public HTTPS origin; private Docker requests authenticate
  * with a dedicated read-only token, not the internal admin/cron token.
  */
-export function dashboardReadTransport(){
+export function dashboardReadTransport(): { base: URL; headers: Record<string, string> } {
  const internal=String(process.env.DASHBOARD_INTERNAL_URL||'').trim();
  const token=String(process.env.PUBLIC_SITE_BRIDGE_TOKEN||'').trim();
  if(internal&&token.length>=32){

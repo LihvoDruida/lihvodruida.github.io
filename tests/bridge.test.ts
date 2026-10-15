@@ -12,4 +12,29 @@ test('only bounded, supported application filters reach dashboard',()=>{const q=
 const valid={characterName:'Khayen',realm:'Terokkar',region:'eu',faction:'Alliance',className:'Druid',discord:'sebas_druid',battleTag:'',availability:'Увечері після 19:00',sourceCreator:'Лігво Друїда'};
 test('form uses dashboard field rules, including Horde BattleTag',()=>{assert.equal(validateApplication(valid),null);assert.match(validateApplication({...valid,faction:'Horde'})||'',/BattleTag/);assert.equal(validateApplication({...valid,faction:'Horde',battleTag:'Name#12345'}),null);assert.ok(validateApplication({...valid,discord:'bad name'}));assert.ok(validateApplication({...valid,characterName:'1x'}));assert.ok(validateApplication({...valid,website:'bot'}));assert.ok(validateApplication({...valid,sourceCreator:'Інше'}))});
 test('external URLs disallow script and insecure navigation',()=>{assert.equal(safeUrl('javascript:alert(1)'),'#');assert.equal(safeUrl('http://example.org'),'#');assert.equal(safeUrl('https://raider.io/characters/eu/test'),'https://raider.io/characters/eu/test')});
-test('original content and community inventory remains available',()=>{assert.equal(articles('guides').length,7);assert.equal(new Set(articles('guides').map(a=>a.slug)).size,7);assert.ok(articles('guides').every(a=>a.body.length>1000));assert.ok(data<Mod[]>('my_mods').length>=8);assert.deepEqual(data<Community[]>('guilds').map(g=>g.id),['mistblossom','varta']);assert.ok(fallbackGuild().members.length>100)});
+test('articles are loaded asynchronously from dashboard CMS rather than local Markdown',async()=>{
+ const originalFetch=globalThis.fetch;
+ const urls:string[]=[];
+ const items=[
+  {kind:'guides',slug:'guide-older',title:'Guide older',description:'Older guide',body:'Old guide content',image:'/assets/img/news-placeholder.webp',date:'2026-09-01',author:'Admin',tags:[]},
+  {kind:'news',slug:'news-latest',title:'News latest',description:'Latest news',body:'New update',image:'/assets/img/news-placeholder.webp',date:'2026-10-15',author:'Admin',tags:[]},
+  {kind:'guides',slug:'guide-newer',title:'Guide newer',description:'Newer guide',body:'New guide content',image:'/assets/img/news-placeholder.webp',date:'2026-10-01',author:'Admin',tags:[]},
+ ];
+ globalThis.fetch=async (input)=>{
+  urls.push(String(input));
+  return new Response(JSON.stringify({schema:'mistblossom.public-content.v1',updated_at:'2026-10-15T12:00:00Z',items}),{status:200,headers:{'content-type':'application/json'}});
+ };
+ try{
+  const guides=await articles('guides');
+  assert.deepEqual(guides.map(a=>a.slug),['guide-newer','guide-older']);
+  const news=await articles('news');
+  assert.deepEqual(news.map(a=>a.slug),['news-latest']);
+  assert.ok(urls.length>=1);
+  assert.ok(urls.every(url=>new URL(url).pathname==='/api/site/content'));
+ }finally{globalThis.fetch=originalFetch;}
+});
+test('community and guild archive stay available as explicit fallbacks',()=>{
+ assert.ok(data<Mod[]>('my_mods').length>=8);
+ assert.deepEqual(data<Community[]>('guilds').map(g=>g.id),['mistblossom','varta']);
+ assert.ok(fallbackGuild().members.length>100);
+});
