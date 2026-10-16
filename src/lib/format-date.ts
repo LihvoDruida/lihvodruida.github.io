@@ -1,0 +1,1 @@
+export function formatDate(date:string){const d=new Date(date);return Number.isNaN(d.getTime())?'Дата не вказана':new Intl.DateTimeFormat('uk-UA',{day:'numeric',month:'long',year:'numeric',timeZone:'Europe/Kyiv'}).format(d);}

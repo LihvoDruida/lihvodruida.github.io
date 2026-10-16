@@ -6,3 +6,5 @@ if(result.status!==0) process.exit(result.status||1);
 // Standalone output is independently runnable and contains the current public assets.
 for(const name of ['public','_data']) if(existsSync(name)) cpSync(name,`.next/standalone/${name}`,{recursive:true});
 cpSync('.next/static','.next/standalone/.next/static',{recursive:true});
+
+cpSync('scripts/check-deployed.mjs','.next/standalone/check-deployed.mjs');

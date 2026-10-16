@@ -140,7 +140,9 @@ info 'Запускаємо лише site та очікуємо healthy.'
 "${compose[@]}" up -d --no-build --no-deps --pull never site
 wait_healthy
 # Health is process liveness; deployment additionally requires a compatible database-backed bridge.
-"${compose[@]}" exec -T site node -e "fetch('http://127.0.0.1:3000/api/bridge/status').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+"${compose[@]}" exec -T site node -e "fetch('http://127.0.0.1:3000/site-api/v1/status').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+info 'Перевіряємо публічні маршрути через Cloudflare, склад і список заявок.'
+"${compose[@]}" exec -T site node check-deployed.mjs
 rollback_active=0
 trap - ERR INT TERM
 info 'Деплой сайту завершено; healthcheck успішний.'

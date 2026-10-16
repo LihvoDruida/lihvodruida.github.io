@@ -1,0 +1,7 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {apiJson,ClientApiError} from '../src/lib/client-api';
+test('retired Worker is recognized even though its 404 body is valid JSON',async()=>{await assert.rejects(apiJson(Response.json({error:'Сторінку не знайдено.'},{status:404,headers:{'X-Guild-Worker-Request-Id':'fixture'}})),(error:unknown)=>error instanceof ClientApiError&&error.code==='legacy_edge_route');});
+test('Cloudflare HTML challenge is distinct from dashboard downtime',async()=>{await assert.rejects(apiJson(new Response('<html>challenge</html>',{status:403,headers:{'content-type':'text/html','cf-mitigated':'challenge'}})),(error:unknown)=>error instanceof ClientApiError&&error.code==='edge_challenge');});
+test('truncated JSON has a safe retryable error instead of a raw parse exception',async()=>{await assert.rejects(apiJson(new Response('{"ok":',{headers:{'content-type':'application/json'}})),(error:unknown)=>error instanceof ClientApiError&&error.code==='invalid_json');});
+test('upstream safe error codes are retained; success returns parsed JSON',async()=>{await assert.rejects(apiJson(Response.json({error:'Налаштування доступу не збігаються.',code:'bridge_auth_failed'},{status:503})),(error:unknown)=>error instanceof ClientApiError&&error.code==='bridge_auth_failed');assert.deepEqual(await apiJson(Response.json({ok:true})),{ok:true});});

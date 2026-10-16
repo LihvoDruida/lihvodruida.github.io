@@ -1,8 +1,10 @@
 # Узгодження сайтів і завершення legacy-інтеграцій
 
-**Дата:** 16.10.2026, Київ. **Парний реліз:** Dashboard **3.9.0** + Public Site **4.1.0**.
+**Дата:** 16.10.2026, Київ. **Парний реліз:** Dashboard **3.9.1** + Public Site **4.1.1**.
 
 Вихідні проєкти: Dashboard 3.8.103 cms-docker-hotfix і Site 4.0.1 build-hotfix. Зміни підготовлено в наданих вихідних кодах; живий VPS не змінювався.
+
+Додаткова інспекція Cloudflare, заявок і CurseForge та актуальне приймання: [SYNC_INSPECTION_2026-10-16_UA.md](SYNC_INSPECTION_2026-10-16_UA.md).
 
 ## Результат
 
@@ -11,12 +13,12 @@
 | Потік | Реалізація |
 |---|---|
 | Склад, прогрес і розклад | Site → `http://dashboard:3000/api/site/guild` |
-| Список і статуси заявок | Browser → Site `/api/bridge/applications` → Dashboard GET |
-| Створення заявки | Browser → Site `/api/bridge/applications` → Dashboard POST → PostgreSQL |
+| Список і статуси заявок | Browser → Site `/site-api/v1/applications` → Dashboard GET |
+| Створення заявки | Browser → Site `/site-api/v1/applications` → Dashboard POST → PostgreSQL |
 | Рішення офіцера / дія Discord | Чинна модерація змінює той самий запис PostgreSQL; сайт читає його статус |
 | Новини й гайди | Site → Dashboard `/api/site/content?page=N`, контракт v2 |
-| Обкладинки | Browser → Site `/api/media/:hash` → Dashboard → PostgreSQL |
-| Готовність інтеграції | Site `/api/bridge/status` → автентифікований Dashboard `/api/site/status` |
+| Обкладинки | Browser → Site `/site-api/v1/media/:hash` → Dashboard → PostgreSQL |
+| Готовність інтеграції | Site `/site-api/v1/status` → автентифікований Dashboard `/api/site/status` |
 
 Публічний сайт не отримує `INTERNAL_API_TOKEN`, OAuth-секрети, bot token або доступ до PostgreSQL. Окремий `PUBLIC_SITE_BRIDGE_TOKEN` дозволяє тільки визначені запити. POST дозволений лише для створення заявки; адміністративні API не успадковують цей виняток.
 
@@ -99,8 +101,8 @@ make backup
 Новий dashboard-архів має кореневу папку `mistblossom`, site-архів — `lihvodruida-site`. Вони призначені для `/srv/mistblossom` і `/srv/lihvodruida-site`.
 
 ```bash
-unzip -o /tmp/lihvodruida-dashboard-v3.9.0-unified-integration.zip -d /srv
-unzip -o /tmp/lihvodruida-site-v4.1.0-unified-integration.zip -d /srv
+unzip -o /tmp/lihvodruida-dashboard-v3.9.1-sync-fix.zip -d /srv
+unzip -o /tmp/lihvodruida-site-v4.1.1-sync-fix.zip -d /srv
 python3 /srv/mistblossom/deploy/prepare-unified-env.py --site-dir /srv/lihvodruida-site
 ```
 
@@ -141,10 +143,10 @@ docker compose -p mistblossom up -d --no-deps --force-recreate nginx
 cd /srv/lihvodruida-site
 make check
 make deploy
-curl --fail https://lihvodruida.pp.ua/api/bridge/status
+curl --fail https://lihvodruida.pp.ua/site-api/v1/status
 ```
 
-Очікувана відповідь: `{"ok":true,"integration":"ready"}`. На відміну від healthcheck, вона підтверджує доступ до сумісного дашборда з потрібними таблицями БД. Readiness не підтверджує актуальність складу або доставку Discord-повідомлень.
+Відповідь має містити `{"ok":true,"integration":"ready","service":"lihvodruida-site","api_base":"/site-api/v1"}`. На відміну від healthcheck, вона підтверджує доступ до сумісного дашборда з потрібними таблицями БД. Readiness не підтверджує актуальність складу або доставку Discord-повідомлень.
 
 ### 6. Приймання на живому середовищі
 
@@ -159,10 +161,10 @@ curl --fail https://lihvodruida.pp.ua/api/bridge/status
 
 - TypeScript і ESLint дашборда; повний `build:ci` з наявними регресійними перевірками та новим `check:site-integration`.
 - Production standalone дашборда: 7 сценаріїв, включно зі стартом сервера, статикою й Sharp.
-- Тести сайту: 19 сценаріїв із парною перевіркою справжнього dashboard route handler; БД/Discord у цьому сценарії контрольовані.
-- Production standalone сайту: 6 сценаріїв із HTTP-запитами до зібраного сервера та контрольованого upstream.
-- Оркестрація деплою: 15 сценаріїв із фальшивим Docker CLI, включно з відкатом при несправній інтеграції.
-- Підготовка env: 3 сценарії — перенесення, повторний запуск і відмова при конфліктах.
+- Тести сайту: 27 сценаріїв із парною перевіркою справжнього dashboard route handler; БД/Discord у цьому сценарії контрольовані.
+- Production standalone сайту: 7 сценаріїв із HTTP-запитами до зібраного сервера та контрольованого upstream.
+- Оркестрація деплою: 16 сценаріїв із фальшивим Docker CLI, включно з відкатом при несправній інтеграції.
+- Підготовка env: 4 сценарії — перенесення, повторний запуск і відмова при конфліктах.
 - `git diff --check`, звіряння контракту заявки та перевірка відсутності Firebase SDK у dependency lockfile.
 
 Docker CLI і локальний сервер тестового PostgreSQL у цьому середовищі недоступні. Повний `docker build`, фактичний `nginx -t`, справжні SQL-конкурентні сценарії, поточні дані VPS і жива доставка Discord тут не виконувалися. Вони не позначені як підтверджені. Перед запуском Nginx команду перевірки наведено вище.

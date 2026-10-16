@@ -1,6 +1,6 @@
 {
   "name": "lihvodruida-site",
-  "version": "4.1.0",
+  "version": "4.3.0",
   "private": true,
   "engines": {
     "node": ">=24.0.0"
@@ -15,7 +15,9 @@
     "check:content": "node --import tsx scripts/check-content.ts",
     "build:ci": "npm run typecheck && npm test && npm run check:content && npm run check:deploy && npm run build && npm run check:standalone",
     "check:deploy": "bash -n deploy/deploy.sh && python3 -m unittest discover -s tests -p test_deploy.py -v",
-    "check:standalone": "node scripts/check-standalone.mjs"
+    "check:standalone": "node scripts/check-standalone.mjs",
+    "pretypecheck": "node scripts/sync-assets.mjs && next typegen",
+    "check:browser": "SITE_QA_BROWSER=1 node scripts/check-standalone.mjs"
   },
   "dependencies": {
     "next": "16.3.5",

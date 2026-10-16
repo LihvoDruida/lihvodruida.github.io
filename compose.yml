@@ -6,7 +6,7 @@ services:
         NEXT_BUILD_CPUS: ${NEXT_BUILD_CPUS:-2}
         NODE_BUILD_MEMORY_MB: ${NODE_BUILD_MEMORY_MB:-1536}
         SITE_URL: ${SITE_URL:-https://lihvodruida.pp.ua}
-    image: ${SITE_IMAGE:-lihvodruida-site:4.1.0}
+    image: ${SITE_IMAGE:-lihvodruida-site:4.3.0}
     restart: unless-stopped
     init: true
     env_file: .env

@@ -1,6 +1,12 @@
-# VPS · 4.1.0
+# VPS · 4.3.0
 
-Актуальні команди оновлення обох проєктів наведені в [інструкції переходу](../UNIFIED_INTEGRATION_2026-10-16_UA.md). Старі інструкції з ручним дописуванням server-блоків у dashboard.conf замінені окремим файлом public-site.conf із релізу дашборда 3.9.0.
+Поточне встановлення: [RAID_HISTORY_SYNC_2026-10-16_UA.md](../RAID_HISTORY_SYNC_2026-10-16_UA.md). Dashboard 3.13.0 → Site 4.3.0.
+
+Поточне виправлення заявок і відновлення мережі: [CONNECTION_RECOVERY_2026-10-16_UA.md](../CONNECTION_RECOVERY_2026-10-16_UA.md).
+
+Попередній парний реліз: [SITE_DASHBOARD_SYNC_2026-10-16_UA.md](../SITE_DASHBOARD_SYNC_2026-10-16_UA.md).
+
+Попередні команди оновлення обох проєктів наведені в [інструкції переходу](../UNIFIED_INTEGRATION_2026-10-16_UA.md). Старі інструкції з ручним дописуванням server-блоків у dashboard.conf замінені окремим файлом public-site.conf із релізу дашборда 3.9.1.
 
 Сайт працює в `/srv/lihvodruida-site`, окремий Compose-проєкт `lihvodruida-site`, порт `127.0.0.1:3001`, зовнішня мережа `mistblossom_edge`. Дашборд працює в `/srv/mistblossom`.
 

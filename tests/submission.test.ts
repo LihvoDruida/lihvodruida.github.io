@@ -5,7 +5,7 @@ import {submitApplication} from '../src/lib/submit-application';
 import {dashboardTransport} from '../src/lib/config';
 import {boundedText} from '../src/lib/http';
 const valid={characterName:'Sebas',realm:'Terokkar',faction:'Alliance',className:'Druid',discord:'sebas',availability:'Увечері після 19:00',sourceCreator:'Лігво Друїда',sourcePlatform:'Twitch',consent:true};
-const request=(body:unknown=valid,extra:Record<string,string>={})=>new Request('https://lihvodruida.pp.ua/api/bridge/applications',{method:'POST',headers:{Origin:'https://lihvodruida.pp.ua','Content-Type':'application/json','X-Real-IP':'203.0.113.10',Authorization:'Bearer browser-injected',Cookie:'private=secret',...extra},body:JSON.stringify(body)});
+const request=(body:unknown=valid,extra:Record<string,string>={})=>new Request('https://lihvodruida.pp.ua/site-api/v1/applications',{method:'POST',headers:{Origin:'https://lihvodruida.pp.ua','Content-Type':'application/json','X-Real-IP':'203.0.113.10',Authorization:'Bearer browser-injected',Cookie:'private=secret',...extra},body:JSON.stringify(body)});
 test('service configuration never falls back to the public dashboard',()=>{
  const token=process.env.PUBLIC_SITE_BRIDGE_TOKEN;const url=process.env.DASHBOARD_INTERNAL_URL;
  try{delete process.env.PUBLIC_SITE_BRIDGE_TOKEN;assert.throws(dashboardTransport);process.env.PUBLIC_SITE_BRIDGE_TOKEN=token;delete process.env.DASHBOARD_INTERNAL_URL;assert.throws(dashboardTransport);process.env.DASHBOARD_INTERNAL_URL='http://evil.example:3000';assert.throws(dashboardTransport);}

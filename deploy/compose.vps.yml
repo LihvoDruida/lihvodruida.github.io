@@ -1,7 +1,7 @@
 # Used by `make deploy`; existing user overrides are loaded before this file.
 services:
   site:
-    image: ${SITE_IMAGE:-lihvodruida-site:4.1.0}
+    image: ${SITE_IMAGE:-lihvodruida-site:4.3.0}
     networks:
       dashboard_edge:
         aliases:

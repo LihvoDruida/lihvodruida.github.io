@@ -50,3 +50,10 @@ input::placeholder,textarea::placeholder{color:#9c948a}
 .progress-row progress,.progress-row progress::-webkit-progress-bar{background:#3a2e24}
 .site-footer .footer-bottom{border-color:#3a2e24}
 @media (prefers-reduced-motion:reduce){.article-card,.button,.article-image img{transition:none}}
+
+.site-sync-notice{display:flex;gap:16px;align-items:center;justify-content:center;flex-wrap:wrap;padding:12px 24px;background:#34271c;border-bottom:1px solid #775537;color:#e9c8a4;font-size:.8rem;line-height:1.6}.site-sync-notice span{max-width:900px}.site-sync-notice button{flex-shrink:0}
+
+.section[aria-label="Рейдовий прогрес за сезонами"] .compact-label { min-width: 0; max-width: 100%; }
+.section[aria-label="Рейдовий прогрес за сезонами"] select { max-width: min(100%, 32rem); }
+.raid-card { min-width: 0; overflow-wrap: anywhere; }
+.raid-card small { display: block; margin-top: .5rem; }

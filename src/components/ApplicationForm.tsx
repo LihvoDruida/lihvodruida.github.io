@@ -1,6 +1,7 @@
 'use client';
 import {useRef,useState,useEffect} from 'react';
 import Link from 'next/link';
+import {apiJson} from '@/lib/client-api';
 import {classes,validateApplication} from '@/lib/contracts';
 export function ApplicationForm({endpoint,realms}:{endpoint:string;realms:string[]}){
  const [faction,setFaction]=useState(''),[creator,setCreator]=useState(''),[pending,setPending]=useState(false),[dirty,setDirty]=useState(false),[error,setError]=useState(''),[receipt,setReceipt]=useState<{number:number;tracking:string;duplicate:boolean}|null>(null);
@@ -10,8 +11,8 @@ export function ApplicationForm({endpoint,realms}:{endpoint:string;realms:string
  useEffect(()=>{if(error||receipt)feedback.current?.focus()},[error,receipt]);
  async function submit(event:React.SubmitEvent<HTMLFormElement>){event.preventDefault();if(lock.current)return;const form=event.currentTarget;const payload:Record<string,unknown>=Object.fromEntries(new FormData(form));payload.region='eu';payload.discord=String(payload.discord).trim().toLowerCase().replace(/^@/,'');payload.source=[payload.sourceCreator,payload.sourcePlatform,payload.sourceOther].filter(Boolean).join(' · ');
   const validation=validateApplication(payload);if(validation){setError(validation);return;}if(!payload.consent){setError('Підтверди згоду на обробку заявки.');return;}
-  lock.current=true;setPending(true);setError('');controller.current=new AbortController();const timeout=setTimeout(()=>controller.current?.abort(),20000);
-  try{const response=await fetch(endpoint,{method:'POST',credentials:'omit',signal:controller.current.signal,headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(payload)});const result=await response.json();if(!response.ok)throw new Error(result.error||'Не вдалося надіслати заявку.');if(!result.ok||!Number.isFinite(result.application_number))throw new Error('Відповідь не підтвердила створення заявки. Перевір статус за ім’ям персонажа.');setReceipt({number:result.application_number,tracking:result.tracking_number||'',duplicate:!!result.duplicate});setDirty(false);
+  lock.current=true;setPending(true);setError('');controller.current=new AbortController();const timeout=setTimeout(()=>controller.current?.abort(),35000);
+  try{const response=await fetch(endpoint,{method:'POST',redirect:'error',cache:'no-store',credentials:'same-origin',signal:controller.current.signal,headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(payload)});const result=await apiJson<{ok:boolean;application_number:number;tracking_number?:string;duplicate?:boolean}>(response);if(!result.ok||!Number.isFinite(result.application_number))throw new Error('Відповідь не підтвердила створення заявки. Перевір статус за ім’ям персонажа.');setReceipt({number:result.application_number,tracking:result.tracking_number||'',duplicate:!!result.duplicate});setDirty(false);
   }catch(e){setError(e instanceof TypeError||e instanceof DOMException?'Відповідь не отримано. Заявка могла зберегтися — перевір статус за ім’ям персонажа перед повторним надсиланням.':e instanceof Error?e.message:'Не вдалося надіслати заявку.');}
   finally{clearTimeout(timeout);lock.current=false;setPending(false);}
  }

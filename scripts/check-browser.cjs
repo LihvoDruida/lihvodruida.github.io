@@ -1,22 +1,80 @@
-const {chromium}=require(process.env.SITE_QA_PLAYWRIGHT||'playwright');
-const fs=require('node:fs'),assert=require('node:assert/strict');
-const root=require('node:path').resolve(__dirname,'..'),out=process.env.SITE_QA_OUTPUT||require('node:path').join(require('node:os').tmpdir(),'lihvodruida-site-qa');fs.mkdirSync(out,{recursive:true});
-const {parse}=require(root+'/node_modules/yaml');
-const guild=parse(fs.readFileSync(root+'/_data/guild.yml','utf8')),raids=parse(fs.readFileSync(root+'/_data/raids.yml','utf8'));
-guild.schema='mistblossom.public-guild.v1';guild.raid_seasons={current_season_id:raids.current_season,seasons:raids.seasons,catalog:raids.catalog};guild.scheduled_raids=[{id:'fixture-raid',title:'Рейд спільноти',date:'2026-10-20',time:'20:00',difficulty:'Heroic',going:18,capacity:25}];
-const app={schema:'mistblossom.public-applications.v1',items:[{number:101,character_name:'Khayen',realm:'Terokkar',class_name:'Druid',faction:'Alliance',status_key:'review',status_text:'На розгляді',created_at:'2026-10-15',updated_at:'2026-10-15'}],counts:{all:1,review:1,accepted:0,declined:0},updated_at:'2026-10-15'};
-let checks=0;const ok=(condition,message)=>{assert.ok(condition,message);checks++};
-const server=require('node:child_process').spawn(process.execPath,['.next/standalone/server.js'],{cwd:root,env:{...process.env,PORT:'3217',HOSTNAME:'127.0.0.1',DASHBOARD_URL:'https://guild.lihvodruida.pp.ua'},stdio:['ignore','pipe','pipe']});
-process.on('exit',()=>server.kill());
-(async()=>{await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(Error('server timeout')),10000);server.stdout.on('data',d=>{if(String(d).includes('Ready')){clearTimeout(timeout);resolve()}});server.on('error',reject);});const browser=await chromium.launch({executablePath:process.env.SITE_QA_CHROMIUM||undefined,headless:true,args:['--no-sandbox','--disable-gpu','--no-zygote','--disable-dev-shm-usage']});const context=await browser.newContext();const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));let posts=0,filtered=0;
-await page.route('**/api/**',async route=>{const req=route.request(),u=new URL(req.url());if(u.hostname==='guild.lihvodruida.pp.ua'&&req.method()==='POST'){posts++;const payload=req.postDataJSON();ok(payload.characterName==='Khayen'&&payload.discord==='sebas_druid'&&payload.faction==='Horde'&&payload.battleTag==='Name#12345','dashboard POST contract');await new Promise(r=>setTimeout(r,200));return route.fulfill({status:201,contentType:'application/json',body:JSON.stringify({ok:true,application_number:102,tracking_number:'TEST-102'})});}if(u.pathname==='/api/bridge/guild')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data:guild,sync:{source:'dashboard',stale:false,checkedAt:'2026-10-15T20:00:00Z',updatedAt:guild.metadata.updated_at}})});if(u.pathname==='/api/bridge/applications'){filtered++;return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data:app,sync:{source:'dashboard',stale:false,checkedAt:'2026-10-15T20:00:00Z',updatedAt:app.updated_at}})});}return route.abort();});
-await page.route(/^https:\/\/(?!127\.0\.0\.1).*\.(png|jpg|webp)(\?.*)?$/,route=>route.fulfill({status:200,contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" fill="#28413b"/></svg>'}));
-const paths=['/','/guides','/guides/midnight-mythic-plus-season-1-guide','/news','/mods','/donate','/guild','/guild/apply','/guild/applications'];
-for(const width of [1440,768,390,320]){await page.setViewportSize({width,height:1000});for(const path of paths){const response=await page.goto('http://127.0.0.1:3217'+path);await page.waitForTimeout(100);ok(response.status()===200,`${width} ${path} HTTP`);const overflow=await page.evaluate(()=>({doc:document.documentElement.scrollWidth,viewport:innerWidth}));if(overflow.doc>width)console.log(await page.locator('body *').evaluateAll(els=>els.map(e=>({tag:e.tagName,class:e.className,text:e.textContent?.slice(0,55),right:e.getBoundingClientRect().right,width:e.getBoundingClientRect().width})).filter(e=>e.right>innerWidth+1)));ok(overflow.doc<=width,`${width} ${path} overflow ${JSON.stringify(overflow)}`);ok(await page.locator('h1').count()===1,`${width} ${path} one h1`);if(process.env.SITE_QA_SCREENSHOTS==='1'&&(width===1440||width===390)&&['/','/guild','/guild/apply'].includes(path))await page.screenshot({path:out+'/'+width+(path==='/'?'home':path.replaceAll('/','-'))+'.png',fullPage:true});}}
-await page.setViewportSize({width:390,height:844});await page.goto('http://127.0.0.1:3217/');await page.getByRole('button',{name:'Меню'}).click();ok(await page.getByRole('navigation',{name:'Головна навігація'}).isVisible(),'mobile menu opens');await page.getByRole('navigation',{name:'Головна навігація'}).getByRole('link',{name:'Гайди',exact:true}).click();await page.waitForURL('**/guides');ok(page.url().includes('/guides'),'mobile navigation');ok(!await page.getByRole('navigation',{name:'Головна навігація'}).isVisible(),'mobile menu closes');
-await page.goto('http://127.0.0.1:3217/guides');await page.getByRole('searchbox').fill('alchemy');ok(await page.locator('.article-card').count()===1,'guide search');
-await page.goto('http://127.0.0.1:3217/guild');await page.getByRole('searchbox').fill(guild.members[0].character.name);ok(await page.locator('.member-card').count()>=1,'roster search');await page.getByRole('button',{name:'Професії',exact:true}).click();ok(await page.getByText('Професії — збережений довідник сайту.').count()===1,'profession source label');
-await page.goto('http://127.0.0.1:3217/guild/applications');await page.locator('.application-row').waitFor();ok(await page.getByText('На розгляді',{exact:true}).count()>=1,'application status');const before=filtered;await page.getByRole('searchbox').pressSequentially('Khayen',{delay:30});await page.waitForTimeout(500);ok(filtered-before===1,'application search debounces keystrokes');
-await page.goto('http://127.0.0.1:3217/guild/apply');await page.locator('[name=characterName]').fill('Khayen');await page.locator('[name=realm]').fill('Terokkar');await page.locator('[name=faction]').selectOption('Horde');ok(await page.locator('[name=battleTag]').getAttribute('required')!==null,'Horde requires BattleTag');await page.locator('[name=className]').selectOption('Druid');await page.locator('[name=discord]').fill('sebas_druid');await page.locator('[name=battleTag]').fill('Name#12345');await page.locator('[name=availability]').fill('Увечері після 19:00, рейди та ключі.');await page.locator('[name=sourceCreator]').selectOption('Інше');await page.locator('[name=sourceOther]').fill('Від друзів');await page.locator('[name=consent]').check();await page.getByRole('button',{name:'Надіслати заявку'}).click();ok(await page.getByRole('button',{name:'Надсилаємо заявку'}).isDisabled(),'submit locked while pending');await page.locator('.receipt').waitFor();ok(await page.getByText('TEST-102',{exact:true}).isVisible(),'tracking receipt visible');ok(posts===1,'single mutation');
-ok(errors.length===0,'no browser runtime errors: '+errors.join('; '));await browser.close();fs.writeFileSync(out+'/result.json',JSON.stringify({checks,errors,posts,viewports:[1440,768,390,320],routes:paths},null,2));console.log(`Browser checks passed: ${checks}, intercepted application POSTs: ${posts}, real POSTs: 0`);server.kill();
-})().catch(e=>{console.error(e);process.exit(1)});
+const assert=require('node:assert/strict');
+const {chromium}=require(process.env.SITE_QA_PLAYWRIGHT||require.resolve('playwright',{paths:[process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES||process.cwd()]}));
+module.exports=async function run({base,changeGuild,accept,changeContent,unpublish,posts}){
+ const browser=await chromium.launch({executablePath:process.env.SITE_QA_CHROMIUM||undefined,headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+ let page;
+ try{
+  const context=await browser.newContext({viewport:{width:390,height:844}});
+  await context.addCookies([{name:'cf_clearance',value:'fixture',domain:'lihvodruida.pp.ua',path:'/',secure:true,httpOnly:true}]);
+  page=await context.newPage();const errors=[],apiRequests=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.route('**/*',async route=>{
+   const request=route.request(),url=new URL(request.url());
+   if(url.origin!=='https://lihvodruida.pp.ua')return route.fulfill({status:200,contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"/>'});
+   if(url.pathname.startsWith('/site-api/'))apiRequests.push(url.pathname);
+   const headers=await request.allHeaders();delete headers.host;
+   const response=await fetch(base+url.pathname+url.search,{method:request.method(),headers,body:['GET','HEAD'].includes(request.method())?undefined:request.postDataBuffer(),redirect:'manual'});
+   const outgoing=Object.fromEntries(response.headers);delete outgoing['content-length'];delete outgoing['content-encoding'];
+   return route.fulfill({status:response.status,headers:outgoing,body:Buffer.from(await response.arrayBuffer())});
+  });
+  await page.goto('https://lihvodruida.pp.ua/guild');
+  await page.getByRole('heading',{name:'Runtime Test Guild'}).waitFor();
+  await page.getByText('Синхронізовано з гільдією',{exact:true}).waitFor();
+  assert.ok(apiRequests.includes('/site-api/v1/guild'));console.log('PASS mobile browser hydration and background guild refresh through the real route');
+  const season=page.getByLabel('Сезон',{exact:true});
+  await season.selectOption('mn-1');await page.locator('[data-raid="tier-mn-1"] .mythic strong').getByText('2/9',{exact:true}).waitFor();
+  await season.selectOption('tww-1');assert.equal(await page.locator('[data-raid="nerubar-palace"] .mythic strong').innerText(),'—/8');
+  await page.evaluate(()=>{window.__guildMarker='preserved'});changeGuild();
+  await page.locator('[data-raid="nerubar-palace"] .mythic strong').getByText('0/8',{exact:true}).waitFor({timeout:25000});
+  assert.equal(await season.inputValue(),'tww-1');assert.equal(await page.evaluate(()=>window.__guildMarker),'preserved');
+  assert.equal(await page.locator('[data-raid="not-available"] .mythic strong').innerText(),'—/9');
+  await season.selectOption('mn-1');assert.equal(await page.locator('[data-raid="tier-mn-1"] .mythic strong').innerText(),'3/9');
+  for(const width of [320,390,1440]){await page.setViewportSize({width,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),`guild overflow at ${width}px`);}
+  await page.setViewportSize({width:390,height:844});
+  console.log('PASS historical raid seasons, unknown → verified zero, revised progress and preserved selection without page reload; 320/390/1440px');
+  await page.goto('https://lihvodruida.pp.ua/guild/apply');
+  await page.locator('[name=characterName]').fill('Sebas');await page.locator('[name=realm]').fill('Terokkar');await page.locator('[name=faction]').selectOption('Alliance');await page.locator('[name=className]').selectOption('Druid');await page.locator('[name=discord]').fill('sebas');await page.locator('[name=availability]').fill('Увечері після 19:00, рейди та ключі.');await page.locator('[name=sourceCreator]').selectOption('Інше');await page.locator('[name=sourceOther]').fill('Від друзів');await page.locator('[name=consent]').check();
+  await page.getByRole('button',{name:'Надіслати заявку'}).click();await page.locator('.receipt').waitFor();assert.equal(posts(),1);assert.ok(await page.getByText('PRIVATE-42',{exact:true}).isVisible());console.log('PASS real form, same-origin Cloudflare cookie, server validation and private receipt');
+  await page.getByRole('link',{name:'Перевірити статус'}).click();await page.locator('.application-row').waitFor();
+  await page.evaluate(()=>{window.__syncMarker='preserved'});accept();
+  await page.locator('.status-badge.accepted').waitFor({timeout:45000});
+  assert.equal(await page.evaluate(()=>window.__syncMarker),'preserved');console.log('PASS decision propagates to application list without a page reload');
+  for(const pause of ['offline','hidden']){
+   await page.waitForFunction(()=>document.querySelector('.application-list')?.getAttribute('aria-busy')==='false');
+   await page.evaluate(pause=>{
+    const original=window.fetch.bind(window),object=pause==='offline'?navigator:document,key=pause==='offline'?'onLine':'hidden',prior=Object.getOwnPropertyDescriptor(object,key);let paused=false;
+    Object.defineProperty(object,key,{configurable:true,get:()=>pause==='offline'?!paused:paused});
+    window.__recovery={reads:0,complete:false};
+    window.__restoreRecovery=()=>{window.fetch=original;if(prior)Object.defineProperty(object,key,prior);else delete object[key];};
+    window.fetch=async(input,init)=>{
+     const url=new URL(typeof input==='string'||input instanceof URL?input:input.url,location.href);
+     if(url.pathname==='/site-api/v1/applications'){
+      window.__recovery.reads++;
+      if(window.__recovery.reads===1)return new Promise((resolve,reject)=>{
+       init.signal.addEventListener('abort',()=>reject(new DOMException('Paused','AbortError')),{once:true});
+       // Resume in the same task, before the aborted request reaches finally.
+       // A subscription must queue this wakeup instead of waiting its backoff.
+       paused=true;pause==='offline'?window.dispatchEvent(new Event('offline')):document.dispatchEvent(new Event('visibilitychange'));
+       paused=false;pause==='offline'?window.dispatchEvent(new Event('online')):document.dispatchEvent(new Event('visibilitychange'));
+      });
+      const response=await original(input,init);window.__recovery.complete=true;return response;
+     }
+     return original(input,init);
+    };
+    window.dispatchEvent(new CustomEvent('lihvo:site-sync',{detail:['applications']}));
+   },pause);
+   try{
+    await page.waitForFunction(()=>window.__recovery?.complete,{timeout:5000});
+    assert.equal(await page.evaluate(()=>window.__recovery.reads),2);assert.equal(await page.evaluate(()=>window.__syncMarker),'preserved');
+    assert.ok(!(await page.locator('.section').innerText()).includes('Запит тривав надто довго'));
+    console.log(`PASS immediate ${pause} recovery during an aborted in-flight request without navigation or false timeout`);
+   }finally{await page.evaluate(()=>window.__restoreRecovery());}
+  }
+  await page.goto('https://lihvodruida.pp.ua/guides/runtime-guide');await page.getByText('Article from the dashboard CMS.',{exact:true}).waitFor();await page.evaluate(()=>{window.__contentMarker='preserved';});changeContent();await page.getByText('Updated article from the dashboard CMS.',{exact:true}).waitFor({timeout:25000});assert.equal(await page.evaluate(()=>window.__contentMarker),'preserved');console.log('PASS dashboard CMS edits refresh an open article without a full page reload');
+  unpublish();await page.getByRole('heading',{name:'У цьому лісі інша дорога'}).waitFor({timeout:25000});assert.equal(await page.evaluate(()=>window.__contentMarker),'preserved');for(const path of ['/feed.xml','/sitemap.xml']){const response=await fetch(base+path);assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');assert.ok(!(await response.text()).includes('runtime-guide'));}console.log('PASS unpublish removes the open article, RSS item and sitemap URL');
+  await page.setViewportSize({width:1440,height:900});await page.goto('https://lihvodruida.pp.ua/mods');await page.locator('.mod-card').first().waitFor();
+  await page.getByRole('button',{name:'Оновити'}).click();await page.waitForFunction(()=>!document.querySelector('.notice button')?.disabled);assert.ok(apiRequests.includes('/site-api/v1/mods'));console.log('PASS desktop CurseForge catalogue refresh uses the same live route system');
+  assert.equal(errors.length,0,errors.join('\n'));assert.ok(apiRequests.every(p=>p.startsWith('/site-api/v1/')));console.log('[check-browser] OK — 9/9 full browser scenarios; no live writes or Discord messages');
+ }catch(error){
+  if(page)console.error('BROWSER_DIAGNOSTIC',JSON.stringify(await page.evaluate(()=>({title:document.title,text:document.body.innerText.slice(0,800),headings:[...document.querySelectorAll('h1')].map(node=>({html:node.outerHTML,parents:[...function*(n){while(n){yield {tag:n.tagName,hidden:n.hidden,display:getComputedStyle(n).display,visibility:getComputedStyle(n).visibility,box:n.getBoundingClientRect().toJSON()};n=n.parentElement}}(node)]}))}))));throw error;
+ }finally{await browser.close();}
+};

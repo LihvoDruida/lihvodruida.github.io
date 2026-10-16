@@ -51,7 +51,7 @@ if action=='up':
     (state/'current').write_text('restored' if rollback else 'new')
     if scenario=='bad_up' and not rollback:sys.exit(1)
     sys.exit(0)
-if action=='exec':sys.exit(1 if scenario=='bad_bridge' and (state/'current').read_text()=='new' else 0)
+if action=='exec':sys.exit(1 if (scenario=='bad_bridge' or (scenario=='bad_public_route' and 'check-deployed.mjs' in command)) and (state/'current').read_text()=='new' else 0)
 if action in ['stop','restart','logs']:sys.exit(0)
 sys.exit(98)
 '''
@@ -127,6 +127,9 @@ class DeploymentTests(unittest.TestCase):
         self.assertEqual((self.root/'current').read_text(),'restored')
     def test_incompatible_bridge_rolls_back(self):
         self.assertNotEqual(self.run_script('bad_bridge').returncode,0)
+        self.assertEqual((self.root/'current').read_text(),'restored')
+    def test_intercepted_public_route_rolls_back_even_when_internal_health_is_ok(self):
+        self.assertNotEqual(self.run_script('bad_public_route').returncode,0)
         self.assertEqual((self.root/'current').read_text(),'restored')
     def test_missing_token_stops_before_build(self):
         env=(self.root/'.env.example').read_text().replace('PUBLIC_SITE_BRIDGE_TOKEN='+'a'*64,'PUBLIC_SITE_BRIDGE_TOKEN=')

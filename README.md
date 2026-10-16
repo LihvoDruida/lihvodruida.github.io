@@ -1,8 +1,16 @@
-# Лігво Друїда · сайт 4.1.0
+# Лігво Друїда · сайт 4.3.0
 
-Публічний сайт Next.js/Node.js, узгоджений із дашбордом 3.9.0. Гайди, новини, склад гільдії, рейдовий прогрес, розклад та заявки читаються з дашборда. Робочої Jekyll-версії, GitHub Pages-деплою й локального архіву складу немає.
+Поточний парний реліз: [RAID_HISTORY_SYNC_2026-10-16_UA.md](RAID_HISTORY_SYNC_2026-10-16_UA.md). Встановити Dashboard 3.13.0 перед Site 4.3.0. Історія збирається фоновим завданням у PostgreSQL.
 
-Повний порядок переходу: [UNIFIED_INTEGRATION_2026-10-16_UA.md](UNIFIED_INTEGRATION_2026-10-16_UA.md).
+Поточне виправлення заявок і відновлення мережі: [CONNECTION_RECOVERY_2026-10-16_UA.md](CONNECTION_RECOVERY_2026-10-16_UA.md).
+
+Публічний сайт Next.js/Node.js, узгоджений із дашбордом 3.11.1. Гайди, новини, склад гільдії, рейдовий прогрес, розклад та заявки читаються з дашборда. Робочої Jekyll-версії, GitHub Pages-деплою й локального архіву складу немає.
+
+Попередня парна синхронізація: [SITE_DASHBOARD_SYNC_2026-10-16_UA.md](SITE_DASHBOARD_SYNC_2026-10-16_UA.md). 
+
+Попередній порядок переходу: [UNIFIED_INTEGRATION_2026-10-16_UA.md](UNIFIED_INTEGRATION_2026-10-16_UA.md).
+
+Поточний звіт і усунення старого Worker: [SYNC_INSPECTION_2026-10-16_UA.md](SYNC_INSPECTION_2026-10-16_UA.md).
 
 ## Конфігурація
 
@@ -37,22 +45,22 @@ npm start
 ```bash
 make check
 make deploy
-curl --fail https://lihvodruida.pp.ua/api/bridge/status
+curl --fail https://lihvodruida.pp.ua/site-api/v1/status
 ```
 
-`make deploy` збирає лише сайт, очікує healthcheck і перевіряє сумісність зв’язку з PostgreSQL. Якщо перевірка не пройшла, намагається повернути попередній здоровий образ. Це не відкочує БД або інший Compose-проєкт.
+`make deploy` збирає лише сайт, очікує healthcheck, перевіряє сумісність зв’язку з PostgreSQL та публічні маршрути через Cloudflare. Якщо перевірка не пройшла, намагається повернути попередній здоровий образ. Це не відкочує БД або інший Compose-проєкт.
 
 ## Обмін даними
 
 | Браузер / SSR | Дашборд |
 |---|---|
-| `/api/bridge/guild` | `/api/site/guild` |
-| `/api/bridge/applications`, GET/POST | `/api/site/applications`, GET/POST |
+| `/site-api/v1/guild` | `/api/site/guild` |
+| `/site-api/v1/applications`, GET/POST | `/api/site/applications`, GET/POST |
 | CMS-сторінки, RSS, sitemap | `/api/site/content?page=N`, контракт v2 |
-| `/api/media/:sha256` | `/api/site/media/:sha256` |
-| `/api/bridge/status` | `/api/site/status` |
+| `/site-api/v1/media/:sha256` | `/api/site/media/:sha256` |
+| `/site-api/v1/status` | `/api/site/status` |
 
-Заявки надсилаються через власний домен, без cookies дашборда. Nginx має перезаписувати `X-Real-IP`; у production відсутня коректна адреса клієнта блокує надсилання. Ліміти дашборда рахують кожного відвідувача окремо.
+Заявки надсилаються через власний домен, зі своїми cookies Cloudflare; cookies відвідувача не передаються дашборду. Nginx має перезаписувати `X-Real-IP`; у production відсутня коректна адреса клієнта блокує надсилання. Ліміти дашборда рахують кожного відвідувача окремо.
 
 Читання має обмежений кеш, об’єднання одночасних запитів і backoff. Заявки кешуються 15 с, останні підтверджені статуси при збої — до 2 хв. Склад кешується 60 с, останній підтверджений знімок процесу при збої — до доби з позначкою застарілості. Без підтвердженого знімка API повертає 503; старий YAML не підставляється. Склад і статуси оновлюються у фоні без перезавантаження сторінки.
 
@@ -71,3 +79,11 @@ PAIRED_DASHBOARD_ROOT=/srv/mistblossom/dashboard npm test
 ```
 
 Цей сценарій виконує справжній route handler дашборда з контрольованими БД/Discord і звіряє байти валідатора заявки в обох проєктах. Живі повідомлення не надсилаються.
+
+## CurseForge та публічна перевірка
+
+Ключ із `$` у `.env` має бути в одинарних лапках. Для прихованого введення: `python3 deploy/configure-curseforge.py`, потім `make deploy`. Після запуску: `node scripts/check-deployed.mjs --curseforge`. Код `curseforge_access_denied` означає відмову зовнішнього API; потрібен чинний ключ із доступом. Ключ не вводять у чат або браузер.
+
+Сайт більше не викликає старі `/api/bridge/*`. При оновленні збірка прибирає попередні route-файли. Старий Worker-route Cloudflare потрібно прибрати після готовності нового `/site-api/v1/status`; див. звіт.
+
+`/site-api/v1/sync` перевіряє ревізії PostgreSQL і скидає лише змінений ресурс. Відкриті статті та каталоги оновлюються у фоні; RSS/sitemap мають no-store. Readiness вимагає capability `sync:revisions:v1`.

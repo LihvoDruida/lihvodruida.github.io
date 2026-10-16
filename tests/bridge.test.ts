@@ -1,4 +1,4 @@
-import {guild} from './fixtures';
+import {guild,syncFixtureResponse} from './fixtures';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {SnapshotCache} from '../src/lib/bridge-cache';
@@ -22,6 +22,7 @@ test('articles are loaded asynchronously from dashboard CMS rather than local Ma
   {kind:'guides',slug:'guide-newer',title:'Guide newer',description:'Newer guide',body:'New guide content',image:'/assets/img/news-placeholder.webp',date:'2026-10-01',author:'Admin',tags:[]},
  ];
  globalThis.fetch=async (input)=>{
+  const sync=syncFixtureResponse(input);if(sync)return sync;
   urls.push(String(input));
   return new Response(JSON.stringify({schema:'mistblossom.public-content.v2',revision:'test',next_page:null,total:items.length,updated_at:'2026-10-15T12:00:00Z',items}),{status:200,headers:{'content-type':'application/json'}});
  };
