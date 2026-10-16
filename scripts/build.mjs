@@ -7,4 +7,4 @@ if(result.status!==0) process.exit(result.status||1);
 for(const name of ['public','_data']) if(existsSync(name)) cpSync(name,`.next/standalone/${name}`,{recursive:true});
 cpSync('.next/static','.next/standalone/.next/static',{recursive:true});
 
-cpSync('scripts/check-deployed.mjs','.next/standalone/check-deployed.mjs');
+for(const name of ['check-deployed.mjs','check-integration.mjs']) cpSync(`scripts/${name}`,`.next/standalone/${name}`);

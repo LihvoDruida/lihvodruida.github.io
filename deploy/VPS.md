@@ -1,4 +1,6 @@
-# VPS · 4.3.0
+# VPS · 4.3.1
+
+Діагностика й виправлення відкату: [DEPLOY_READINESS_HOTFIX_2026-10-16_UA.md](../DEPLOY_READINESS_HOTFIX_2026-10-16_UA.md).
 
 Поточне встановлення: [RAID_HISTORY_SYNC_2026-10-16_UA.md](../RAID_HISTORY_SYNC_2026-10-16_UA.md). Dashboard 3.13.0 → Site 4.3.0.
 

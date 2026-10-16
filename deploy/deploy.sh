@@ -9,13 +9,14 @@ PROJECT=lihvodruida-site
 config_tmp=''
 rollback_tag=''
 rollback_active=0
+deploy_stage='configuration'
 fail() { printf '\nПОМИЛКА: %s\n' "$*" >&2; exit 1; }
 info() { printf '\n==> %s\n' "$*"; }
 cleanup() { if [[ -n "$config_tmp" ]]; then rm -f -- "$config_tmp"; fi; }
 trap cleanup EXIT
 case "$ACTION" in
-  deploy|check|status|logs|stop|restart) ;;
-  *) fail 'Використання: bash deploy/deploy.sh [deploy|check|status|logs|stop|restart]' ;;
+  deploy|check|integration-check|status|logs|stop|restart) ;;
+  *) fail 'Використання: bash deploy/deploy.sh [deploy|check|integration-check|status|logs|stop|restart]' ;;
 esac
 [[ $# -le 1 ]] || fail 'Зайві аргументи.'
 for command in docker python3; do command -v "$command" >/dev/null || fail "Не знайдено $command."; done
@@ -80,6 +81,11 @@ fi
 docker network inspect "$network" >/dev/null 2>&1 || fail "Мережа $network відсутня. Потрібна чинна мережа Nginx дашборда; скрипт її не створює."
 info "Конфігурація правильна. Проєкт: $PROJECT; мережа: $network."
 if [[ "$ACTION" == check ]]; then exit 0; fi
+if [[ "$ACTION" == integration-check ]]; then
+  info 'Перевіряємо дашборд через чинний контейнер сайту без перезапуску.'
+  "${compose[@]}" exec -T site node --input-type=module - --upstream < "$ROOT/scripts/check-integration.mjs"
+  exit 0
+fi
 health_timeout="${SITE_HEALTH_TIMEOUT:-90}"
 [[ "$health_timeout" =~ ^[0-9]+$ ]] && ((health_timeout>=1 && health_timeout<=600)) || fail 'SITE_HEALTH_TIMEOUT: від 1 до 600 секунд.'
 wait_healthy() {
@@ -117,8 +123,14 @@ fi
 info 'Збираємо образ. Поточний сайт продовжує працювати під час build.'
 export COMPOSE_PARALLEL_LIMIT=1
 "${compose[@]}" build site || fail 'Збірка не пройшла. Контейнер сайту не замінено.'
+# Test the new image against the dashboard before replacing a healthy site.
+info 'Перевіряємо сумісність із дашбордом до заміни сайту.'
+if ! "${compose[@]}" run --rm --no-deps --pull never -T --entrypoint node site check-integration.mjs --upstream; then
+  fail 'Перевірка інтеграції не пройшла. Новий контейнер сайту не запускався. Виправте зазначену причину й повторіть make up.'
+fi
 on_deploy_error() {
   local code=$?
+  printf '\nПомилка деплою: етап=%s, код=%s.\n' "$deploy_stage" "$code" >&2
   trap - ERR INT TERM
   if [[ "$rollback_active" == 1 && -n "$rollback_tag" ]]; then
     info 'Новий запуск не пройшов. Повертаємо попередній здоровий образ.'
@@ -136,11 +148,16 @@ rollback_active=1
 trap on_deploy_error ERR
 trap 'exit 130' INT
 trap 'exit 143' TERM
+deploy_stage='start'
 info 'Запускаємо лише site та очікуємо healthy.'
 "${compose[@]}" up -d --no-build --no-deps --pull never site
+deploy_stage='healthcheck'
 wait_healthy
 # Health is process liveness; deployment additionally requires a compatible database-backed bridge.
-"${compose[@]}" exec -T site node -e "fetch('http://127.0.0.1:3000/site-api/v1/status').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+deploy_stage='local-integration'
+info 'Перевіряємо readiness нового сайту та зв’язок із дашбордом.'
+"${compose[@]}" exec -T site node check-integration.mjs --local
+deploy_stage='public-routes'
 info 'Перевіряємо публічні маршрути через Cloudflare, склад і список заявок.'
 "${compose[@]}" exec -T site node check-deployed.mjs
 rollback_active=0

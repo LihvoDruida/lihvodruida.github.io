@@ -51,6 +51,11 @@ if action=='up':
     (state/'current').write_text('restored' if rollback else 'new')
     if scenario=='bad_up' and not rollback:sys.exit(1)
     sys.exit(0)
+if action=='run':
+    if '--no-build' in command:sys.exit(97)
+    if scenario=='bad_preflight':
+        print('dashboard_capabilities_missing: guild:raid-history:v2; Dashboard 3.13.0 required',file=sys.stderr);sys.exit(1)
+    sys.exit(0)
 if action=='exec':sys.exit(1 if (scenario=='bad_bridge' or (scenario=='bad_public_route' and 'check-deployed.mjs' in command)) and (state/'current').read_text()=='new' else 0)
 if action in ['stop','restart','logs']:sys.exit(0)
 sys.exit(98)
@@ -60,7 +65,7 @@ class DeploymentTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='site-deploy-')
         self.root = Path(self.temp.name)
-        for name in ['deploy/deploy.sh','deploy/compose.vps.yml','compose.yml','.env.example']:
+        for name in ['deploy/deploy.sh','deploy/compose.vps.yml','scripts/check-integration.mjs','compose.yml','.env.example']:
             dest=self.root/name
             dest.parent.mkdir(parents=True,exist_ok=True)
             shutil.copyfile(SOURCE/name,dest)
@@ -102,6 +107,13 @@ class DeploymentTests(unittest.TestCase):
     def test_check_does_not_build_or_start(self):
         self.assertEqual(self.run_script(action='check').returncode,0)
         self.assertFalse(self.actions('build'));self.assertFalse(self.actions('up'))
+    def test_integration_check_uses_current_container_without_build_or_restart(self):
+        shutil.copyfile(self.root/'.env.example',self.root/'.env')
+        r=self.run_script(action='integration-check')
+        self.assertEqual(r.returncode,0,r.stderr)
+        self.assertFalse(self.actions('build'));self.assertFalse(self.actions('up'));self.assertFalse(self.actions('run'))
+        args=self.actions('exec')[0]['args']
+        for value in ['--input-type=module','-','--upstream']:self.assertIn(value,args)
     def test_missing_network_aborts_before_build(self):
         self.assertNotEqual(self.run_script('missing_network').returncode,0)
         self.assertFalse(self.actions('build'));self.assertFalse(self.actions('up'))
@@ -125,8 +137,24 @@ class DeploymentTests(unittest.TestCase):
         self.assertEqual(len(self.actions('up')),2)
         self.assertTrue(self.actions('up')[1]['image'].startswith('lihvodruida-site:rollback-'))
         self.assertEqual((self.root/'current').read_text(),'restored')
+    def test_failed_preflight_keeps_current_container_and_reports_why(self):
+        r=self.run_script('bad_preflight')
+        self.assertNotEqual(r.returncode,0)
+        self.assertIn('dashboard_capabilities_missing',r.stderr)
+        self.assertFalse(self.actions('up'))
+        self.assertEqual(len(self.actions('run')),1)
+        for option in ['--rm','--no-deps','--pull','never','-T','--entrypoint','node','check-integration.mjs','--upstream']:
+            self.assertIn(option,self.actions('run')[0]['args'])
+    def test_preflight_runs_after_build_and_before_container_replacement(self):
+        r=self.run_script()
+        self.assertEqual(r.returncode,0,r.stderr)
+        commands=[c['args'] for c in self.calls]
+        self.assertLess(commands.index(self.actions('build')[0]['args']),commands.index(self.actions('run')[0]['args']))
+        self.assertLess(commands.index(self.actions('run')[0]['args']),commands.index(self.actions('up')[0]['args']))
     def test_incompatible_bridge_rolls_back(self):
-        self.assertNotEqual(self.run_script('bad_bridge').returncode,0)
+        r=self.run_script('bad_bridge')
+        self.assertNotEqual(r.returncode,0)
+        self.assertIn('етап=local-integration',r.stderr)
         self.assertEqual((self.root/'current').read_text(),'restored')
     def test_intercepted_public_route_rolls_back_even_when_internal_health_is_ok(self):
         self.assertNotEqual(self.run_script('bad_public_route').returncode,0)
