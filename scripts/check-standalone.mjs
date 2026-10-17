@@ -82,7 +82,7 @@ try{
  const intercepted=await fetch(base+'/api/bridge/guild');assert.equal(intercepted.status,404);assert.ok(intercepted.headers.has('x-guild-worker-request-id'));console.log('PASS regression: old /api/* is intercepted but new public routes work');
  if(process.env.SITE_QA_BROWSER==='1'){
   const require=createRequire(import.meta.url);
-  const run=require('./check-browser.cjs');
+  const run=require(process.env.SITE_QA_BANNER_ONLY==='1'?'./check-banner-browser.cjs':'./check-browser.cjs');
   const before=browserPosts;
   await run({base,changeGuild:()=>{guildVersion++;},accept:()=>{decision='accepted';},changeContent:()=>{contentVersion++;},unpublish:()=>{articlePublished=false;contentVersion++;},posts:()=>browserPosts-before});
  }
