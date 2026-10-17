@@ -5,7 +5,7 @@ body .guild-status-banner{
  --masthead-font:var(--font-guild-masthead),var(--font-guild-display),Georgia,serif;
  position:fixed;inset:0 0 auto;width:100%;height:var(--guild-banner-height);margin:0;padding:0;z-index:49;
  color:#f1e6cc;border:0;border-bottom:1px solid rgba(232,197,142,.17);border-radius:0;
- background:linear-gradient(90deg,rgba(6,17,16,.90) 0%,rgba(10,15,14,.8) 28%,rgba(12,18,20,.89) 75%,rgba(8,13,16,.94) 100%),url('/assets/img/profile/profile-hero-bg.png') center 50%/cover no-repeat,#0b1515;
+ background:linear-gradient(90deg,rgba(6,17,16,.90) 0%,rgba(10,15,14,.8) 28%,rgba(12,18,20,.89) 75%,rgba(8,13,16,.94) 100%),url('/assets/img/optimized/guild-banner-1600.073e1c719a4b.webp') center 50%/cover no-repeat,#0b1515;
  box-shadow:0 10px 30px rgba(0,0,0,.2);transition:transform .28s ease,opacity .23s ease;pointer-events:auto;
 }
 .guild-status-banner::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 22% 12%,rgba(95,133,83,.15),transparent 37%),linear-gradient(180deg,transparent 65%,rgba(7,11,12,.3));pointer-events:none}
@@ -26,6 +26,7 @@ html.guild-banner-collapsed{--site-banner-offset:0px}
 html.guild-banner-collapsed body .guild-status-banner{transform:translateY(-102%);opacity:0;pointer-events:none}
 @media(min-width:1001px) and (max-width:1320px){.guild-status-banner__inner{width:calc(100% - 48px);grid-template-columns:minmax(0,1fr) minmax(0,440px) minmax(0,1fr);gap:16px}.guild-status-banner__wordmark{font-size:clamp(21px,2.1vw,27px)}}
 @media(max-width:1000px){
+ body .guild-status-banner{background-image:linear-gradient(90deg,rgba(6,17,16,.90) 0%,rgba(10,15,14,.8) 28%,rgba(12,18,20,.89) 75%,rgba(8,13,16,.94) 100%),url('/assets/img/optimized/guild-banner-800.0ffbc4396612.webp')}
  :root{--guild-banner-height:var(--guild-banner-height-mobile)}
  .guild-status-banner__inner{width:calc(100% - 32px);grid-template-columns:0 minmax(0,1fr) 0;gap:0}
  .guild-status-banner__brand{gap:0}

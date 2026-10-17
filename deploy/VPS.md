@@ -1,4 +1,4 @@
-# VPS · 4.4.1
+# VPS · 4.5.0
 
 Діагностика й виправлення відкату: [DEPLOY_READINESS_HOTFIX_2026-10-16_UA.md](../DEPLOY_READINESS_HOTFIX_2026-10-16_UA.md).
 

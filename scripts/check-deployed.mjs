@@ -2,7 +2,7 @@
 const urls=[new URL('/site-api/v1/sync',process.env.SITE_URL||'https://lihvodruida.pp.ua'),new URL('/site-api/v1/status',process.env.SITE_URL||'https://lihvodruida.pp.ua'),new URL('/site-api/v1/guild',process.env.SITE_URL||'https://lihvodruida.pp.ua'),new URL('/site-api/v1/applications',process.env.SITE_URL||'https://lihvodruida.pp.ua')];
 if(process.argv.includes('--curseforge'))urls.push(new URL('/site-api/v1/mods',process.env.SITE_URL||'https://lihvodruida.pp.ua'));
 for(const url of urls){
- const response=await fetch(url,{redirect:'error',cache:'no-store',signal:AbortSignal.timeout(15000),headers:{Accept:'application/json','User-Agent':'LihvoDruida-SyncCheck/4.4.1'}});
+ const response=await fetch(url,{redirect:'error',cache:'no-store',signal:AbortSignal.timeout(15000),headers:{Accept:'application/json','User-Agent':'LihvoDruida-SyncCheck/4.5.0'}});
  if(response.headers.has('x-guild-worker-request-id'))throw Error('legacy_edge_route: public requests are still intercepted by the retired Worker');
  if(!response.headers.get('content-type')?.includes('application/json'))throw Error(`public_edge_non_json: ${url.pathname} HTTP ${response.status}`);
  const data=await response.json();

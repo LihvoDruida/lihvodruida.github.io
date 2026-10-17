@@ -17,6 +17,9 @@ const config: NextConfig = {
     {key:'X-Frame-Options',value:'DENY'}, {key:'Permissions-Policy',value:'camera=(), microphone=(), geolocation=()'},
   ]},
   {source:'/guild/applications',headers:[{key:'X-Robots-Tag',value:'noindex, follow'}]},
+  // Only content-fingerprinted, bundled images are immutable. Live CMS media,
+  // pages and sync/application endpoints keep their existing cache contracts.
+  {source:'/assets/img/optimized/:path*',headers:[{key:'Cache-Control',value:'public, max-age=31536000, immutable'}]},
   {source:'/api/:path*',headers:[{key:'X-Robots-Tag',value:'noindex, nofollow'}]},
   {source:'/site-api/v1/:resource(guild|applications|status|sync|mods)',headers:[{key:'X-Robots-Tag',value:'noindex, nofollow'}]},
   ]; },

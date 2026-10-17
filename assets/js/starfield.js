@@ -11,8 +11,8 @@
     drift: 0.22
   };
 
-  const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (prefersReducedMotion) return;
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (motion.matches) return;
 
   function ready(fn) {
     if (document.readyState === 'loading') {
@@ -43,6 +43,8 @@
     let rafId = 0;
     let paused = document.hidden;
     let resizeTimer = 0;
+    let lastDraw = 0;
+    let frameInterval = 1000 / 30;
     const mouse = { x: -9999, y: -9999, active: false };
 
     class Star {
@@ -60,10 +62,10 @@
         this.vy = (Math.random() - 0.5) * CONFIG.drift;
       }
 
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.twinkle += 0.018;
+      update(delta) {
+        this.x += this.vx * delta;
+        this.y += this.vy * delta;
+        this.twinkle += 0.018 * delta;
 
         if (this.x < -4) this.x = width + 4;
         if (this.x > width + 4) this.x = -4;
@@ -87,7 +89,9 @@
     }
 
     function resize() {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const small = window.innerWidth < 720;
+      dpr = Math.min(window.devicePixelRatio || 1, small ? 1.5 : 2);
+      frameInterval = 1000 / (small ? 24 : 30);
       width = Math.max(1, window.innerWidth);
       height = Math.max(1, window.innerHeight);
 
@@ -114,16 +118,20 @@
       ctx.fillStyle = '#ffffff';
     }
 
-    function frame() {
+    function frame(now) {
       if (paused) return;
+      rafId = requestAnimationFrame(frame);
+      const elapsed = now - lastDraw;
+      if (lastDraw && elapsed < frameInterval) return;
+      const delta = lastDraw ? Math.min(elapsed, 100) / (1000 / 60) : 1;
+      lastDraw = now;
       ctx.clearRect(0, 0, width, height);
       drawSpotlight();
       for (const star of stars) {
-        star.update();
+        star.update(delta);
         star.draw();
       }
       ctx.globalAlpha = 1;
-      rafId = requestAnimationFrame(frame);
     }
 
     window.addEventListener('resize', () => {
@@ -134,22 +142,26 @@
     document.addEventListener('mousemove', (event) => {
       mouse.x = event.clientX;
       mouse.y = event.clientY;
-      mouse.active = true;
+      mouse.active = window.matchMedia('(pointer: fine)').matches;
     }, { passive: true });
 
     document.addEventListener('mouseleave', () => {
       mouse.active = false;
     });
 
-    document.addEventListener('visibilitychange', () => {
-      paused = document.hidden;
+    function updateActivity() {
+      paused = document.hidden || motion.matches;
+      cancelAnimationFrame(rafId);
+      lastDraw = 0;
+      if (motion.matches) ctx.clearRect(0, 0, width, height);
       if (!paused) {
-        cancelAnimationFrame(rafId);
         rafId = requestAnimationFrame(frame);
       }
-    });
+    }
+    document.addEventListener('visibilitychange', updateActivity);
+    motion.addEventListener('change', updateActivity);
 
     resize();
-    rafId = requestAnimationFrame(frame);
+    updateActivity();
   });
 })();

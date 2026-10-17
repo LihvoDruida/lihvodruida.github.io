@@ -1,0 +1,66 @@
+{
+  "banner": {
+    "desktop": "/assets/img/optimized/guild-banner-1600.073e1c719a4b.webp",
+    "mobile": "/assets/img/optimized/guild-banner-800.0ffbc4396612.webp"
+  },
+  "hero": {
+    "avif": [
+      {
+        "width": 640,
+        "src": "/assets/img/optimized/home-hero-640.f350b9e0f24f.avif"
+      },
+      {
+        "width": 960,
+        "src": "/assets/img/optimized/home-hero-960.2a3d78415db4.avif"
+      },
+      {
+        "width": 1200,
+        "src": "/assets/img/optimized/home-hero-1200.d0ec7a8b39b2.avif"
+      }
+    ],
+    "webp": [
+      {
+        "width": 640,
+        "src": "/assets/img/optimized/home-hero-640.6666d42eba8e.webp"
+      },
+      {
+        "width": 960,
+        "src": "/assets/img/optimized/home-hero-960.b0ee61225b7a.webp"
+      },
+      {
+        "width": 1200,
+        "src": "/assets/img/optimized/home-hero-1200.642c41b81d33.webp"
+      }
+    ]
+  },
+  "logos": {
+    "/assets/img/guild-logo.webp": [
+      {
+        "width": 96,
+        "src": "/assets/img/optimized/guild-logo-96.589e5efb87d1.webp"
+      },
+      {
+        "width": 160,
+        "src": "/assets/img/optimized/guild-logo-160.c404e9edb355.webp"
+      },
+      {
+        "width": 240,
+        "src": "/assets/img/optimized/guild-logo-240.141b7abf7826.webp"
+      }
+    ],
+    "/assets/img/varta-logo.webp": [
+      {
+        "width": 96,
+        "src": "/assets/img/optimized/varta-logo-96.5472945ce83a.webp"
+      },
+      {
+        "width": 160,
+        "src": "/assets/img/optimized/varta-logo-160.ae237077879b.webp"
+      },
+      {
+        "width": 240,
+        "src": "/assets/img/optimized/varta-logo-240.1ed779ee8669.webp"
+      }
+    ]
+  }
+}

@@ -10,11 +10,13 @@ import {auditPageSeo} from './lib/seo-audit.mjs';
 const entry=path.resolve('.next/standalone/server.js');assert.ok(existsSync(entry),'Build first');
 const temp=mkdtempSync(path.join(tmpdir(),'site-runtime-')),token='runtime-fixture-token-'.repeat(3),png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jw7sAAAAASUVORK5CYII=','base64'),id=createHash('sha256').update(png).digest('hex');
 let failed=false,submitted=false,decision='review',child,logs='',browserPosts=0,contentVersion=1,articlePublished=true,guildVersion=1,raidCapable=true,guildUnavailable=false,contentUnavailable=false;
+let contentHold=null,releaseContent;
 const upstream=createServer(async(req,res)=>{
  try{
   assert.equal(req.headers.authorization,`Bearer ${token}`);assert.equal(req.headers.cookie,undefined);
   if(failed){res.writeHead(503);return res.end('{}');}
   const url=new URL(req.url,'http://dashboard:3000');res.setHeader('Content-Type','application/json');
+  if(contentHold&&url.pathname==='/api/site/content')await contentHold;
   if((guildUnavailable&&url.pathname==='/api/site/guild')||(contentUnavailable&&url.pathname==='/api/site/content')){res.writeHead(503);return res.end('{}');}
   const version=text=>createHash('md5').update(text).digest('hex');
   const payloads={
@@ -51,6 +53,19 @@ try{
  child.stdout.on('data',d=>logs=(logs+d).slice(-8000));child.stderr.on('data',d=>logs=(logs+d).slice(-8000));
  const origin=`http://127.0.0.1:${port}`;const base=`http://127.0.0.1:${edgePort}`;let ready=false;
  for(let n=0;n<100;n++){if(child.exitCode!==null)throw Error(logs);try{if((await fetch(origin+'/api/health')).ok){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,100));}assert.ok(ready,logs);
+ // A slow CMS must not hold the hero, navigation or primary call to action.
+ // Return a failure afterwards so the cold-cache outage checks below stay cold.
+ contentUnavailable=true;contentHold=new Promise(resolve=>{releaseContent=resolve;});
+ try{
+  const response=await fetch(origin+'/',{signal:AbortSignal.timeout(5000),headers:{'User-Agent':'Mozilla/5.0'}});
+  const reader=response.body.getReader(),decoder=new TextDecoder();let shell='';
+  while(!shell.includes('class="hero-content"')){const part=await reader.read();assert.ok(!part.done,'Hero must stream before the CMS resolves');shell+=decoder.decode(part.value,{stream:true});}
+  assert.ok(shell.includes('fetchPriority="high"')||shell.includes('fetchpriority="high"'));
+  assert.ok(!shell.includes('Runtime Guide'));
+  releaseContent();contentHold=null;
+  while(!(await reader.read()).done){}
+ }finally{releaseContent();contentHold=null;contentUnavailable=false;}
+ console.log('PASS homepage streams its first screen while the dashboard CMS is still waiting');
  guildUnavailable=true;let cold=await fetch(base+'/guild',{headers:{'User-Agent':'Googlebot'}});assert.equal(cold.status,200);const coldHtml=await cold.text();auditPageSeo(coldHtml,'/guild');assert.ok(coldHtml.includes('Українська гільдія для рейдів та Mythic+'));assert.ok(coldHtml.includes('Mistblossom Vanguard'));guildUnavailable=false;console.log('PASS cold guild outage retains server-rendered public guild identity, search content and schema without invented statistics');
  contentUnavailable=true;cold=await fetch(base+'/sitemap.xml');assert.equal(cold.status,503);assert.equal(cold.headers.get('retry-after'),'60');contentUnavailable=false;console.log('PASS cold CMS outage returns retryable 503 rather than a misleading empty sitemap');
  // The deliberate cold failures above start the existing four-second upstream backoff.
@@ -80,6 +95,7 @@ try{
  response=await fetch(base+'/site-api/v1/applications',init);assert.equal(response.status,201);assert.equal((await response.json()).application_number,42);response=await fetch(base+'/site-api/v1/applications',init);assert.equal(response.status,200);assert.equal((await response.json()).duplicate,true);console.log('PASS submission and duplicate receipt');
  response=await fetch(base+'/site-api/v1/guild');const etag=response.headers.get('etag');response=await fetch(base+'/site-api/v1/guild',{headers:{'If-None-Match':etag}});assert.equal(response.status,304);console.log('PASS unchanged snapshot HTTP 304');
  const intercepted=await fetch(base+'/api/bridge/guild');assert.equal(intercepted.status,404);assert.ok(intercepted.headers.has('x-guild-worker-request-id'));console.log('PASS regression: old /api/* is intercepted but new public routes work');
+ if(process.env.SITE_QA_PERFORMANCE){const probe=createRequire(import.meta.url)(process.env.SITE_QA_PERFORMANCE);await probe({base:origin});}
  if(process.env.SITE_QA_BROWSER==='1'){
   const require=createRequire(import.meta.url);
   const run=require(process.env.SITE_QA_BANNER_ONLY==='1'?'./check-banner-browser.cjs':'./check-browser.cjs');
