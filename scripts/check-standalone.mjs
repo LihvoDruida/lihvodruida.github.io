@@ -10,7 +10,7 @@ import {auditPageSeo} from './lib/seo-audit.mjs';
 const entry=path.resolve('.next/standalone/server.js');assert.ok(existsSync(entry),'Build first');
 const temp=mkdtempSync(path.join(tmpdir(),'site-runtime-')),token='runtime-fixture-token-'.repeat(3),png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jw7sAAAAASUVORK5CYII=','base64'),id=createHash('sha256').update(png).digest('hex');
 let failed=false,submitted=false,decision='review',child,logs='',browserPosts=0,contentVersion=1,articlePublished=true,guildVersion=1,raidCapable=true,guildUnavailable=false,contentUnavailable=false;
-let contentHold=null,releaseContent;
+let contentHold=null,releaseContent,lastSubmission=null;
 const upstream=createServer(async(req,res)=>{
  try{
   assert.equal(req.headers.authorization,`Bearer ${token}`);assert.equal(req.headers.cookie,undefined);
@@ -29,7 +29,7 @@ const upstream=createServer(async(req,res)=>{
   if(url.pathname===`/api/site/media/${id}`){res.setHeader('Content-Type','image/png');return res.end(png);}
   if(url.pathname==='/api/site/applications'&&req.method==='POST'){
    assert.equal(req.headers.origin,'https://lihvodruida.pp.ua');assert.equal(req.headers['x-site-client-ip'],'203.0.113.25');
-   const chunks=[];for await(const chunk of req)chunks.push(chunk);assert.equal(JSON.parse(Buffer.concat(chunks)).characterName,'Sebas');
+   const chunks=[];for await(const chunk of req)chunks.push(chunk);lastSubmission=JSON.parse(Buffer.concat(chunks));assert.equal(lastSubmission.characterName,'Sebas');
    res.statusCode=submitted?200:201;res.end(JSON.stringify({ok:true,application_number:42,tracking_number:'PRIVATE-42',duplicate:submitted}));submitted=true;return;
   }
   if(payloads[url.pathname])return res.end(JSON.stringify(payloads[url.pathname]));res.statusCode=404;res.end('{}');
@@ -98,9 +98,9 @@ try{
  if(process.env.SITE_QA_PERFORMANCE){const probe=createRequire(import.meta.url)(process.env.SITE_QA_PERFORMANCE);await probe({base:origin});}
  if(process.env.SITE_QA_BROWSER==='1'){
   const require=createRequire(import.meta.url);
-  const run=require(process.env.SITE_QA_BANNER_ONLY==='1'?'./check-banner-browser.cjs':'./check-browser.cjs');
+  const run=require(process.env.SITE_QA_SOURCES_ONLY==='1'?'./check-application-sources.cjs':process.env.SITE_QA_BANNER_ONLY==='1'?'./check-banner-browser.cjs':'./check-browser.cjs');
   const before=browserPosts;
-  await run({base,changeGuild:()=>{guildVersion++;},accept:()=>{decision='accepted';},changeContent:()=>{contentVersion++;},unpublish:()=>{articlePublished=false;contentVersion++;},posts:()=>browserPosts-before});
+  await run({base,changeGuild:()=>{guildVersion++;},accept:()=>{decision='accepted';},changeContent:()=>{contentVersion++;},unpublish:()=>{articlePublished=false;contentVersion++;},lastSubmission:()=>lastSubmission,posts:()=>browserPosts-before});
  }
  failed=true;assert.equal((await fetch(base+'/site-api/v1/applications?q=cold-failure')).status,503);assert.equal((await fetch(origin+'/api/health')).status,200);console.log('PASS outage HTTP 503 and independent liveness');
  console.log('[check-standalone] OK — production integration and SEO; controlled upstream, no live database or Discord');

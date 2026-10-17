@@ -5,6 +5,7 @@ import {createRequire} from 'node:module';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {submitApplication} from '../src/lib/submit-application';
+import {applicationSourceGroups} from '../src/lib/application-sources';
 const root=process.env.PAIRED_DASHBOARD_ROOT;
 test('paired dashboard route accepts service POST, deduplicates and sanitizes receipt',{skip:!root},async()=>{
  const require=createRequire(import.meta.url);const load=require(path.join(root!,'scripts/lib/load-server-ts.cjs'));
@@ -12,22 +13,31 @@ test('paired dashboard route accepts service POST, deduplicates and sanitizes re
  const {NextRequest,NextResponse}=require(path.join(root!,'node_modules/next/server'));
  const validator=load('src/lib/applicationContract.ts').exports;
  const auth=load('src/lib/siteBridgeAuth.ts',{}, {process:{env:{PUBLIC_SITE_BRIDGE_TOKEN:'a'.repeat(64)}}}).exports;
- let creations=0,notifications=0;const keys:string[]=[],jobs:(()=>Promise<void>)[]=[];
+ let creations=0,notifications=0,lastCreated:Record<string,unknown>={};const keys:string[]=[],jobs:(()=>Promise<void>)[]=[];
  const item={number:42,tracking_number:'tracking-private',character_name:'Sebas',realm:'Terokkar',status_key:'review',status_text:'На розгляді',discord:'never public'};
  const route=load('src/app/api/site/applications/route.ts',{
   'next/server':{NextRequest,NextResponse,after:(fn:()=>Promise<void>)=>jobs.push(fn)},'@/lib/applicationContract':validator,'@/lib/siteBridgeAuth':auth,
   '@/lib/publicSiteBridge':{isAllowedPublicSiteOrigin:(r:Request)=>r.headers.get('origin')==='https://lihvodruida.pp.ua',publicSiteCorsHeaders:()=>({'Cache-Control':'no-store'})},
   '@/lib/security':{assertRequestBodySize:()=>null,checkRateLimit:(key:string)=>{keys.push(key);return {ok:true}},getClientIp:()=>{throw Error('trusted service IP should be used')},logDashboardEvent:()=>{},safeErrorMessage:()=>''},
   '@/lib/applicationDelivery':{processApplicationDelivery:async()=>{notifications++;return {state:'delivered'}}},
-  '@/lib/applicationsStore':{createGuildApplication:async()=>({item,duplicate:creations++>0}),sanitizeApplicationForPublicSite:()=>item,setApplicationDiscordMessageRef:async()=>true},
+  '@/lib/applicationsStore':{createGuildApplication:async(input:Record<string,unknown>)=>{lastCreated=input;return {item,duplicate:creations++>0}},sanitizeApplicationForPublicSite:()=>item,setApplicationDiscordMessageRef:async()=>true},
  }).exports;
  const fake=mock.method(globalThis,'fetch',async(input:unknown,init?:RequestInit)=>route.POST(new NextRequest(String(input),init)));
  const payload={characterName:'Sebas',realm:'Terokkar',faction:'Alliance',className:'Druid',discord:'sebas',availability:'Увечері після 19:00',sourceCreator:'Лігво Друїда',sourcePlatform:'Twitch',consent:true};
- const request=()=>new Request('https://lihvodruida.pp.ua/site-api/v1/applications',{method:'POST',headers:{Origin:'https://lihvodruida.pp.ua','Content-Type':'application/json','X-Real-IP':'203.0.113.5'},body:JSON.stringify(payload)});
+ const request=(body:Record<string,unknown>=payload)=>new Request('https://lihvodruida.pp.ua/site-api/v1/applications',{method:'POST',headers:{Origin:'https://lihvodruida.pp.ua','Content-Type':'application/json','X-Real-IP':'203.0.113.5'},body:JSON.stringify(body)});
  try{
   const first=await submitApplication(request());assert.equal(first.status,201);const receipt=await first.json();assert.equal(receipt.application_number,42);assert.equal(receipt.tracking_number,'tracking-private');assert.equal(receipt.discord,undefined);
   const second=await submitApplication(request());assert.equal(second.status,200);assert.equal((await second.json()).duplicate,true);assert.equal(notifications,0);assert.equal(jobs.length,1);await jobs[0]();assert.equal(notifications,1);assert.ok(keys.every(key=>key.includes('203.0.113.5')));
   const direct=await route.POST(new NextRequest('http://dashboard:3000/api/site/applications',{method:'POST',headers:{Origin:'https://lihvodruida.pp.ua'},body:JSON.stringify(payload)}));assert.equal(direct.status,403);assert.equal(creations,2);
   assert.equal(auth.hasSiteBridgeToken(new Request('http://dashboard:3000',{headers:{Authorization:'Bearer '+'é'.repeat(64)}})),false);
+  for(const source of applicationSourceGroups.flatMap(group=>group.items)){
+   for(const platform of source.platforms||[source.platform||'']){
+    const details=source.detail||platform.startsWith('Інш')?'Перевірене джерело':'';
+    const body={...payload,sourceCreator:source.value,sourcePlatform:platform,sourceOther:details};
+    const response=await submitApplication(request(body));assert.equal(response.status,200,source.value+' / '+platform);
+    assert.equal(lastCreated.sourceCreator,source.value);assert.equal(lastCreated.sourcePlatform,platform);assert.equal(lastCreated.sourceOther,details);
+    assert.equal(lastCreated.source,[source.value,platform,details].filter(Boolean).join(' · '));
+   }
+  }
  }finally{fake.mock.restore();}
 });
