@@ -6,19 +6,21 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {createRequire} from 'node:module';
+import {auditPageSeo} from './lib/seo-audit.mjs';
 const entry=path.resolve('.next/standalone/server.js');assert.ok(existsSync(entry),'Build first');
 const temp=mkdtempSync(path.join(tmpdir(),'site-runtime-')),token='runtime-fixture-token-'.repeat(3),png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jw7sAAAAASUVORK5CYII=','base64'),id=createHash('sha256').update(png).digest('hex');
-let failed=false,submitted=false,decision='review',child,logs='',browserPosts=0,contentVersion=1,articlePublished=true,guildVersion=1,raidCapable=true;
+let failed=false,submitted=false,decision='review',child,logs='',browserPosts=0,contentVersion=1,articlePublished=true,guildVersion=1,raidCapable=true,guildUnavailable=false,contentUnavailable=false;
 const upstream=createServer(async(req,res)=>{
  try{
   assert.equal(req.headers.authorization,`Bearer ${token}`);assert.equal(req.headers.cookie,undefined);
   if(failed){res.writeHead(503);return res.end('{}');}
   const url=new URL(req.url,'http://dashboard:3000');res.setHeader('Content-Type','application/json');
+  if((guildUnavailable&&url.pathname==='/api/site/guild')||(contentUnavailable&&url.pathname==='/api/site/content')){res.writeHead(503);return res.end('{}');}
   const version=text=>createHash('md5').update(text).digest('hex');
   const payloads={
    '/api/site/sync':{schema:'mistblossom.public-sync.v1',resources:{content:version(String(contentVersion)),guild:version('guild-'+guildVersion),applications:version(String(submitted)+decision)},checked_at:new Date().toISOString()},
    '/api/site/guild':{schema:'mistblossom.public-guild.v1',metadata:{updated_at:new Date().toISOString()},guild:{name:'Runtime Test Guild',realm:{name:'Terokkar',slug:'terokkar'},member_count:1},members:[{rank:0,character:{name:'Sebas',realm:{slug:'terokkar'},playable_class:{name:'Druid'},active_spec:{name:'Restoration',role:'HEALING'}}}],raid_seasons:{schema_version:2,current_season_id:'mn-2',seasons:[{id:'mn-2',label:'Midnight · Сезон 2',expansion:'Midnight',current:true,raids:['not-available']},{id:'mn-1',label:'Midnight · Сезон 1',expansion:'Midnight',raids:['tier-mn-1']},{id:'tww-1',label:'The War Within · Сезон 1',expansion:'The War Within',raids:['nerubar-palace','not-available']}],catalog:{'tier-mn-1':{name:'Midnight Tier One',bosses:9},'nerubar-palace':{name:'Nerub-ar Palace',bosses:8},'not-available':{name:'Unverified Raid',bosses:9}}},raid_progression:{'tier-mn-1':{total_bosses:9,normal_bosses_killed:9,heroic_bosses_killed:7,mythic_bosses_killed:guildVersion===1?2:3},...(guildVersion>1?{'nerubar-palace':{total_bosses:8,normal_bosses_killed:0,heroic_bosses_killed:0,mythic_bosses_killed:0}}:{})},scheduled_raids:[]},
-   '/api/site/content':{schema:'mistblossom.public-content.v2',revision:'runtime-'+contentVersion,total:articlePublished?1:0,next_page:null,items:articlePublished?[{kind:'guides',slug:'runtime-guide',title:'Runtime Guide',description:'A runtime guide',body:contentVersion===1?'Article from the dashboard CMS.':'Updated article from the dashboard CMS.',date:'2026-10-16',tags:[],author:'Admin',image:`/api/site/media/${id}`}]:[]},
+   '/api/site/content':{schema:'mistblossom.public-content.v2',revision:'runtime-'+contentVersion,total:articlePublished?2:0,next_page:null,items:articlePublished?[{kind:'guides',slug:'runtime-guide',title:'Runtime Guide',description:'A runtime guide with practical advice for World of Warcraft.',body:contentVersion===1?'Article from the dashboard CMS.':'Updated article from the dashboard CMS.',date:'2026-10-16',updated_at:'2026-10-17T07:00:00Z',tags:[],author:'Admin',image:`/api/site/media/${id}`},{kind:'news',slug:'runtime-news',title:'Runtime Community News',description:'Community news from the Ukrainian World of Warcraft guild.',body:'News from the community.',date:'2026-10-16',updated_at:'2026-10-17T07:00:00Z',tags:['WoW'],author:'Sebas',image:`/api/site/media/${id}`}]:[]},
    '/api/site/status':{ok:true,protocol:'mistblossom.site-bridge.v2',store:'postgres',schemas:{content:'mistblossom.public-content.v2'},capabilities:['sync:revisions:v1',...(raidCapable?['guild:raid-history:v2']:[])]},
    '/api/site/applications':{schema:'mistblossom.public-applications.v1',updated_at:new Date().toISOString(),counts:{all:submitted?1:0,review:submitted&&decision==='review'?1:0,accepted:submitted&&decision==='accepted'?1:0,declined:0},items:submitted?[{number:42,character_name:'Sebas',realm:'Terokkar',class_name:'Druid',faction:'Alliance',status_key:decision,status_text:decision==='accepted'?'Прийнято':'На розгляді',created_at:'2026-10-16',updated_at:'2026-10-16'}]:[]},
   };
@@ -45,11 +47,26 @@ const edge=createServer(async(req,res)=>{
 const edgePort=await listen(edge);
 const preload=path.join(temp,'upstream.cjs');writeFileSync(preload,`const original=global.fetch;global.fetch=(input,init)=>{const url=new URL(typeof input==='string'||input instanceof URL?input:input.url);if(url.hostname==='dashboard'&&url.port==='3000'){url.hostname='127.0.0.1';url.port='${upstreamPort}';return original(url,init);}return original(input,init);};`);
 try{
- child=spawn(process.execPath,['--require',preload,entry],{cwd:path.dirname(entry),env:{...process.env,NODE_ENV:'production',HOSTNAME:'127.0.0.1',PORT:String(port),SITE_URL:'https://lihvodruida.pp.ua',DASHBOARD_INTERNAL_URL:'http://dashboard:3000',PUBLIC_SITE_BRIDGE_TOKEN:token,NEXT_TELEMETRY_DISABLED:'1'},stdio:['ignore','pipe','pipe']});
+ child=spawn(process.execPath,['--require',preload,entry],{cwd:path.dirname(entry),env:{...process.env,NODE_ENV:'production',HOSTNAME:'127.0.0.1',PORT:String(port),SITE_URL:'https://lihvodruida.pp.ua',DASHBOARD_INTERNAL_URL:'http://dashboard:3000',PUBLIC_SITE_BRIDGE_TOKEN:token,GOOGLE_SITE_VERIFICATION:'fixture-google-code',BING_SITE_VERIFICATION:'fixture-bing-code',NEXT_TELEMETRY_DISABLED:'1'},stdio:['ignore','pipe','pipe']});
  child.stdout.on('data',d=>logs=(logs+d).slice(-8000));child.stderr.on('data',d=>logs=(logs+d).slice(-8000));
  const origin=`http://127.0.0.1:${port}`;const base=`http://127.0.0.1:${edgePort}`;let ready=false;
  for(let n=0;n<100;n++){if(child.exitCode!==null)throw Error(logs);try{if((await fetch(origin+'/api/health')).ok){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,100));}assert.ok(ready,logs);
+ guildUnavailable=true;let cold=await fetch(base+'/guild',{headers:{'User-Agent':'Googlebot'}});assert.equal(cold.status,200);const coldHtml=await cold.text();auditPageSeo(coldHtml,'/guild');assert.ok(coldHtml.includes('Українська гільдія для рейдів та Mythic+'));assert.ok(coldHtml.includes('Mistblossom Vanguard'));guildUnavailable=false;console.log('PASS cold guild outage retains server-rendered public guild identity, search content and schema without invented statistics');
+ contentUnavailable=true;cold=await fetch(base+'/sitemap.xml');assert.equal(cold.status,503);assert.equal(cold.headers.get('retry-after'),'60');contentUnavailable=false;console.log('PASS cold CMS outage returns retryable 503 rather than a misleading empty sitemap');
+ // The deliberate cold failures above start the existing four-second upstream backoff.
+ await new Promise(resolve=>setTimeout(resolve,4200));
  for(const [route,text] of [['/guild','Runtime Test Guild'],['/guides/runtime-guide','Article from the dashboard CMS.'],['/feed.xml','runtime-guide'],['/sitemap.xml','runtime-guide']]){const response=await fetch(base+route);assert.equal(response.status,200,route);assert.ok((await response.text()).includes(text),route);}console.log('PASS production SSR, CMS article, RSS and sitemap');
+ const seoTitles=new Set(),seoDescriptions=new Set();
+ for(const route of ['/','/guides','/news','/mods','/guild','/guild/apply','/donate','/guides/runtime-guide','/news/runtime-news','/guild/applications']){
+  const response=await fetch(base+route,{headers:{'User-Agent':'Googlebot'}});assert.equal(response.status,200,route);
+  const html=await response.text();const result=auditPageSeo(html,route,{index:route!=='/guild/applications',article:route.includes('/runtime-')});
+  if(route==='/'){assert.match(html,/<meta name="google-site-verification" content="fixture-google-code"/);assert.match(html,/<meta name="msvalidate.01" content="fixture-bing-code"/);}
+  assert.ok(!seoTitles.has(result.title),`${route}: unique title`);assert.ok(!seoDescriptions.has(result.description),`${route}: unique description`);seoTitles.add(result.title);seoDescriptions.add(result.description);
+  if(route==='/guild/applications')assert.match(response.headers.get('x-robots-tag'),/noindex/);
+ }
+ const robotRules=await (await fetch(base+'/robots.txt')).text();assert.ok(!robotRules.includes('Disallow: /guild/applications'));assert.ok(!robotRules.includes('Disallow: /site-api/v1/media'));assert.ok(robotRules.includes('https://lihvodruida.pp.ua/sitemap.xml'));
+ const missing=await fetch(base+'/guides/not-a-published-article',{headers:{'User-Agent':'facebookexternalhit/1.1'}});assert.equal(missing.status,404);assert.match(await missing.text(),/name="robots" content="noindex"/);
+ console.log('PASS production SEO on 10 pages: unique titles/descriptions, canonical, social previews, single H1, JSON-LD, robots, noindex and real article 404');
  let response=await fetch(base+'/site-api/v1/status');assert.equal(response.status,200);assert.equal((await response.json()).integration,'ready');console.log('PASS bridge readiness');
  const integrationEntry=path.join(path.dirname(entry),'check-integration.mjs');assert.ok(existsSync(integrationEntry),'Packaged integration diagnostic must exist');
  const checkIntegration=()=>new Promise((resolve,reject)=>{
@@ -70,5 +87,5 @@ try{
   await run({base,changeGuild:()=>{guildVersion++;},accept:()=>{decision='accepted';},changeContent:()=>{contentVersion++;},unpublish:()=>{articlePublished=false;contentVersion++;},posts:()=>browserPosts-before});
  }
  failed=true;assert.equal((await fetch(base+'/site-api/v1/applications?q=cold-failure')).status,503);assert.equal((await fetch(origin+'/api/health')).status,200);console.log('PASS outage HTTP 503 and independent liveness');
- console.log('[check-standalone] OK — 8/8; controlled upstream, no live database or Discord');
-}finally{child?.kill('SIGTERM');await new Promise(resolve=>edge.close(resolve));await new Promise(resolve=>upstream.close(resolve));rmSync(temp,{recursive:true,force:true});}
+ console.log('[check-standalone] OK — production integration and SEO; controlled upstream, no live database or Discord');
+}catch(error){console.error('ISOLATED_SERVER_DIAGNOSTIC',logs.slice(-4000));throw error;}finally{child?.kill('SIGTERM');await new Promise(resolve=>edge.close(resolve));await new Promise(resolve=>upstream.close(resolve));rmSync(temp,{recursive:true,force:true});}

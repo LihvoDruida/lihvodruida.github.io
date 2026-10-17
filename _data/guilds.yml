@@ -11,7 +11,7 @@
   logo: /assets/img/guild-logo.webp
   logo_fallback: /assets/img/guild-logo.png
   # Внутрішня сторінка гільдії. Якщо порожньо — картка не є посиланням.
-  page: /guild/
+  page: /guild
   discord: https://discord.gg/stNeSaVkhM
   description: Українська гільдія в World of Warcraft — рейди, Mythic+ і спільна гра без токсичності.
   details:

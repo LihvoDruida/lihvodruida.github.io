@@ -57,3 +57,6 @@ input::placeholder,textarea::placeholder{color:#9c948a}
 .section[aria-label="Рейдовий прогрес за сезонами"] select { max-width: min(100%, 32rem); }
 .raid-card { min-width: 0; overflow-wrap: anywhere; }
 .raid-card small { display: block; margin-top: .5rem; }
+
+/* Search-friendly navigation and guild introduction, shared by SSR and mobile. */
+.breadcrumbs{padding:22px 0 0;color:var(--muted);font-size:.8rem}.breadcrumbs ol{display:flex;flex-wrap:wrap;gap:6px 10px;padding:0;margin:0;list-style:none}.breadcrumbs li{display:flex;align-items:baseline;gap:10px;min-width:0;overflow-wrap:anywhere}.breadcrumbs li+li::before{content:"/";color:var(--border)}.breadcrumbs [aria-current]{color:var(--text)}.guild-intro{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(230px,1fr);gap:32px;padding-bottom:32px}.guild-intro h2{font-size:clamp(1.6rem,3vw,2.25rem);margin:14px 0 18px}.guild-intro p{max-width:78ch}.guild-intro .panel{align-self:start}.guild-intro ul{padding-left:20px;color:var(--muted)}.guild-intro li+li{margin-top:8px}.guild-faq p{padding:0 6px 16px;max-width:90ch}.related-articles{margin-top:36px;padding-top:28px;border-top:1px solid var(--border)}.related-articles h2{font-size:1.5rem}.related-articles li+li{margin-top:12px}@media(max-width:720px){.guild-intro{grid-template-columns:1fr;gap:20px}.breadcrumbs{padding-top:16px;font-size:.75rem}}

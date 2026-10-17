@@ -1,4 +1,4 @@
-# Лігво Друїда · сайт 4.3.1
+# Лігво Друїда · сайт 4.4.0
 
 Виправлення деплою: [DEPLOY_READINESS_HOTFIX_2026-10-16_UA.md](DEPLOY_READINESS_HOTFIX_2026-10-16_UA.md). Перевірка сумісності з Dashboard 3.13.0 до заміни сайту та зрозуміла причина помилок.
 
@@ -89,3 +89,7 @@ PAIRED_DASHBOARD_ROOT=/srv/mistblossom/dashboard npm test
 Сайт більше не викликає старі `/api/bridge/*`. При оновленні збірка прибирає попередні route-файли. Старий Worker-route Cloudflare потрібно прибрати після готовності нового `/site-api/v1/status`; див. звіт.
 
 `/site-api/v1/sync` перевіряє ревізії PostgreSQL і скидає лише змінений ресурс. Відкриті статті та каталоги оновлюються у фоні; RSS/sitemap мають no-store. Readiness вимагає capability `sync:revisions:v1`.
+
+## SEO публічного сайту
+
+Версія 4.4.0: окремі metadata/canonical для сторінок, Article/BlogPosting для CMS, breadcrumbs, Open Graph/Twitter, sitemap з обкладинками та індексація без статусів заявок. Сторінка `/guild` містить серверний опис української WoW-гільдії, вступу, рейдів і Mythic+. Деталі, перевірки й встановлення: [SEO_2026-10-17_UA.md](SEO_2026-10-17_UA.md).
