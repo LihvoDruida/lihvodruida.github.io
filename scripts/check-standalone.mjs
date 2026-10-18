@@ -9,7 +9,7 @@ import {createRequire} from 'node:module';
 import {auditPageSeo} from './lib/seo-audit.mjs';
 const entry=path.resolve('.next/standalone/server.js');assert.ok(existsSync(entry),'Build first');
 const temp=mkdtempSync(path.join(tmpdir(),'site-runtime-')),token='runtime-fixture-token-'.repeat(3),png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jw7sAAAAASUVORK5CYII=','base64'),id=createHash('sha256').update(png).digest('hex');
-let failed=false,submitted=false,decision='review',child,logs='',browserPosts=0,contentVersion=1,articlePublished=true,guildVersion=1,raidCapable=true,guildUnavailable=false,contentUnavailable=false;
+let failed=false,submitted=false,decision='review',child,logs='',browserPosts=0,contentVersion=1,articlePublished=true,guildVersion=1,raidCapable=true,guildUnavailable=false,contentUnavailable=false,streamersUnavailable=false;
 let contentHold=null,releaseContent,lastSubmission=null;
 const upstream=createServer(async(req,res)=>{
  try{
@@ -17,7 +17,7 @@ const upstream=createServer(async(req,res)=>{
   if(failed){res.writeHead(503);return res.end('{}');}
   const url=new URL(req.url,'http://dashboard:3000');res.setHeader('Content-Type','application/json');
   if(contentHold&&url.pathname==='/api/site/content')await contentHold;
-  if((guildUnavailable&&url.pathname==='/api/site/guild')||(contentUnavailable&&url.pathname==='/api/site/content')){res.writeHead(503);return res.end('{}');}
+  if((guildUnavailable&&url.pathname==='/api/site/guild')||(contentUnavailable&&url.pathname==='/api/site/content')||(streamersUnavailable&&url.pathname==='/api/site/streamers')){res.writeHead(503);return res.end('{}');}
   const version=text=>createHash('md5').update(text).digest('hex');
   const payloads={
    '/api/site/streamers':{schema:'mistblossom.public-streamers.v1',checked_at:new Date().toISOString(),items:[]},
@@ -54,6 +54,7 @@ try{
  child.stdout.on('data',d=>logs=(logs+d).slice(-8000));child.stderr.on('data',d=>logs=(logs+d).slice(-8000));
  const origin=`http://127.0.0.1:${port}`;const base=`http://127.0.0.1:${edgePort}`;let ready=false;
  for(let n=0;n<100;n++){if(child.exitCode!==null)throw Error(logs);try{if((await fetch(origin+'/api/health')).ok){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,100));}assert.ok(ready,logs);
+ streamersUnavailable=true;const unavailableStreamers=await fetch(origin+'/site-api/v1/status');assert.equal(unavailableStreamers.status,503);assert.equal((await unavailableStreamers.json()).code,'dashboard_unavailable');streamersUnavailable=false;console.log('PASS readiness rejects a broken streamer route despite advertised dashboard capabilities');
  // A slow CMS must not hold the hero, navigation or primary call to action.
  // Return a failure afterwards so the cold-cache outage checks below stay cold.
  contentUnavailable=true;contentHold=new Promise(resolve=>{releaseContent=resolve;});
@@ -91,6 +92,7 @@ try{
   processChild.stdout.on('data',data=>output+=data);processChild.stderr.on('data',data=>output+=data);processChild.once('error',reject);processChild.once('exit',code=>resolve({code,output}));
  });
  assert.equal((await checkIntegration()).code,0);raidCapable=false;const incompatible=await checkIntegration();assert.equal(incompatible.code,1);assert.ok(incompatible.output.includes('dashboard_capabilities_missing'));assert.ok(!incompatible.output.includes(token));raidCapable=true;console.log('PASS packaged deployment diagnostic accepts compatible dashboard and explains missing raid-history capability');
+ streamersUnavailable=true;const brokenStreamers=await checkIntegration();assert.equal(brokenStreamers.code,1);assert.ok(brokenStreamers.output.includes('dashboard_streamers_http'));assert.ok(!brokenStreamers.output.includes(token));streamersUnavailable=false;console.log('PASS packaged preflight rejects broken streamer endpoint before replacing the site');
  response=await fetch(base+`/site-api/v1/media/${id}`);assert.equal(response.status,200);assert.ok(Buffer.from(await response.arrayBuffer()).equals(png));console.log('PASS cover bytes and content hash');
  const body={characterName:'Sebas',realm:'Terokkar',faction:'Alliance',className:'Druid',discord:'sebas',availability:'Увечері після 19:00',sourceCreator:'Лігво Друїда',sourcePlatform:'Twitch',consent:true};
  const init={method:'POST',headers:{Origin:'https://lihvodruida.pp.ua','Content-Type':'application/json','X-Real-IP':'203.0.113.25',Cookie:'must-not-reach-dashboard=1; cf_clearance=fixture'},body:JSON.stringify(body)};
