@@ -21,7 +21,7 @@ const config: NextConfig = {
   // pages and sync/application endpoints keep their existing cache contracts.
   {source:'/assets/img/optimized/:path*',headers:[{key:'Cache-Control',value:'public, max-age=31536000, immutable'}]},
   {source:'/api/:path*',headers:[{key:'X-Robots-Tag',value:'noindex, nofollow'}]},
-  {source:'/site-api/v1/:resource(guild|applications|status|sync|mods)',headers:[{key:'X-Robots-Tag',value:'noindex, nofollow'}]},
+  {source:'/site-api/v1/:resource(guild|applications|status|sync|mods|streamers)',headers:[{key:'X-Robots-Tag',value:'noindex, nofollow'}]},
   ]; },
 };
 export default config;

@@ -1,3 +1,4 @@
+import {isPublicStreamers,type PublicStreamers} from './streamers-contract';
 import {BridgeError,assertDashboardResponse,bridgeError} from './bridge-error';
 import {createHash,randomUUID} from 'node:crypto';
 import {NextResponse} from 'next/server';
@@ -45,3 +46,10 @@ export function snapshotResponse<T>(request:Request,payload:Envelope<T>){
 }
 
 export function invalidateApplications(){for(const cache of applicationCaches.values())cache.invalidate();invalidateSyncProbe();}
+
+const streamersCache=new SnapshotCache<PublicStreamers>(10000,0);
+export async function streamersSnapshot():Promise<Envelope<PublicStreamers>>{
+ const s=await streamersCache.get(()=>upstream('streamers',isPublicStreamers));
+ const data:PublicStreamers={schema:s.data.schema,checked_at:s.data.checked_at,items:s.data.items.filter(i=>Date.parse(i.expiresAt)>Date.now()&&Date.parse(i.expiresAt)<=Date.now()+310000).map(i=>({id:i.id,memberName:i.memberName,platform:i.platform,channelUrl:i.channelUrl,expiresAt:i.expiresAt,live:{id:i.live.id,title:i.live.title,url:i.live.url,publishedAt:i.live.publishedAt}}))};
+ return {data,sync:{source:'dashboard',stale:false,checkedAt:new Date().toISOString(),updatedAt:s.data.checked_at}};
+}

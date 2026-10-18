@@ -4,13 +4,13 @@ import {createRequire} from 'node:module';
 const require=createRequire(import.meta.url);
 const {checkDashboard,checkLocal,runIntegration}=require('../scripts/check-integration.mjs');
 const env={DASHBOARD_INTERNAL_URL:'http://dashboard:3000',PUBLIC_SITE_BRIDGE_TOKEN:'a'.repeat(64)};
-const valid={ok:true,protocol:'mistblossom.site-bridge.v2',store:'postgres',schemas:{content:'mistblossom.public-content.v2'},capabilities:['sync:revisions:v1','guild:raid-history:v2']};
+const valid={ok:true,protocol:'mistblossom.site-bridge.v2',store:'postgres',schemas:{content:'mistblossom.public-content.v2'},capabilities:['sync:revisions:v1','guild:raid-history:v2','streamers:read:v1']};
 const fetcher=(data:unknown,status=200)=>async()=>Response.json(data,{status});
 test('deployment preflight verifies actual dashboard capabilities and private service authentication',async()=>{
  await checkDashboard(env,async(url:string,init:RequestInit)=>{assert.equal(url,'http://dashboard:3000/api/site/status');assert.equal(new Headers(init.headers).get('authorization'),'Bearer '+env.PUBLIC_SITE_BRIDGE_TOKEN);assert.equal(init.redirect,'error');return Response.json(valid)});
 });
 test('deployment preflight identifies a running older dashboard instead of silently rolling the site back',async()=>{
- await assert.rejects(checkDashboard(env,fetcher({...valid,capabilities:['sync:revisions:v1']})),(error:{code:string;message:string})=>error.code==='dashboard_capabilities_missing'&&error.message.includes('guild:raid-history:v2')&&error.message.includes('3.13.0'));
+ await assert.rejects(checkDashboard(env,fetcher({...valid,capabilities:['sync:revisions:v1']})),(error:{code:string;message:string})=>error.code==='dashboard_capabilities_missing'&&error.message.includes('guild:raid-history:v2')&&error.message.includes('3.14.0'));
  await assert.rejects(checkDashboard(env,fetcher({...valid,store:'other'})),{code:'dashboard_protocol_incompatible'});
 });
 test('deployment distinguishes rejected tokens, DNS, connection refusal and HTTP errors without leaking upstream bodies',async()=>{

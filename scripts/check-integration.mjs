@@ -1,7 +1,7 @@
 /** Read-only deployment diagnostics. Never logs response bodies or credentials. */
 import {fileURLToPath} from 'node:url';
 import {resolve} from 'node:path';
-const required=['sync:revisions:v1','guild:raid-history:v2'];
+const required=['sync:revisions:v1','guild:raid-history:v2','streamers:read:v1'];
 export class IntegrationFailure extends Error {
  constructor(code,message){super(message);this.code=code;}
 }
@@ -33,9 +33,9 @@ export async function checkDashboard(env=process.env,fetcher=fetch){
  if([401,403,421].includes(response.status))throw failure('bridge_access_rejected',`Дашборд відхилив внутрішній запит (HTTP ${response.status}). Перевірте однаковий PUBLIC_SITE_BRIDGE_TOKEN в обох контейнерах і дозволений внутрішній маршрут.`);
  if(!response.ok)throw failure('dashboard_http',`Перевірка дашборда повернула HTTP ${response.status}. Перевірте його стан і доступність PostgreSQL.`);
  const data=await jsonResponse(response);
- if(data?.ok!==true||data.protocol!=='mistblossom.site-bridge.v2'||data.store!=='postgres'||data.schemas?.content!=='mistblossom.public-content.v2')throw failure('dashboard_protocol_incompatible','Дашборд повернув несумісний протокол або сховище. Спочатку встановіть і перезберіть Dashboard 3.13.0 або новіший.');
+ if(data?.ok!==true||data.protocol!=='mistblossom.site-bridge.v2'||data.store!=='postgres'||data.schemas?.content!=='mistblossom.public-content.v2')throw failure('dashboard_protocol_incompatible','Дашборд повернув несумісний протокол або сховище. Спочатку встановіть і перезберіть Dashboard 3.14.0 або новіший.');
  const missing=required.filter(item=>!Array.isArray(data.capabilities)||!data.capabilities.includes(item));
- if(missing.length)throw failure('dashboard_capabilities_missing',`Запущений дашборд не підтримує: ${missing.join(', ')}. Спочатку встановіть і перезберіть Dashboard 3.13.0 або новіший; розпакування файлів без перезапуску контейнера недостатньо.`);
+ if(missing.length)throw failure('dashboard_capabilities_missing',`Запущений дашборд не підтримує: ${missing.join(', ')}. Спочатку встановіть і перезберіть Dashboard 3.14.0 або новіший; розпакування файлів без перезапуску контейнера недостатньо.`);
  return {ok:true};
 }
 export async function checkLocal(fetcher=fetch){
