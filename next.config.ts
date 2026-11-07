@@ -10,13 +10,13 @@ const config: NextConfig = {
     {source:'/guild-apply.html',destination:'/guild/apply',permanent:true},
     {source:'/guild-applications.html',destination:'/guild/applications',permanent:true},
     {source:'/index.html',destination:'/',permanent:true},
-    {source:'/callback.html',destination:'/guild/apply',permanent:false},
   ]; },
   async headers() { return [{ source:'/:path*', headers:[
     {key:'X-Content-Type-Options',value:'nosniff'}, {key:'Referrer-Policy',value:'strict-origin-when-cross-origin'},
     {key:'X-Frame-Options',value:'DENY'}, {key:'Permissions-Policy',value:'camera=(), microphone=(), geolocation=()'},
   ]},
   {source:'/guild/applications',headers:[{key:'X-Robots-Tag',value:'noindex, follow'}]},
+  ...['/callback','/callback.html'].map(source=>({source,headers:[{key:'Referrer-Policy',value:'no-referrer'}]})),
   // Only content-fingerprinted, bundled images are immutable. Live CMS media,
   // pages and sync/application endpoints keep their existing cache contracts.
   {source:'/assets/img/optimized/:path*',headers:[{key:'Cache-Control',value:'public, max-age=31536000, immutable'}]},

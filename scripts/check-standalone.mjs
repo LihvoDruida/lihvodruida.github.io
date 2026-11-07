@@ -54,6 +54,18 @@ try{
  child.stdout.on('data',d=>logs=(logs+d).slice(-8000));child.stderr.on('data',d=>logs=(logs+d).slice(-8000));
  const origin=`http://127.0.0.1:${port}`;const base=`http://127.0.0.1:${edgePort}`;let ready=false;
  for(let n=0;n<100;n++){if(child.exitCode!==null)throw Error(logs);try{if((await fetch(origin+'/api/health')).ok){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,100));}assert.ok(ready,logs);
+ for(const route of ['/callback','/callback.html']){
+  const response=await fetch(base+route+'?code=callback-fixture&state=pending-fixture',{redirect:'manual'});
+  assert.equal(response.status,200,route);assert.equal(response.headers.get('location'),null,route);
+  assert.match(response.headers.get('cache-control'),/no-store/);assert.equal(response.headers.get('referrer-policy'),'no-referrer');
+  assert.match(response.headers.get('x-robots-tag'),/noindex/);
+  const html=await response.text();assert.ok(html.includes('/assets/js/oauth-callback.js'));assert.ok(html.includes('id="callback-open"'));
+  assert.ok(!html.includes('callback-fixture'));assert.ok(!html.includes('/_next/'));assert.ok(!html.includes('guild/apply'));
+ }
+ for(const asset of ['/assets/js/oauth-callback.js','/assets/css/oauth-callback.css']){
+  const response=await fetch(base+asset);assert.equal(response.status,200,asset);assert.ok((await response.text()).length>100);
+ }
+ console.log('PASS callback and legacy callback.html preserve the app return flow with packaged assets and no-store headers');
  streamersUnavailable=true;const unavailableStreamers=await fetch(origin+'/site-api/v1/status');assert.equal(unavailableStreamers.status,503);assert.equal((await unavailableStreamers.json()).code,'dashboard_unavailable');streamersUnavailable=false;console.log('PASS readiness rejects a broken streamer route despite advertised dashboard capabilities');
  // A slow CMS must not hold the hero, navigation or primary call to action.
  // Return a failure afterwards so the cold-cache outage checks below stay cold.

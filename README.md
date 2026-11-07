@@ -1,6 +1,6 @@
-# Лігво Друїда · сайт 4.6.3
+# Лігво Друїда · сайт 4.6.4
 
-Парний Dashboard — 3.16.0; Bot — 3.6.9. Site 4.6.3 містить узгоджену документацію; runtime Site не змінено.
+Парний Dashboard — 3.16.0; Bot — 3.6.9. Site 4.6.4 відновлює повернення авторизації Battle.net у RaiderHub через `/callback` і `/callback.html`. Деталі та встановлення: [виправлення callback](OAUTH_CALLBACK_FIX_UA.md).
 
 **Чинна інструкція:** [встановлення, env, cron та перевірки](RELEASE_INSTALL_2026-10-19_UA.md).
 Спочатку Dashboard → cron → Site. Інші нотатки релізів — історичні.
