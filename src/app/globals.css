@@ -92,3 +92,39 @@ input::placeholder,textarea::placeholder{color:#9c948a}
 .article-toc li.sub{margin-left:16px;list-style:circle}
 .article-toc a{display:inline-flex;min-height:28px;align-items:center;color:var(--text);text-decoration:none}
 .article-toc a:hover,.article-toc a:focus-visible{color:var(--accent);text-decoration:underline}
+
+/* Roster readability: 9–10px meta text was below a readable size. On phones the
+   card becomes a compact row (class · spec · rank on one line; the realm is only
+   shown when it differs from the guild's). */
+.member-card small{font-size:11px;line-height:1.4}
+@media(max-width:640px){
+ .roster-grid{gap:8px}
+ .member-card{padding:10px 12px;gap:10px}
+ .member-card img{width:40px;height:40px}
+ .member-card h3{font-size:15px;margin:0 0 2px}
+ .member-card small{display:inline;font-size:12px}
+ .member-card small+small::before{content:" · "}
+ .member-numbers strong{font-size:18px}
+}
+
+/* FAQ / terms disclosures: a themed chevron instead of the browser's triangle,
+   a full-width hit area and a visible keyboard focus. */
+.terms-section summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:44px;padding:4px 0}
+.terms-section summary::-webkit-details-marker{display:none}
+.terms-section summary::after{content:"";flex:none;width:9px;height:9px;margin-right:6px;border-right:2px solid var(--accent);border-bottom:2px solid var(--accent);transform:rotate(45deg) translateY(-3px);transition:transform .2s ease}
+.terms-section[open]>summary::after{transform:rotate(-135deg) translateY(-2px)}
+.terms-section summary:hover{color:var(--accent)}
+.terms-section summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
+.terms-section[open]>summary{margin-bottom:10px}
+@media(prefers-reduced-motion:reduce){.terms-section summary::after{transition:none}}
+.versions-more summary{list-style:none;display:inline-flex;align-items:center;gap:6px;min-height:24px;cursor:pointer;color:var(--muted)}
+.versions-more summary::-webkit-details-marker{display:none}
+.versions-more summary::after{content:"";width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px)}
+.versions-more[open] summary::after{transform:rotate(-135deg)}
+.versions-more summary:hover{color:var(--accent)}
+@media(max-width:640px){
+ .member-card>div:not(.member-numbers){flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .member-card h3{white-space:normal}
+ .member-numbers small{display:block;font-size:11px}
+ .member-numbers small::before{content:none}
+}
