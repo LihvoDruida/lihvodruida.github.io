@@ -43,3 +43,13 @@ test('dashboard 3.18+ without the removed streamer module passes preflight and i
  await checkLocal(async(url:string)=>{urls.push(url);return Response.json({ok:true,integration:'ready',service:'lihvodruida-site',api_base:'/site-api/v1'})});
  assert.ok(urls.every(url=>!url.includes('streamers')),urls.join(', '));
 });
+
+test('CurseForge report explains what visitors see, never fails the run and never prints the key',async()=>{
+ const run=async(payload:unknown,status=200)=>{const lines:string[]=[];const code=await runIntegration(['--curseforge'],{...env,CURSEFORGE_API_KEY:'$2a$10$secret-key-value'},async(url:string)=>{assert.equal(url,'http://127.0.0.1:3000/site-api/v1/mods');return Response.json(payload,{status});},{log:(l:string)=>lines.push(l),error:(l:string)=>lines.push(l)});return {code,out:lines.join('\n')};};
+ let r=await run({data:{source:'curseforge',stale:false,mods:[{},{}]}});assert.equal(r.code,0);assert.match(r.out,/PASS CurseForge: живі дані, 2 адонів/);
+ r=await run({data:{source:'catalog',stale:true,code:'curseforge_key_missing',mods:[{}]}});assert.equal(r.code,0);assert.match(r.out,/WARN curseforge_key_missing: відвідувачі бачать каталог сайту \(1 адонів\)/);assert.match(r.out,/configure-curseforge\.py/);
+ r=await run({data:{source:'cache',stale:true,code:'curseforge_access_denied',mods:[{},{},{}]}});assert.match(r.out,/WARN curseforge_access_denied: .*збережені дані/);
+ r=await run({data:{source:'catalog',stale:true,code:'<script>',mods:[]}});assert.match(r.out,/WARN curseforge_unavailable/);
+ const failed:string[]=[];assert.equal(await runIntegration(['--curseforge'],env,async()=>{throw Error('connection refused')},{log:(l:string)=>failed.push(l),error:(l:string)=>failed.push(l)}),0);assert.match(failed.join(''),/curseforge_report_unavailable/);
+ for(const text of [r.out,failed.join('')])assert.ok(!text.includes('secret-key-value'));
+});

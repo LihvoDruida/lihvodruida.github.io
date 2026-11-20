@@ -36,6 +36,12 @@ if [[ ! -f .env ]]; then
 fi
 # Existing values are never rewritten or evaluated as shell code.
 if [[ "$ACTION" == deploy || "$ACTION" == check ]]; then chmod 600 .env; fi
+# Tag each build with the site version (unless SITE_IMAGE is set in the shell or .env),
+# so `docker images` and `make status` show which release runs.
+if [[ -z "${SITE_IMAGE:-}" ]] && ! grep -Eq '^[[:space:]]*(export[[:space:]]+)?SITE_IMAGE=' .env && [[ -f "$ROOT/package.json" ]]; then
+  site_version="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["version"])' "$ROOT/package.json" 2>/dev/null || true)"
+  if [[ "$site_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then export SITE_IMAGE="lihvodruida-site:$site_version"; fi
+fi
 compose=(docker compose --project-directory "$ROOT" --env-file "$ROOT/.env" -p "$PROJECT" -f "$ROOT/compose.yml")
 if [[ -f "$ROOT/compose.override.yml" ]]; then compose+=(-f "$ROOT/compose.override.yml"); fi
 compose+=(-f "$ROOT/deploy/compose.vps.yml")
@@ -84,6 +90,7 @@ if [[ "$ACTION" == check ]]; then exit 0; fi
 if [[ "$ACTION" == integration-check ]]; then
   info 'Перевіряємо дашборд через чинний контейнер сайту без перезапуску.'
   "${compose[@]}" exec -T site node --input-type=module - --upstream < "$ROOT/scripts/check-integration.mjs"
+  "${compose[@]}" exec -T site node --input-type=module - --curseforge < "$ROOT/scripts/check-integration.mjs" || true
   exit 0
 fi
 health_timeout="${SITE_HEALTH_TIMEOUT:-90}"
@@ -157,6 +164,8 @@ wait_healthy
 deploy_stage='local-integration'
 info 'Перевіряємо readiness нового сайту та зв’язок із дашбордом.'
 "${compose[@]}" exec -T site node check-integration.mjs --local
+# Optional source: report what /mods shows and why, without failing the release.
+"${compose[@]}" exec -T site node check-integration.mjs --curseforge || true
 deploy_stage='public-routes'
 info 'Перевіряємо публічні маршрути через Cloudflare, склад і список заявок.'
 "${compose[@]}" exec -T site node check-deployed.mjs

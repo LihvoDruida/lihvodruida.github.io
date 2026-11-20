@@ -104,6 +104,17 @@ class DeploymentTests(unittest.TestCase):
         self.assertEqual((self.root/'.env').read_text(),content)
         args=self.actions('config')[0]['args']
         self.assertLess(args.index(str(self.root/'compose.override.yml')),args.index(str(self.root/'deploy/compose.vps.yml')))
+    def test_build_is_tagged_with_the_site_version_unless_overridden(self):
+        shutil.copyfile(SOURCE/'package.json',self.root/'package.json')
+        version=json.loads((SOURCE/'package.json').read_text())['version']
+        r=self.run_script()
+        self.assertEqual(r.returncode,0,r.stderr)
+        self.assertEqual(self.actions('build')[0]['image'],'lihvodruida-site:'+version)
+        (self.root/'calls').unlink()
+        (self.root/'.env').write_text((self.root/'.env').read_text()+'SITE_IMAGE=custom/site:pinned\n')
+        r=self.run_script()
+        self.assertEqual(r.returncode,0,r.stderr)
+        self.assertIsNone(self.actions('build')[0]['image'])
     def test_check_does_not_build_or_start(self):
         self.assertEqual(self.run_script(action='check').returncode,0)
         self.assertFalse(self.actions('build'));self.assertFalse(self.actions('up'))

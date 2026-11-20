@@ -47,9 +47,32 @@ export async function checkLocal(fetcher=fetch){
  }
  return {ok:true};
 }
+// CurseForge is optional for the site (it falls back to the bundled catalogue), so this
+// report never fails a deployment; it only tells the operator what visitors see and why.
+const CURSEFORGE_HINTS={
+ curseforge_key_missing:'Ключ не задано: сайт показує каталог із _data/my_mods.yml. Задайте ключ: python3 deploy/configure-curseforge.py, потім make deploy.',
+ curseforge_configuration:'CURSEFORGE_API_KEY або CURSEFORGE_AUTHOR_ID має неправильний формат (пробіли, заглушка, нецифровий автор). Перезапишіть ключ через python3 deploy/configure-curseforge.py.',
+ curseforge_access_denied:'CurseForge відхилив ключ (HTTP 401/403): ключ відкликано або він не має доступу. Створіть новий у console.curseforge.com і запишіть через python3 deploy/configure-curseforge.py.',
+ curseforge_rate_limited:'CurseForge обмежив частоту запитів (HTTP 429). Сайт повторить спробу автоматично.',
+ curseforge_unavailable:'CurseForge недоступний або не відповів за 12 с. Перевірте вихідний доступ до api.curseforge.com із VPS.',
+ curseforge_schema:'CurseForge повернув відповідь у неочікуваному форматі; потрібне оновлення сайту.',
+ curseforge_empty:'Для CURSEFORGE_AUTHOR_ID не знайдено жодного адона. Перевірте ідентифікатор автора.',
+};
+export async function checkCurseForge(fetcher=fetch,log=console){
+ let response,body;
+ try{response=await fetcher('http://127.0.0.1:3000/site-api/v1/mods',{headers:{Accept:'application/json'},redirect:'error',cache:'no-store',signal:AbortSignal.timeout(30000)});body=await jsonResponse(response,1024*1024);}
+ catch{log.error('WARN curseforge_report_unavailable: не вдалося прочитати /site-api/v1/mods локального сайту.');return {ok:false,code:'curseforge_report_unavailable'};}
+ const data=body?.data,count=Array.isArray(data?.mods)?data.mods.length:0;
+ if(response.ok&&data?.source==='curseforge'&&!data.stale){log.log(`PASS CurseForge: живі дані, ${count} адонів.`);return {ok:true,code:'live',count};}
+ const code=typeof data?.code==='string'&&Object.hasOwn(CURSEFORGE_HINTS,data.code)?data.code:'curseforge_unavailable';
+ const shown=data?.source==='cache'?`збережені дані останнього успішного запиту (${count} адонів)`:`каталог сайту (${count} адонів)`;
+ log.error(`WARN ${code}: відвідувачі бачать ${shown}. ${CURSEFORGE_HINTS[code]}`);
+ return {ok:false,code,count};
+}
 export async function runIntegration(args=[],env=process.env,fetcher=fetch,log=console){
+ if(args.length===1&&args[0]==='--curseforge'){await checkCurseForge(fetcher,log);return 0;}
  const local=args.length===1&&args[0]==='--local';
- if(args.length>1||args.length===1&&!['--local','--upstream'].includes(args[0])){log.error('Використання: node check-integration.mjs [--upstream|--local]');return 2;}
+ if(args.length>1||args.length===1&&!['--local','--upstream'].includes(args[0])){log.error('Використання: node check-integration.mjs [--upstream|--local|--curseforge]');return 2;}
  try{
   if(local)await checkLocal(fetcher);else await checkDashboard(env,fetcher);
   log.log(local?'PASS local site integration readiness':'PASS dashboard protocol, PostgreSQL and required capabilities');return 0;
