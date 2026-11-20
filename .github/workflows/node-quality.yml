@@ -3,6 +3,11 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      dashboard_ref:
+        description: 'Dashboard branch, tag or commit for paired tests'
+        required: false
+        default: ''
 permissions:
   contents: read
 concurrency:
@@ -22,3 +27,40 @@ jobs:
       - run: npm run build:ci
         env:
           NEXT_TELEMETRY_DISABLED: '1'
+
+  # Runs the dashboard-paired contract tests that `verify` skips
+  # (pair, content-pair, raid-seasons) against the real dashboard sources.
+  paired:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: LihvoDruida/lihvodruida-dashboard
+          ref: ${{ inputs.dashboard_ref }}
+          path: .paired-dashboard
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm ci --no-audit --no-fund --ignore-scripts
+        working-directory: .paired-dashboard
+      - name: Locate PGlite for the SQL revision test
+        run: |
+          dir="$GITHUB_WORKSPACE/.paired-dashboard/node_modules/@electric-sql/pglite"
+          if [ ! -d "$dir" ]; then
+            npm install --no-save --no-audit --no-fund --prefix "$RUNNER_TEMP/pglite" @electric-sql/pglite
+            dir="$RUNNER_TEMP/pglite/node_modules/@electric-sql/pglite"
+          fi
+          echo "SITE_SYNC_PG_MODULE=$dir" >> "$GITHUB_ENV"
+      - name: Paired tests (no skips allowed)
+        shell: bash
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+          PAIRED_DASHBOARD_ROOT: ${{ github.workspace }}/.paired-dashboard
+        run: |
+          npm run pretypecheck
+          node --import tsx --test tests/*.test.ts | tee paired.tap
+          grep -q '^# skipped 0$' paired.tap || { echo '::error::Paired tests were skipped'; exit 1; }
