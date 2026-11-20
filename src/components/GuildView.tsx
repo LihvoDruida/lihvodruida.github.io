@@ -9,7 +9,8 @@ import {useLiveSnapshot} from './useLiveSnapshot';
 import {SyncStatus} from './SyncStatus';
 import {GuildRaidProgress} from './GuildRaidProgress';
 const roles:Record<string,string>={TANK:'Танк',HEALING:'Цілитель',DPS:'Боєць',NONE:'—'};
-const rank=(n:number)=>n===0?'Глава':n===1?'Офіцер':`Ранг ${n}`;
+// Same labels as the dashboard (guildStatusFromRank): Blizzard publishes rank numbers, not names.
+const rank=(n:number)=>n===0?'Глава':n===1?'Офіцер':'Учасник';
 // Mean equipped item level of members that report one; null when nobody does.
 function averageItemLevel(members:Member[]){const levels=members.map(m=>m.character.item_level_equipped).filter((n):n is number=>typeof n==='number'&&n>0);return levels.length?Math.round(levels.reduce((a,b)=>a+b,0)/levels.length):null;}
 // Official class colours as a decorative accent bar (never as text colour, so contrast is unaffected).
