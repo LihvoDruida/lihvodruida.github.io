@@ -17,3 +17,9 @@ combining marks and punctuation. Cinzel itself has no Cyrillic; Spectral SC is
 retained as the original banner fallback. Next/font handles fingerprinting and
 font-display:swap. Spectral is not preloaded, because the current English guild
 wordmark uses Cinzel. No build-time font download is required.
+
+Playfair Display (headings) is the variable WOFF2 pair from
+`@fontsource-variable/playfair-display@5.2.8` (Latin + Cyrillic subsets, weight
+axis 400–900), loaded as two next/font faces like Inter. Together they cover the
+full Ukrainian alphabet including ’. License: PlayfairDisplay-OFL.txt. Cinzel has
+no Cyrillic, so it is used only for the Latin guild wordmark (`--font-wordmark`).

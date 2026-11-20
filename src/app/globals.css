@@ -79,3 +79,16 @@ input::placeholder,textarea::placeholder{color:#9c948a}
 /* Breadcrumbs that sit in their own shell must not add a section-sized gap. */
 .content-shell.crumbs-shell{padding-bottom:0}
 .content-shell.crumbs-shell+.article-layout{padding-top:0}
+
+/* Roster: class colour accent on the card edge. */
+.member-card{border-left:3px solid var(--class-color,transparent)}
+.schedule-list .raid-actions{display:flex;flex-direction:column;align-items:flex-end;gap:6px;margin-left:auto}
+@media(max-width:640px){.schedule-list .raid-actions{flex-direction:row;align-items:center;margin-left:0}}
+
+/* Article table of contents (html scroll-padding already clears the sticky header). */
+.article-toc{margin:0 0 30px;padding:18px 22px;border:1px solid var(--border);border-radius:12px;background:rgba(34,27,21,.55)}
+.article-toc h2{margin:0 0 10px;font-family:var(--font);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.article-toc ol{margin:0;padding-left:20px;display:grid;gap:4px}
+.article-toc li.sub{margin-left:16px;list-style:circle}
+.article-toc a{display:inline-flex;min-height:28px;align-items:center;color:var(--text);text-decoration:none}
+.article-toc a:hover,.article-toc a:focus-visible{color:var(--accent);text-decoration:underline}
