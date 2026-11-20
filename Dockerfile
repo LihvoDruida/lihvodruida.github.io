@@ -15,6 +15,8 @@ WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 HOSTNAME=0.0.0.0 PORT=3000
 RUN addgroup -S -g 10001 site && adduser -S -u 10001 site -G site
 COPY --from=build --chown=site:site /app/.next/standalone ./
+# Named-volume mount point for SITE_STATE_DIR; a fresh volume inherits this ownership.
+RUN mkdir -p /app/var && chown site:site /app/var && chmod 700 /app/var
 USER site
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s CMD node -e "fetch('http://127.0.0.1:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
