@@ -28,6 +28,13 @@ module.exports=async function run({base,changeGuild,accept,changeContent,unpubli
   const schemas=await page.locator('script[type="application/ld+json"]').allTextContents();assert.ok(schemas.map(JSON.parse).flatMap(schema=>schema['@graph']||[schema]).some(node=>node['@type']==='AboutPage'));
   await page.getByText('Синхронізовано з гільдією',{exact:true}).waitFor();
   assert.ok(apiRequests.includes('/site-api/v1/guild'));console.log('PASS mobile browser hydration and background guild refresh through the real route');
+  // Scroll reveal (lib/motion.ts): nothing on the first screen is hidden, and an instant jump to the
+  // bottom (End key, anchor, restored scroll) must not leave skipped blocks invisible.
+  assert.equal(await page.evaluate(()=>[...document.querySelectorAll('.reveal-pending:not(.revealed)')].filter(e=>e.getBoundingClientRect().top<innerHeight).length),0);
+  await page.evaluate(()=>{document.documentElement.style.scrollBehavior='auto';scrollTo(0,document.documentElement.scrollHeight);});
+  await page.waitForFunction(()=>!document.querySelector('.reveal-pending:not(.revealed)'),null,{timeout:5000});
+  await page.evaluate(()=>{scrollTo(0,0);document.documentElement.style.removeProperty('scroll-behavior');});
+  console.log('PASS scroll reveal hides nothing above the fold and nothing stays hidden after a jump');
   const season=page.getByLabel('Сезон',{exact:true});
   await season.selectOption('mn-1');await page.locator('[data-raid="tier-mn-1"] .mythic strong').getByText('2/9',{exact:true}).waitFor();
   await season.selectOption('tww-1');assert.equal(await page.locator('[data-raid="nerubar-palace"] .mythic strong').innerText(),'—/8');
