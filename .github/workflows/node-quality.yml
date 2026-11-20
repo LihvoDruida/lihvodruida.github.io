@@ -28,6 +28,7 @@ jobs:
         env:
           NEXT_TELEMETRY_DISABLED: '1'
 
+  # The dashboard repository is a monorepo; the Next.js app lives in dashboard/.
   # Runs the dashboard-paired contract tests that `verify` skips
   # (pair, content-pair, raid-seasons) against the real dashboard sources.
   paired:
@@ -46,10 +47,10 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm ci --no-audit --no-fund --ignore-scripts
-        working-directory: .paired-dashboard
+        working-directory: .paired-dashboard/dashboard
       - name: Locate PGlite for the SQL revision test
         run: |
-          dir="$GITHUB_WORKSPACE/.paired-dashboard/node_modules/@electric-sql/pglite"
+          dir="$GITHUB_WORKSPACE/.paired-dashboard/dashboard/node_modules/@electric-sql/pglite"
           if [ ! -d "$dir" ]; then
             npm install --no-save --no-audit --no-fund --prefix "$RUNNER_TEMP/pglite" @electric-sql/pglite
             dir="$RUNNER_TEMP/pglite/node_modules/@electric-sql/pglite"
@@ -59,7 +60,7 @@ jobs:
         shell: bash
         env:
           NEXT_TELEMETRY_DISABLED: '1'
-          PAIRED_DASHBOARD_ROOT: ${{ github.workspace }}/.paired-dashboard
+          PAIRED_DASHBOARD_ROOT: ${{ github.workspace }}/.paired-dashboard/dashboard
         run: |
           npm run pretypecheck
           node --import tsx --test tests/*.test.ts | tee paired.tap
