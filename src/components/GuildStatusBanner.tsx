@@ -27,7 +27,7 @@ export function GuildStatusBanner({guildName,guildHref,onNavigate}:{guildName:st
  },[]);
  const name=guildName.trim(),brandBreak=name.lastIndexOf(' ');
  const start=brandBreak>0?name.slice(0,brandBreak):name,end=brandBreak>0?name.slice(brandBreak):'';
- return <div className="guild-status-banner" aria-label="Гільдія World of Warcraft" aria-hidden={collapsed||undefined} inert={collapsed}>
+ return <section className="guild-status-banner" aria-label="Гільдія World of Warcraft" aria-hidden={collapsed||undefined} inert={collapsed}>
   <div className="guild-status-banner__inner">
    <div className="guild-status-banner__side" aria-hidden="true"/>
    <Link href={guildHref} prefetch={false} onClick={onNavigate} className="guild-status-banner__brand" aria-label={name}>
@@ -36,5 +36,5 @@ export function GuildStatusBanner({guildName,guildHref,onNavigate}:{guildName:st
    </Link>
    <div className="guild-status-banner__side" aria-hidden="true"/>
   </div>
- </div>;
+ </section>;
 }
