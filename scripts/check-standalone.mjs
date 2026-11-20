@@ -85,14 +85,19 @@ try{
  // The deliberate cold failures above start the existing four-second upstream backoff.
  await new Promise(resolve=>setTimeout(resolve,4200));
  for(const [route,text] of [['/guild','Runtime Test Guild'],['/guides/runtime-guide','Article from the dashboard CMS.'],['/feed.xml','runtime-guide'],['/sitemap.xml','runtime-guide']]){const response=await fetch(base+route);assert.equal(response.status,200,route);assert.ok((await response.text()).includes(text),route);}console.log('PASS production SSR, CMS article, RSS and sitemap');
- const seoTitles=new Set(),seoDescriptions=new Set();
+ const seoTitles=new Set(),seoDescriptions=new Set(),pageAssets=new Set();
  for(const route of ['/','/guides','/news','/mods','/guild','/guild/apply','/donate','/guides/runtime-guide','/news/runtime-news','/guild/applications']){
   const response=await fetch(base+route,{headers:{'User-Agent':'Googlebot'}});assert.equal(response.status,200,route);
   const html=await response.text();const result=auditPageSeo(html,route,{index:route!=='/guild/applications',article:route.includes('/runtime-')});
   if(route==='/'){assert.match(html,/<meta name="google-site-verification" content="fixture-google-code"/);assert.match(html,/<meta name="msvalidate.01" content="fixture-bing-code"/);}
   assert.ok(!seoTitles.has(result.title),`${route}: unique title`);assert.ok(!seoDescriptions.has(result.description),`${route}: unique description`);seoTitles.add(result.title);seoDescriptions.add(result.description);
   if(route==='/guild/applications')assert.match(response.headers.get('x-robots-tag'),/noindex/);
+  // Every bundled asset a rendered page references must exist (catches dynamic paths a source grep misses).
+  for(const asset of new Set([...html.matchAll(/\/assets\/[A-Za-z0-9_.\/%-]+\.(?:webp|avif|png|jpe?g|svg|ico|css|js|woff2?)/g)].map(m=>decodeURIComponent(m[0])))){
+   if(!pageAssets.has(asset)){const r=await fetch(base+asset,{method:'HEAD'});assert.equal(r.status,200,`${route} references missing ${asset}`);pageAssets.add(asset);}
+  }
  }
+ console.log(`PASS all ${pageAssets.size} bundled assets referenced by rendered pages exist`);
  const robotRules=await (await fetch(base+'/robots.txt')).text();assert.ok(!robotRules.includes('Disallow: /guild/applications'));assert.ok(!robotRules.includes('Disallow: /site-api/v1/media'));assert.ok(robotRules.includes('https://lihvodruida.pp.ua/sitemap.xml'));
  const missing=await fetch(base+'/guides/not-a-published-article',{headers:{'User-Agent':'facebookexternalhit/1.1'}});assert.equal(missing.status,404);assert.match(await missing.text(),/name="robots" content="noindex"/);
  console.log('PASS production SEO on 10 pages: unique titles/descriptions, canonical, social previews, single H1, JSON-LD, robots, noindex and real article 404');
