@@ -30,16 +30,30 @@ jobs:
 
   # The dashboard repository is a monorepo; the Next.js app lives in dashboard/.
   # Runs the dashboard-paired contract tests that `verify` skips
-  # (pair, content-pair, raid-seasons) against the real dashboard sources.
+  # (pair, content-pair, raid-seasons) against the real dashboard sources, plus the
+  # dashboard's own pairing checks against this site. Paired changes live on
+  # same-named branches: a dashboard branch named like this one is used when it
+  # exists, otherwise the dashboard default branch (or workflow_dispatch input).
   paired:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
+      - name: Pick dashboard ref
+        id: dashboard
+        shell: bash
+        env:
+          INPUT_REF: ${{ inputs.dashboard_ref }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+        run: |
+          ref="$INPUT_REF"
+          if [ -z "$ref" ] && git ls-remote --exit-code --heads https://github.com/LihvoDruida/lihvodruida-dashboard "refs/heads/$BRANCH" >/dev/null; then ref="$BRANCH"; fi
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+          echo "Dashboard ref: ${ref:-default branch}"
       - uses: actions/checkout@v5
         with:
           repository: LihvoDruida/lihvodruida-dashboard
-          ref: ${{ inputs.dashboard_ref }}
+          ref: ${{ steps.dashboard.outputs.ref }}
           path: .paired-dashboard
       - uses: actions/setup-node@v5
         with:
@@ -65,3 +79,14 @@ jobs:
           npm run pretypecheck
           node --import tsx --test --test-reporter=tap tests/*.test.ts | tee paired.tap
           grep -q '^# skipped 0$' paired.tap || { echo '::error::Paired tests were skipped'; exit 1; }
+      - name: Dashboard pairing checks (release docs, application pair)
+        shell: bash
+        working-directory: .paired-dashboard/dashboard
+        env:
+          PAIRED_SITE_ROOT: ${{ github.workspace }}
+        run: |
+          # check-release-docs compares ../lihvodruida-site (next to the dashboard
+          # checkout): version, scripts and the byte-identical install guide.
+          ln -sfn "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/lihvodruida-site"
+          node scripts/check-release-docs.cjs
+          node scripts/check-application-site-pair.cjs
