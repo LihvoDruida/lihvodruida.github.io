@@ -9,7 +9,7 @@ import {createRequire} from 'node:module';
 import {auditPageSeo} from './lib/seo-audit.mjs';
 const entry=path.resolve('.next/standalone/server.js');assert.ok(existsSync(entry),'Build first');
 const temp=mkdtempSync(path.join(tmpdir(),'site-runtime-')),token='runtime-fixture-token-'.repeat(3),png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jw7sAAAAASUVORK5CYII=','base64'),id=createHash('sha256').update(png).digest('hex');
-let failed=false,submitted=false,decision='review',child,logs='',browserPosts=0,contentVersion=1,articlePublished=true,guildVersion=1,raidCapable=true,guildUnavailable=false,contentUnavailable=false,streamersUnavailable=false;
+let failed=false,submitted=false,decision='review',child,logs='',browserPosts=0,contentVersion=1,articlePublished=true,guildVersion=1,raidCapable=true,guildUnavailable=false,contentUnavailable=false,streamerRequests=0;
 let contentHold=null,releaseContent,lastSubmission=null;
 const upstream=createServer(async(req,res)=>{
  try{
@@ -17,14 +17,15 @@ const upstream=createServer(async(req,res)=>{
   if(failed){res.writeHead(503);return res.end('{}');}
   const url=new URL(req.url,'http://dashboard:3000');res.setHeader('Content-Type','application/json');
   if(contentHold&&url.pathname==='/api/site/content')await contentHold;
-  if((guildUnavailable&&url.pathname==='/api/site/guild')||(contentUnavailable&&url.pathname==='/api/site/content')||(streamersUnavailable&&url.pathname==='/api/site/streamers')){res.writeHead(503);return res.end('{}');}
+  if((guildUnavailable&&url.pathname==='/api/site/guild')||(contentUnavailable&&url.pathname==='/api/site/content')){res.writeHead(503);return res.end('{}');}
+  // Dashboard 3.18+ removed the streamer module; the site must never ask for it.
+  if(url.pathname==='/api/site/streamers'){streamerRequests++;res.writeHead(404);return res.end('{}');}
   const version=text=>createHash('md5').update(text).digest('hex');
   const payloads={
-   '/api/site/streamers':{schema:'mistblossom.public-streamers.v1',checked_at:new Date().toISOString(),items:[]},
    '/api/site/sync':{schema:'mistblossom.public-sync.v1',resources:{content:version(String(contentVersion)),guild:version('guild-'+guildVersion),applications:version(String(submitted)+decision)},checked_at:new Date().toISOString()},
    '/api/site/guild':{schema:'mistblossom.public-guild.v1',metadata:{updated_at:new Date().toISOString()},guild:{name:'Runtime Test Guild',realm:{name:'Terokkar',slug:'terokkar'},member_count:1},members:[{rank:0,character:{name:'Sebas',realm:{slug:'terokkar'},playable_class:{name:'Druid'},active_spec:{name:'Restoration',role:'HEALING'}}}],raid_seasons:{schema_version:2,current_season_id:'mn-2',seasons:[{id:'mn-2',label:'Midnight · Сезон 2',expansion:'Midnight',current:true,raids:['not-available']},{id:'mn-1',label:'Midnight · Сезон 1',expansion:'Midnight',raids:['tier-mn-1']},{id:'tww-1',label:'The War Within · Сезон 1',expansion:'The War Within',raids:['nerubar-palace','not-available']}],catalog:{'tier-mn-1':{name:'Midnight Tier One',bosses:9},'nerubar-palace':{name:'Nerub-ar Palace',bosses:8},'not-available':{name:'Unverified Raid',bosses:9}}},raid_progression:{'tier-mn-1':{total_bosses:9,normal_bosses_killed:9,heroic_bosses_killed:7,mythic_bosses_killed:guildVersion===1?2:3},...(guildVersion>1?{'nerubar-palace':{total_bosses:8,normal_bosses_killed:0,heroic_bosses_killed:0,mythic_bosses_killed:0}}:{})},scheduled_raids:[]},
    '/api/site/content':{schema:'mistblossom.public-content.v2',revision:'runtime-'+contentVersion,total:articlePublished?2:0,next_page:null,items:articlePublished?[{kind:'guides',slug:'runtime-guide',title:'Runtime Guide',description:'A runtime guide with practical advice for World of Warcraft.',body:contentVersion===1?'Article from the dashboard CMS.':'Updated article from the dashboard CMS.',date:'2026-10-16',updated_at:'2026-10-17T07:00:00Z',tags:[],author:'Admin',image:`/api/site/media/${id}`},{kind:'news',slug:'runtime-news',title:'Runtime Community News',description:'Community news from the Ukrainian World of Warcraft guild.',body:'News from the community.',date:'2026-10-16',updated_at:'2026-10-17T07:00:00Z',tags:['WoW'],author:'Sebas',image:`/api/site/media/${id}`}]:[]},
-   '/api/site/status':{ok:true,protocol:'mistblossom.site-bridge.v2',store:'postgres',schemas:{content:'mistblossom.public-content.v2'},capabilities:['sync:revisions:v1','streamers:read:v1',...(raidCapable?['guild:raid-history:v2']:[])]},
+   '/api/site/status':{ok:true,protocol:'mistblossom.site-bridge.v2',store:'postgres',schemas:{content:'mistblossom.public-content.v2'},capabilities:['guild:read','applications:read','applications:submit','content:read','media:read','sync:revisions:v1',...(raidCapable?['guild:raid-history:v2']:[])]},
    '/api/site/applications':{schema:'mistblossom.public-applications.v1',updated_at:new Date().toISOString(),counts:{all:submitted?1:0,review:submitted&&decision==='review'?1:0,accepted:submitted&&decision==='accepted'?1:0,declined:0},items:submitted?[{number:42,character_name:'Sebas',realm:'Terokkar',class_name:'Druid',faction:'Alliance',status_key:decision,status_text:decision==='accepted'?'Прийнято':'На розгляді',created_at:'2026-10-16',updated_at:'2026-10-16'}]:[]},
   };
   if(url.pathname===`/api/site/media/${id}`){res.setHeader('Content-Type','image/png');return res.end(png);}
@@ -66,7 +67,6 @@ try{
   const response=await fetch(base+asset);assert.equal(response.status,200,asset);assert.ok((await response.text()).length>100);
  }
  console.log('PASS callback and legacy callback.html preserve the app return flow with packaged assets and no-store headers');
- streamersUnavailable=true;const unavailableStreamers=await fetch(origin+'/site-api/v1/status');assert.equal(unavailableStreamers.status,503);assert.equal((await unavailableStreamers.json()).code,'dashboard_unavailable');streamersUnavailable=false;console.log('PASS readiness rejects a broken streamer route despite advertised dashboard capabilities');
  // A slow CMS must not hold the hero, navigation or primary call to action.
  // Return a failure afterwards so the cold-cache outage checks below stay cold.
  contentUnavailable=true;contentHold=new Promise(resolve=>{releaseContent=resolve;});
@@ -96,7 +96,7 @@ try{
  const robotRules=await (await fetch(base+'/robots.txt')).text();assert.ok(!robotRules.includes('Disallow: /guild/applications'));assert.ok(!robotRules.includes('Disallow: /site-api/v1/media'));assert.ok(robotRules.includes('https://lihvodruida.pp.ua/sitemap.xml'));
  const missing=await fetch(base+'/guides/not-a-published-article',{headers:{'User-Agent':'facebookexternalhit/1.1'}});assert.equal(missing.status,404);assert.match(await missing.text(),/name="robots" content="noindex"/);
  console.log('PASS production SEO on 10 pages: unique titles/descriptions, canonical, social previews, single H1, JSON-LD, robots, noindex and real article 404');
- const streamersResponse=await fetch(base+'/site-api/v1/streamers');assert.equal(streamersResponse.status,200);assert.equal((await streamersResponse.json()).data.schema,'mistblossom.public-streamers.v1');assert.equal(streamersResponse.headers.get('cache-control'),'private, no-store');console.log('PASS packaged streamers API through public edge uses private bridge and no-store envelope');
+ const retiredStreamers=await fetch(base+'/site-api/v1/streamers');assert.equal(retiredStreamers.status,404);await retiredStreamers.arrayBuffer();assert.equal(streamerRequests,0,'site must not call the removed dashboard streamer route');console.log('PASS retired streamer API is gone and the dashboard is never asked for it');
  let response=await fetch(base+'/site-api/v1/status');assert.equal(response.status,200);assert.equal((await response.json()).integration,'ready');console.log('PASS bridge readiness');
  const integrationEntry=path.join(path.dirname(entry),'check-integration.mjs');assert.ok(existsSync(integrationEntry),'Packaged integration diagnostic must exist');
  const checkIntegration=()=>new Promise((resolve,reject)=>{
@@ -104,7 +104,6 @@ try{
   processChild.stdout.on('data',data=>output+=data);processChild.stderr.on('data',data=>output+=data);processChild.once('error',reject);processChild.once('exit',code=>resolve({code,output}));
  });
  assert.equal((await checkIntegration()).code,0);raidCapable=false;const incompatible=await checkIntegration();assert.equal(incompatible.code,1);assert.ok(incompatible.output.includes('dashboard_capabilities_missing'));assert.ok(!incompatible.output.includes(token));raidCapable=true;console.log('PASS packaged deployment diagnostic accepts compatible dashboard and explains missing raid-history capability');
- streamersUnavailable=true;const brokenStreamers=await checkIntegration();assert.equal(brokenStreamers.code,1);assert.ok(brokenStreamers.output.includes('dashboard_streamers_http'));assert.ok(!brokenStreamers.output.includes(token));streamersUnavailable=false;console.log('PASS packaged preflight rejects broken streamer endpoint before replacing the site');
  response=await fetch(base+`/site-api/v1/media/${id}`);assert.equal(response.status,200);assert.ok(Buffer.from(await response.arrayBuffer()).equals(png));console.log('PASS cover bytes and content hash');
  const body={characterName:'Sebas',realm:'Terokkar',faction:'Alliance',className:'Druid',discord:'sebas',availability:'Увечері після 19:00',sourceCreator:'Лігво Друїда',sourcePlatform:'Twitch',consent:true};
  const init={method:'POST',headers:{Origin:'https://lihvodruida.pp.ua','Content-Type':'application/json','X-Real-IP':'203.0.113.25',Cookie:'must-not-reach-dashboard=1; cf_clearance=fixture'},body:JSON.stringify(body)};
