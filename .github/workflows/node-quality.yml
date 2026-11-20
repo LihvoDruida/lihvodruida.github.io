@@ -18,8 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: '24'
           cache: npm
@@ -35,13 +35,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
         with:
           repository: LihvoDruida/lihvodruida-dashboard
           ref: ${{ inputs.dashboard_ref }}
           path: .paired-dashboard
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '24'
           cache: npm
@@ -63,5 +63,5 @@ jobs:
           PAIRED_DASHBOARD_ROOT: ${{ github.workspace }}/.paired-dashboard/dashboard
         run: |
           npm run pretypecheck
-          node --import tsx --test tests/*.test.ts | tee paired.tap
+          node --import tsx --test --test-reporter=tap tests/*.test.ts | tee paired.tap
           grep -q '^# skipped 0$' paired.tap || { echo '::error::Paired tests were skipped'; exit 1; }
