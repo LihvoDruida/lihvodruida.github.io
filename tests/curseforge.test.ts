@@ -17,3 +17,37 @@ test('malformed or wrong-author responses cannot become an empty successful upda
  let mode='invalid';const fake=mock.method(globalThis,'fetch',async()=>Response.json(mode==='invalid'?{}:{data:[{...raw,authors:[{id:1}]}]}));
  try{process.env.CURSEFORGE_API_KEY='invalid-response-test-private-key';assert.equal((await getMods()).code,'curseforge_schema');mode='other';process.env.CURSEFORGE_API_KEY='other-author-test-private-key';assert.equal((await getMods()).code,'curseforge_empty');}finally{fake.mock.restore();}
 });
+test('versions include every flavour index, stable releases win over newer betas, unavailable mods are skipped',async()=>{
+ process.env.CURSEFORGE_API_KEY='flavour-index-test-private-key';
+ const mod={...raw,id:777,latestFiles:[{displayName:'2.0.0-beta.zip',fileDate:'2026-11-10',releaseType:2,gameVersions:['12.0.7']},{displayName:'1.9.0.zip',fileDate:'2026-11-01',releaseType:1,gameVersions:['12.0.5']}],latestFilesIndexes:[{gameVersion:'1.15.8'},{gameVersion:'5.5.3'},{gameVersion:'12.0.5'},{gameVersion:'Retail'}]};
+ const fake=mock.method(globalThis,'fetch',async()=>Response.json({data:[mod,{...raw,id:778,name:'Gone',isAvailable:false}]}));
+ try{const result=await getMods();assert.equal(result.source,'curseforge');assert.deepEqual(result.mods.map(m=>m.id),[777]);
+  assert.equal(result.mods[0].version,'1.9.0');assert.deepEqual(result.mods[0].game_versions,['12.0.7','12.0.5','5.5.3','1.15.8']);}finally{fake.mock.restore();}
+});
+test('a truncated or non-JSON body is a schema error, not an outage',async()=>{
+ process.env.CURSEFORGE_API_KEY='broken-json-test-private-key';
+ const fake=mock.method(globalThis,'fetch',async()=>new Response('{"data":[',{headers:{'Content-Type':'application/json'}}));
+ try{assert.equal((await getMods()).code,'curseforge_schema');}finally{fake.mock.restore();}
+});
+test('last successful snapshot survives a restart during a 403 with its real date, then refreshes (C34)',async()=>{
+ const {mkdtempSync,readFileSync,rmSync,statSync}=await import('node:fs');const {tmpdir}=await import('node:os');const {join}=await import('node:path');
+ const dir=mkdtempSync(join(tmpdir(),'site-state-'));process.env.SITE_STATE_DIR=dir;
+ try{
+  process.env.CURSEFORGE_API_KEY='persist-success-private-key';
+  let fake=mock.method(globalThis,'fetch',async()=>Response.json({data:[{...raw,id:901,name:'Persisted'}]}));
+  const live=await getMods();fake.mock.restore();assert.equal(live.source,'curseforge');
+  const file=join(dir,'curseforge-104580421.json');const saved=JSON.parse(readFileSync(file,'utf8'));
+  assert.equal(saved.mods[0].name,'Persisted');assert.equal(statSync(file).mode&0o777,0o600);assert.ok(!readFileSync(file,'utf8').includes('persist-success-private-key'));
+  // A different key models a fresh process: no in-memory state, CurseForge refuses.
+  process.env.CURSEFORGE_API_KEY='persist-restart-private-key';
+  fake=mock.method(globalThis,'fetch',async()=>Response.json({},{status:403}));
+  const restarted=await getMods();fake.mock.restore();
+  assert.equal(restarted.source,'cache');assert.equal(restarted.stale,true);assert.equal(restarted.code,'curseforge_access_denied');
+  assert.equal(restarted.updatedAt,live.updatedAt);assert.deepEqual(restarted.mods.map(m=>m.name),['Persisted']);
+  // A corrupt or foreign file is ignored rather than trusted.
+  const {writeFileSync}=await import('node:fs');writeFileSync(file,'{"authorId":"1","updatedAt":"2026-01-01","mods":[]}');
+  process.env.CURSEFORGE_API_KEY='persist-corrupt-private-key';
+  fake=mock.method(globalThis,'fetch',async()=>Response.json({},{status:403}));
+  const corrupt=await getMods();fake.mock.restore();assert.equal(corrupt.source,'catalog');
+ }finally{delete process.env.SITE_STATE_DIR;rmSync(dir,{recursive:true,force:true});}
+});

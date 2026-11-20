@@ -6,7 +6,7 @@ services:
         NEXT_BUILD_CPUS: ${NEXT_BUILD_CPUS:-2}
         NODE_BUILD_MEMORY_MB: ${NODE_BUILD_MEMORY_MB:-1536}
         SITE_URL: ${SITE_URL:-https://lihvodruida.pp.ua}
-    image: ${SITE_IMAGE:-lihvodruida-site:4.4.1}
+    image: ${SITE_IMAGE:-lihvodruida-site:local}
     restart: unless-stopped
     init: true
     env_file: .env
@@ -15,9 +15,13 @@ services:
       DASHBOARD_URL: ${DASHBOARD_URL:-https://guild.lihvodruida.pp.ua}
       DASHBOARD_INTERNAL_URL: ${DASHBOARD_INTERNAL_URL:?set DASHBOARD_INTERNAL_URL}
       PUBLIC_SITE_BRIDGE_TOKEN: ${PUBLIC_SITE_BRIDGE_TOKEN:?set the same bridge token in both projects}
+      # Writable state (last successful CurseForge snapshot) on a named volume; the rest of the filesystem stays read-only.
+      SITE_STATE_DIR: /app/var
     ports:
       - "127.0.0.1:3001:3000"
     read_only: true
+    volumes:
+      - site-state:/app/var
     tmpfs:
       - /tmp:size=64m,mode=1777
       - /app/.next/cache:size=128m,uid=10001,gid=10001,mode=0700
@@ -30,3 +34,5 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+volumes:
+  site-state:
