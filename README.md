@@ -1,8 +1,8 @@
 # Лігво Друїда · сайт 4.6.4
 
-Парний Dashboard — 3.16.0; Bot — 3.6.9. Site 4.6.4 відновлює повернення авторизації Battle.net у RaiderHub через `/callback` і `/callback.html`. Деталі та встановлення: [виправлення callback](OAUTH_CALLBACK_FIX_UA.md).
+Парний Dashboard — 3.16.0; Bot — 3.6.9. Site 4.6.4 відновлює повернення авторизації Battle.net у RaiderHub через `/callback` і `/callback.html`. Деталі та встановлення: [виправлення callback](docs/changelog/OAUTH_CALLBACK_FIX_UA.md).
 
-**Чинна інструкція:** [встановлення, env, cron та перевірки](RELEASE_INSTALL_2026-10-19_UA.md).
+**Чинна інструкція:** [встановлення, env, cron та перевірки](docs/changelog/RELEASE_INSTALL_2026-10-19_UA.md).
 Спочатку Dashboard → cron → Site. Інші нотатки релізів — історичні.
 
 ## Конфігурація
@@ -83,8 +83,8 @@ PAIRED_DASHBOARD_ROOT=/srv/mistblossom/dashboard npm test
 
 ## SEO публічного сайту
 
-Версія 4.4.0: окремі metadata/canonical для сторінок, Article/BlogPosting для CMS, breadcrumbs, Open Graph/Twitter, sitemap з обкладинками та індексація без статусів заявок. Сторінка `/guild` містить серверний опис української WoW-гільдії, вступу, рейдів і Mythic+. Деталі, перевірки й встановлення: [SEO_2026-10-17_UA.md](SEO_2026-10-17_UA.md).
+Версія 4.4.0: окремі metadata/canonical для сторінок, Article/BlogPosting для CMS, breadcrumbs, Open Graph/Twitter, sitemap з обкладинками та індексація без статусів заявок. Сторінка `/guild` містить серверний опис української WoW-гільдії, вступу, рейдів і Mythic+. Деталі, перевірки й встановлення: [SEO_2026-10-17_UA.md](docs/changelog/SEO_2026-10-17_UA.md).
 
 ## Банер гільдії 4.4.1
 
-Банер над навігацією повторює оформлення та згортання банера дашборду. Обидві бічні області порожні; назва веде на локальну сторінку гільдії. Деталі: [PUBLIC_GUILD_BANNER_2026-10-17_UA.md](PUBLIC_GUILD_BANNER_2026-10-17_UA.md).
+Банер над навігацією повторює оформлення та згортання банера дашборду. Обидві бічні області порожні; назва веде на локальну сторінку гільдії. Деталі: [PUBLIC_GUILD_BANNER_2026-10-17_UA.md](docs/changelog/PUBLIC_GUILD_BANNER_2026-10-17_UA.md).
