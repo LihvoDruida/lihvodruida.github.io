@@ -18,8 +18,15 @@ Dashboard 3.18.0 повністю видалив модуль стрімерів
 - Видалено невикористані ресурси Jekyll (JS, CSS, зображення, іконки). `assets/img-content/` залишено: Dashboard дозволяє обкладинки статей із цього шляху.
 - CI: окремий job `paired` запускає контрактні тести проти коду `LihvoDruida/lihvodruida-dashboard` і падає, якщо хоч один тест пропущено.
 
+## CurseForge
+
+- Список версій гри включає всі варіанти (Retail, Classic, Anniversary) з `latestFilesIndexes`; показана версія — найновіший стабільний реліз, а не beta.
+- Останній успішний знімок зберігається в томі `site-state` і після рестарту під час 401/403 показується з власною датою (чеклист C34).
+- `make deploy` і `make integration-check` друкують стан CurseForge (`PASS` або `WARN <код>` з порадою); це не зупиняє деплой.
+- Образ збірки має тег версії: `lihvodruida-site:4.7.0`.
+
 ## Встановлення
 
 1. Dashboard має бути 3.18.0 або новішим (рекомендовано 3.25.0). Якщо стрімерів у ньому ще не прибрано, сайт 4.7.0 теж працює: він просто не використовує цей маршрут.
-2. У каталозі сайту: `git pull`, далі `make check`, потім `make deploy`. `.env` не змінюється, нових змінних немає.
+2. У каталозі сайту: `git pull`, далі `make check`, потім `make deploy`. `.env` не змінюється, нових змінних немає; Compose створить том `site-state` автоматично.
 3. Перевірити: `/`, `/guild`, `/guild/apply`, `/callback`, `/callback.html`, `/guild.html` (переадресація на `/guild`). `docker compose exec -T site node check-deployed.mjs` має показати `PASS` для sync, status, guild та applications.
