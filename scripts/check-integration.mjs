@@ -1,7 +1,7 @@
 /** Read-only deployment diagnostics. Never logs response bodies or credentials. */
 import {fileURLToPath} from 'node:url';
 import {resolve} from 'node:path';
-const required=['sync:revisions:v1','guild:raid-history:v2','streamers:read:v1'];
+const required=['sync:revisions:v1','guild:raid-history:v2'];
 export class IntegrationFailure extends Error {
  constructor(code,message){super(message);this.code=code;}
 }
@@ -24,16 +24,6 @@ async function request(fetcher,url,headers){
   throw failure('integration_network','Не вдалося зв’язатися із сервісом. Перевірте стан контейнерів і Docker-мережу.');
  }
 }
-async function checkStreamerEndpoint(fetcher,url,headers={},envelope=false){
- let response;
- try{response=await request(fetcher,url,headers);}catch(error){
-  if(error instanceof IntegrationFailure&&error.code==='integration_network')throw failure('dashboard_streamers_unavailable','Маршрут стрімерів недоступний або перенаправляє запит. Оновіть і перезберіть Dashboard 3.14.1 або новіший: /api/site/streamers має проходити внутрішній proxy з токеном сайту.');
-  throw error;
- }
- if(!response.ok)throw failure('dashboard_streamers_http',`Маршрут стрімерів повернув HTTP ${response.status}. Перевірте Dashboard 3.14.1 або новіший, його proxy, PostgreSQL і PUBLIC_SITE_BRIDGE_TOKEN.`);
- const body=await jsonResponse(response,131072),data=envelope?body?.data:body;
- if(data?.schema!=='mistblossom.public-streamers.v1'||!Number.isFinite(Date.parse(data.checked_at))||!Array.isArray(data.items)||data.items.length>30)throw failure('dashboard_streamers_schema','Маршрут стрімерів повернув несумісні дані. Перевірте парне оновлення Dashboard і Site.');
-}
 export async function checkDashboard(env=process.env,fetcher=fetch){
  const token=String(env.PUBLIC_SITE_BRIDGE_TOKEN||'').trim();
  if(!/^[A-Za-z0-9_-]{32,256}$/.test(token))throw failure('bridge_token_configuration','PUBLIC_SITE_BRIDGE_TOKEN відсутній або має неправильний формат.');
@@ -46,7 +36,6 @@ export async function checkDashboard(env=process.env,fetcher=fetch){
  if(data?.ok!==true||data.protocol!=='mistblossom.site-bridge.v2'||data.store!=='postgres'||data.schemas?.content!=='mistblossom.public-content.v2')throw failure('dashboard_protocol_incompatible','Дашборд повернув несумісний протокол або сховище. Спочатку встановіть і перезберіть Dashboard 3.14.1 або новіший.');
  const missing=required.filter(item=>!Array.isArray(data.capabilities)||!data.capabilities.includes(item));
  if(missing.length)throw failure('dashboard_capabilities_missing',`Запущений дашборд не підтримує: ${missing.join(', ')}. Спочатку встановіть і перезберіть Dashboard 3.14.1 або новіший; розпакування файлів без перезапуску контейнера недостатньо.`);
- await checkStreamerEndpoint(fetcher,'http://dashboard:3000/api/site/streamers',{Accept:'application/json',Authorization:`Bearer ${token}`});
  return {ok:true};
 }
 export async function checkLocal(fetcher=fetch){
@@ -56,7 +45,6 @@ export async function checkLocal(fetcher=fetch){
   const code=safeCodes.has(data?.code)?data.code:'site_integration_unavailable';
   throw failure(code,`Сайт запущено, але його інтеграція не готова (HTTP ${response.status}). Перевірте зв’язок із дашбордом.`);
  }
- await checkStreamerEndpoint(fetcher,'http://127.0.0.1:3000/site-api/v1/streamers',{Accept:'application/json'},true);
  return {ok:true};
 }
 export async function runIntegration(args=[],env=process.env,fetcher=fetch,log=console){

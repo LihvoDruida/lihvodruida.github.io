@@ -1,4 +1,3 @@
-import {streamersSnapshot} from '@/lib/bridge';
 import {dashboardTransport} from '@/lib/config';
 import {boundedText} from '@/lib/http';
 import {SnapshotCache} from '@/lib/bridge-cache';
@@ -12,8 +11,7 @@ export async function GET(){
   await status.get(async()=>{
    const transport=dashboardTransport();const response=await fetch(new URL('/api/site/status',transport.base),{headers:transport.headers,redirect:'error',signal:AbortSignal.timeout(8000),cache:'no-store'});
    assertDashboardResponse(response);const data=JSON.parse(await boundedText(response.body,8192));
-   if(data.ok!==true||data.protocol!=='mistblossom.site-bridge.v2'||data.store!=='postgres'||data.schemas?.content!=='mistblossom.public-content.v2'||!Array.isArray(data.capabilities)||!data.capabilities.includes('sync:revisions:v1')||!data.capabilities.includes('guild:raid-history:v2')||!data.capabilities.includes('streamers:read:v1'))throw new BridgeError('invalid_schema');
-   await streamersSnapshot();
+   if(data.ok!==true||data.protocol!=='mistblossom.site-bridge.v2'||data.store!=='postgres'||data.schemas?.content!=='mistblossom.public-content.v2'||!Array.isArray(data.capabilities)||!data.capabilities.includes('sync:revisions:v1')||!data.capabilities.includes('guild:raid-history:v2'))throw new BridgeError('invalid_schema');
    return true;
   });
   return Response.json({ok:true,integration:'ready',service:'lihvodruida-site',api_base:SITE_API_BASE},{headers});
