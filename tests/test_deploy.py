@@ -18,6 +18,9 @@ scenario=os.environ.get('SCENARIO','ok')
 if args[:2]==['compose','version'] or args==['info']:sys.exit(0)
 if args[:2]==['network','inspect']:sys.exit(1 if scenario=='missing_network' else 0)
 if args[:2]==['image','tag']:sys.exit(0)
+if args[:2]==['image','ls']:
+    print(os.environ.get('FAKE_IMAGES','').replace(';','\n'));sys.exit(0)
+if args[:2]==['image','rm']:sys.exit(0)
 if args[0]=='inspect':
     fmt=args[args.index('--format')+1]
     cid=args[-1]
@@ -115,6 +118,25 @@ class DeploymentTests(unittest.TestCase):
         r=self.run_script()
         self.assertEqual(r.returncode,0,r.stderr)
         self.assertIsNone(self.actions('build')[0]['image'])
+    def test_successful_deploy_prunes_old_images_but_keeps_running_and_recent_rollbacks(self):
+        images=';'.join([
+            'lihvodruida-site:4.7.1 sha256:old-image',  # running image: never removed
+            'lihvodruida-site:4.6.0 sha256:v460',
+            'lihvodruida-site:4.5.0 sha256:v450',
+            'lihvodruida-site:rollback-20261120T100000-1 sha256:r1',
+            'lihvodruida-site:rollback-20261121T100000-2 sha256:r2',
+            'lihvodruida-site:rollback-20261122T100000-3 sha256:r3',
+            'lihvodruida-site:custom sha256:custom',  # unknown tag shape: left alone
+        ])
+        self.env['FAKE_IMAGES']=images
+        r=self.run_script()
+        self.assertEqual(r.returncode,0,r.stderr)
+        removed=[c['args'][2] for c in self.calls if c['args'][:2]==['image','rm']]
+        self.assertEqual(sorted(removed),['lihvodruida-site:4.5.0','lihvodruida-site:4.6.0','lihvodruida-site:rollback-20261120T100000-1'])
+    def test_failed_deploy_never_prunes_images(self):
+        self.env['FAKE_IMAGES']='lihvodruida-site:4.6.0 sha256:v460'
+        self.assertNotEqual(self.run_script('bad_health').returncode,0)
+        self.assertFalse([c for c in self.calls if c['args'][:2]==['image','rm']])
     def test_check_does_not_build_or_start(self):
         self.assertEqual(self.run_script(action='check').returncode,0)
         self.assertFalse(self.actions('build'));self.assertFalse(self.actions('up'))

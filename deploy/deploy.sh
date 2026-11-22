@@ -171,6 +171,31 @@ info 'Перевіряємо публічні маршрути через Cloudf
 "${compose[@]}" exec -T site node check-deployed.mjs
 rollback_active=0
 trap - ERR INT TERM
+# Each deploy adds a rollback tag and (by default) a new version tag. Without
+# cleanup they fill the VPS disk. Keep the running image, the newest
+# SITE_ROLLBACK_KEEP rollback tags and nothing else from this repository.
+# `docker image rm <tag>` only untags while another tag still references the
+# image, and Docker refuses to remove an image used by a container.
+prune_site_images() {
+  local keep="${SITE_ROLLBACK_KEEP:-2}" running_cid running_image listing tag image_id kept=0
+  [[ "$keep" =~ ^[0-9]+$ ]] && ((keep>=1 && keep<=10)) || keep=2
+  running_cid="$("${compose[@]}" ps --quiet site)" || return 0
+  [[ -n "$running_cid" && "$running_cid" != *$'\n'* ]] || return 0
+  running_image="$(docker inspect --format '{{.Image}}' "$running_cid")" || return 0
+  listing="$(docker image ls --no-trunc --format '{{.Repository}}:{{.Tag}} {{.ID}}' lihvodruida-site)" || return 0
+  # Rollback tags carry a UTC timestamp, so a reverse sort is newest first.
+  while read -r tag image_id; do
+    [[ -n "$tag" && "$image_id" != "$running_image" ]] || continue
+    if [[ "$tag" == lihvodruida-site:rollback-* ]]; then
+      if ((kept<keep)); then kept=$((kept+1)); continue; fi
+    elif [[ ! "$tag" =~ ^lihvodruida-site:[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+      continue
+    fi
+    docker image rm "$tag" >/dev/null 2>&1 && printf 'Прибрано старий образ: %s\n' "$tag" || true
+  done < <(printf '%s\n' "$listing" | sort -r)
+}
+info 'Прибираємо старі образи сайту.'
+prune_site_images || true
 info 'Деплой сайту завершено; healthcheck успішний.'
 "${compose[@]}" ps site
 printf '\nЛоги: make logs\nДомен і TLS: deploy/VPS.md\n'
