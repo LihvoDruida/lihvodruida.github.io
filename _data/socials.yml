@@ -1,4 +1,7 @@
+# Соцмережі Лігва Друїда: іконки у футері й мобільному меню, sameAs у structured data.
+# Порядок тут = порядок іконок. Ключ має бути одним із відомих у src/components/SocialLinks.tsx.
+telegram: "https://t.me/lihvo_druida"
 discord: "https://discord.gg/SR8JsQBCxn"
-tiktok: "https://www.tiktok.com/@lihvo_druida"
-twitch: "https://www.twitch.tv/lihvo_druida/about"
 youtube: "https://www.youtube.com/@lihvo_druida"
+twitch: "https://www.twitch.tv/lihvo_druida/about"
+tiktok: "https://www.tiktok.com/@lihvo_druida"
