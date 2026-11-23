@@ -1,0 +1,71 @@
+/* Navigation, header and social icons. Loaded after globals/guild-banner/motion and
+   overrides their header and menu rules in one place. */
+
+/* Header: frosted glass so page content never reads through it; deeper once scrolled. */
+body.site-with-guild-banner .site-header{background:rgba(12,10,7,.8);-webkit-backdrop-filter:blur(14px) saturate(140%);backdrop-filter:blur(14px) saturate(140%);transition:top .28s ease,background-color var(--motion-soft) ease,box-shadow var(--motion-soft) ease}
+html.guild-banner-collapsed body.site-with-guild-banner .site-header{background:rgba(12,10,7,.9);box-shadow:0 12px 32px rgba(0,0,0,.45)}
+
+/* Brand: small lift of the logo on hover. */
+.brand img{transition:transform var(--motion-soft) var(--ease-out)}
+.brand:hover img,.brand:focus-visible img{transform:rotate(-6deg) scale(1.05)}
+.brand:hover{color:var(--text)}
+
+/* Desktop links: colour fades, the active one keeps its accent rule. */
+.navigation a{transition:color var(--motion-fast) ease,border-color var(--motion-fast) ease}
+.navigation a:focus-visible{outline-offset:2px;border-radius:4px}
+.nav-socials{display:none}
+
+/* Menu button: three bars that morph into a cross. */
+.menu-toggle{display:none;align-items:center;gap:9px;min-height:40px;padding:9px 13px;transition:border-color var(--motion-fast) ease,background-color var(--motion-fast) ease,transform var(--motion-fast) ease}
+.menu-toggle:hover{border-color:var(--border-strong);background:rgba(255,155,85,.06)}
+.menu-toggle-icon{position:relative;display:block;width:18px;height:12px;flex:none}
+.menu-toggle-icon span{position:absolute;left:0;right:0;height:2px;border-radius:2px;background:currentColor;transition:transform var(--motion-soft) var(--ease-out),top var(--motion-soft) var(--ease-out),opacity var(--motion-fast) ease}
+.menu-toggle-icon span:nth-child(1){top:0}
+.menu-toggle-icon span:nth-child(2){top:5px}
+.menu-toggle-icon span:nth-child(3){top:10px}
+.menu-toggle[aria-expanded=true]{border-color:var(--border-strong)}
+.menu-toggle[aria-expanded=true] .menu-toggle-icon span:nth-child(1){top:5px;transform:rotate(45deg)}
+.menu-toggle[aria-expanded=true] .menu-toggle-icon span:nth-child(2){opacity:0;transform:scaleX(.2)}
+.menu-toggle[aria-expanded=true] .menu-toggle-icon span:nth-child(3){top:5px;transform:rotate(-45deg)}
+.menu-toggle-text{font-size:12px;font-weight:600;letter-spacing:.02em}
+
+/* Dimmed page behind the open drawer. */
+.nav-backdrop{display:none}
+
+/* Social icon buttons (footer and drawer). */
+.social-links,.nav-socials{gap:10px;margin:20px 0 0;padding:0;list-style:none;text-transform:none}
+.social-links{display:flex;flex-wrap:wrap}
+:is(.social-links,.nav-socials) .social-link{display:grid;min-height:0;padding:0;place-items:center;width:42px;height:42px;border:1px solid var(--border);border-radius:50%;color:var(--muted);background:rgba(255,255,255,.02);transition:color var(--motion-fast) ease,border-color var(--motion-fast) ease,background-color var(--motion-fast) ease,transform var(--motion-soft) var(--ease-out),box-shadow var(--motion-soft) ease}
+:is(.social-links,.nav-socials) .social-link:hover,:is(.social-links,.nav-socials) .social-link:focus-visible{color:var(--accent);border-color:var(--border-strong);background:rgba(255,155,85,.08);transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.4)}
+:is(.social-links,.nav-socials) .social-link:active{transform:translateY(0) scale(.95)}
+.social-icon{display:block}
+
+@media(max-width:800px){
+ .menu-toggle{display:inline-flex}
+ /* Drawer stays in the layout so it can animate both ways; hidden state is inert to pointer and AT. */
+ .navigation,.navigation.is-open{display:flex;flex-direction:column;align-items:stretch;gap:0;position:absolute;top:100%;left:0;right:0;padding:10px 24px 22px;background:rgba(14,11,8,.97);border-bottom:1px solid var(--border);box-shadow:0 24px 40px rgba(0,0,0,.55);animation:none}
+ .navigation{visibility:hidden;opacity:0;transform:translateY(-10px);pointer-events:none;transition:opacity var(--motion-soft) var(--ease-out),transform var(--motion-soft) var(--ease-out),visibility 0s linear var(--motion-soft)}
+ .navigation.is-open{visibility:visible;opacity:1;transform:none;pointer-events:auto;transition-delay:0s}
+ .navigation>a{display:flex;align-items:center;min-height:50px;padding:0 12px;border-bottom:1px solid var(--border);border-radius:0;opacity:0;transform:translateX(-10px);transition:opacity var(--motion-soft) ease,transform var(--motion-slow) var(--ease-out),color var(--motion-fast) ease,background-color var(--motion-fast) ease,box-shadow var(--motion-fast) ease}
+ .navigation.is-open>a{opacity:1;transform:none;transition-delay:calc(var(--nav-index,0) * 40ms + 60ms)}
+ .navigation>a::after{display:none}
+ .navigation>a:hover{background:rgba(255,255,255,.03)}
+ .navigation>a[aria-current=page]{color:var(--accent);border-bottom-color:var(--border);box-shadow:inset 3px 0 0 var(--accent);background:linear-gradient(90deg,rgba(255,155,85,.1),transparent 70%)}
+ .navigation .nav-support{border-bottom:none}
+ .nav-socials{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;padding:16px 12px 0;border-top:1px solid var(--border);opacity:0;transition:opacity var(--motion-soft) ease}
+ .navigation.is-open .nav-socials{opacity:1;transition-delay:280ms}
+ .nav-backdrop{display:block;position:fixed;inset:0;z-index:45;background:rgba(5,4,3,.6);opacity:0;visibility:hidden;transition:opacity var(--motion-soft) ease,visibility 0s linear var(--motion-soft)}
+ .nav-backdrop[data-open]{opacity:1;visibility:visible;transition-delay:0s}
+ html.site-nav-open,html.site-nav-open body{overflow:hidden;overscroll-behavior:none}
+}
+
+@media(max-width:540px){
+ .menu-toggle{padding:9px 11px}
+ .menu-toggle-text{display:none}
+ .navigation,.navigation.is-open{padding:6px 18px 20px}
+}
+
+@media(prefers-reduced-motion:reduce){
+ .navigation,.navigation>a,.nav-socials,.nav-backdrop,.menu-toggle-icon span,.social-link,.brand img,body.site-with-guild-banner .site-header{transition:none!important}
+ .navigation>a{transform:none}
+}
